@@ -46,3 +46,25 @@ class Levenshtein(object):
     def distance(self):
         return self._distance
 
+class NormalizedLevenshtein(object):
+
+    _similarity = 0
+    _distance = 0
+
+    def __init__(self, s1, s2):
+        lev = Levenshtein(s1, s2)
+
+        n1, n2 = len(s1), len(s2)
+        max_len = max(n1, n2)
+        if max_len == 0:
+            return # same as the Levenshtein
+
+        self._distance = float(lev.distance()) / max_len
+        self._similarity = 1 - self._distance
+
+
+    def similarity(self):
+        return self._similarity
+
+    def distance(self):
+        return self._distance

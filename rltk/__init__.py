@@ -1,9 +1,10 @@
-from .levenshtein import Levenshtein
+import levenshtein
 
 class RLTK():
 
     _CLASSES = {
         'levenshtein': levenshtein.Levenshtein,
+        'normalized_levenshtein': levenshtein.NormalizedLevenshtein,
     }
 
     def __init__(self):
