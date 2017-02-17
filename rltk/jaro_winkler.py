@@ -1,4 +1,5 @@
 import math
+import utils
 
 class JaroWinkler(object):
     """
@@ -8,8 +9,8 @@ class JaroWinkler(object):
     _similarity = 0
 
     def __init__(self, s1, s2, threshold = 0.7, scaling_factor = 0.1):
-        if s1 is None or s2 is None:
-            raise ValueError('Empty parameter')
+        utils.check_for_none(s1, s2)
+        utils.check_for_type(str, s1, s2)
 
         jaro = self._jaro_distance(s1, s2)
         if jaro > threshold:

@@ -1,3 +1,5 @@
+import utils
+
 class Levenshtein(object):
 
     _similarity = 0
@@ -24,8 +26,8 @@ class Levenshtein(object):
                     lev_matrix[i2][i1] = elem
             return lev_matrix[-1][-1]
 
-        if s1 is None or s2 is None:
-            raise ValueError('Empty parameter')
+        utils.check_for_none(s1, s2)
+        utils.check_for_type(str, s1, s2)
 
         n1, n2 = len(s1), len(s2)
         if n1 == 0 and n2 == 0:
