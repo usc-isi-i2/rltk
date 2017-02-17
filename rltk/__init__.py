@@ -1,5 +1,6 @@
 import levenshtein
 import jaro_winkler
+import jaccard
 
 class RLTK():
 
@@ -7,6 +8,7 @@ class RLTK():
         'levenshtein': levenshtein.Levenshtein,
         'normalized_levenshtein': levenshtein.NormalizedLevenshtein,
         'jaro_winkler': jaro_winkler.JaroWinkler,
+        'jaccard_index': jaccard.JaccardIndex,
     }
 
     def __init__(self):

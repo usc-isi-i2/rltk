@@ -26,7 +26,6 @@ class Levenshtein(object):
 
         if s1 is None or s2 is None:
             raise ValueError('Empty parameter')
-            return
 
         n1, n2 = len(s1), len(s2)
         if n1 == 0 and n2 == 0:
