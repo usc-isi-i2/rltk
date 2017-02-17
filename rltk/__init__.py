@@ -1,10 +1,12 @@
 import levenshtein
+import jaro_winkler
 
 class RLTK():
 
     _CLASSES = {
         'levenshtein': levenshtein.Levenshtein,
         'normalized_levenshtein': levenshtein.NormalizedLevenshtein,
+        'jaro_winkler': jaro_winkler.JaroWinkler,
     }
 
     def __init__(self):

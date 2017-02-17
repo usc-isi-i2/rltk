@@ -25,7 +25,7 @@ class Levenshtein(object):
             return lev_matrix[-1][-1]
 
         if s1 is None or s2 is None:
-            raise ValueError()
+            raise ValueError('Empty parameter')
             return
 
         n1, n2 = len(s1), len(s2)

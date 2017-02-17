@@ -9,7 +9,7 @@ class JaroWinkler(object):
 
     def __init__(self, s1, s2, threshold = 0.7, scaling_factor = 0.1):
         if s1 is None or s2 is None:
-            raise ValueError()
+            raise ValueError('Empty parameter')
             return
 
         jaro = self._jaro_distance(s1, s2)
