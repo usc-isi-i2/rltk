@@ -1,6 +1,7 @@
 import levenshtein
 import jaro_winkler
 import jaccard
+import cosine
 
 class RLTK():
 
@@ -9,6 +10,7 @@ class RLTK():
         'normalized_levenshtein': levenshtein.NormalizedLevenshtein,
         'jaro_winkler': jaro_winkler.JaroWinkler,
         'jaccard_index': jaccard.JaccardIndex,
+        'cosine': cosine.Cosine,
     }
 
     def __init__(self):

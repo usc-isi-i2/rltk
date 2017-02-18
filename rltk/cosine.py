@@ -1,6 +1,7 @@
+import math
 import utils
 
-class JaccardIndex(object):
+class Cosine(object):
 
     _similarity = 0
 
@@ -8,7 +9,7 @@ class JaccardIndex(object):
         utils.check_for_none(set1, set2)
         utils.check_for_type(set, set1, set2)
 
-        self._similarity = float(len(set1 & set2)) / float(len(set1 | set2))
+        self._similarity = float(len(set1 & set2)) / (math.sqrt(float(len(set1))) * math.sqrt(float(len(set2))))
 
     def similarity(self):
         return self._similarity
