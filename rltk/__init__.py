@@ -2,6 +2,7 @@ import levenshtein
 import jaro_winkler
 import jaccard
 import cosine
+import tf_idf
 
 class RLTK():
 
@@ -11,6 +12,7 @@ class RLTK():
         'jaro_winkler': jaro_winkler.JaroWinkler,
         'jaccard_index': jaccard.JaccardIndex,
         'cosine': cosine.Cosine,
+        'tf_idf': tf_idf.TfIdf,
     }
 
     def __init__(self):
