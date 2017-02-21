@@ -1,6 +1,8 @@
-import utils
 import collections
 import math
+
+import utils
+
 
 class TfIdf(object):
     _similarity = 0

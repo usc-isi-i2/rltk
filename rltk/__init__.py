@@ -1,18 +1,16 @@
-import levenshtein
-import jaro_winkler
-import jaccard
-import cosine
-import tf_idf
+import string_similarity
+
 
 class RLTK():
 
     _CLASSES = {
-        'levenshtein': levenshtein.Levenshtein,
-        'normalized_levenshtein': levenshtein.NormalizedLevenshtein,
-        'jaro_winkler': jaro_winkler.JaroWinkler,
-        'jaccard_index': jaccard.JaccardIndex,
-        'cosine': cosine.Cosine,
-        'tf_idf': tf_idf.TfIdf,
+        # string similarity
+        'levenshtein': string_similarity.levenshtein.Levenshtein,
+        'normalized_levenshtein': string_similarity.levenshtein.NormalizedLevenshtein,
+        'jaro_winkler': string_similarity.jaro_winkler.JaroWinkler,
+        'jaccard_index': string_similarity.jaccard.JaccardIndex,
+        'cosine': string_similarity.cosine.Cosine,
+        'tf_idf': string_similarity.tf_idf.TfIdf,
     }
 
     def __init__(self):

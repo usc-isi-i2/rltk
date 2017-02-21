@@ -1,7 +1,8 @@
 import pytest
 
-from ..tokenizer import q_grams
-from ..levenshtein import Levenshtein, NormalizedLevenshtein
+from ..string_similarity.tokenizer import q_grams
+from ..string_similarity.levenshtein import Levenshtein
+
 
 def test_q_grams():
     assert q_grams('abc', 3) == ['##a', '#ab', 'abc', 'bc#', 'c##']

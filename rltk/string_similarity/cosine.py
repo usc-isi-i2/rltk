@@ -1,5 +1,7 @@
 import math
+
 import utils
+
 
 class Cosine(object):
 
