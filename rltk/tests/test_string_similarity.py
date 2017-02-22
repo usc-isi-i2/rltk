@@ -41,6 +41,24 @@ def test_levenshtein(s1, s2, distance, similarity):
         assert levenshtein_similarity(s1, s2) == similarity
 
 @pytest.mark.parametrize('s1, s2, distance', [
+    ('', '', 0),
+    ('abc', '', 3),
+    ('bc', 'abc', 1),
+    ('fuor', 'four', 1),
+    ('abcd', 'acb', 2),
+    ('cape sand recycling', 'edith ann graham', 16),
+    ('jellyifhs', 'jellyfish', 2),
+    ('ifhs', 'fish', 2),
+    ('Hello, world!', u'Hello,Â world!', 2),
+])
+def test_damerau_levenshtein(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            damerau_levenshtein_distance(s1, s2)
+    else:
+        assert damerau_levenshtein_distance(s1, s2) == distance
+
+@pytest.mark.parametrize('s1, s2, distance', [
     ('dixon', 'dicksonx', 0.767),
     ('martha', 'marhta', 0.944),
     ('dwayne', 'duane', 0.822),
