@@ -1,18 +1,17 @@
 import utils
 
-class JaccardIndex(object):
+def _jaccard_index(set1, set2):
+    utils.check_for_none(set1, set2)
+    utils.check_for_type(set, set1, set2)
 
-    _similarity = 0
+    if len(set1) == 0 or len(set2) == 0:
+        return 0
 
-    def __init__(self, set1, set2):
-        utils.check_for_none(set1, set2)
-        utils.check_for_type(set, set1, set2)
+    return float(len(set1 & set2)) / float(len(set1 | set2))
 
-        self._similarity = float(len(set1 & set2)) / float(len(set1 | set2))
+def jaccard_index_similarity(set1, set2):
+    return _jaccard_index(set1, set2)
 
-    def similarity(self):
-        return self._similarity
-
-    def distance(self):
-        return 1 - self._similarity
+def jaccard_index_distance(set1, set2):
+    return 1 - jaccard_index_similarity(set1, set2)
 

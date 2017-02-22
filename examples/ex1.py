@@ -1,24 +1,15 @@
 import rltk
 
-tk = rltk.init()
+tk = rltk
 
-r = tk.levenshtein('abc', 'def')
-print r.similarity(), r.distance()
-r = tk.levenshtein('aaa', 'aaa')
-print r.similarity(), r.distance()
-r = tk.levenshtein('aaa', '')
-print r.similarity(), r.distance()
-r = tk.levenshtein('', '')
-print r.similarity(), r.distance(), '\n'
+print tk.levenshtein_similarity('abc', 'def')
+print tk.levenshtein_similarity('aaa', 'aaa')
+print tk.levenshtein_similarity('aaa', '')
+print tk.levenshtein_similarity('', '')
 
-r = tk.normalized_levenshtein('apple', 'pineapple')
-print r.similarity(), r.distance()
-r = tk.normalized_levenshtein('aaa', '')
-print r.similarity(), r.distance(), '\n'
+print tk.normalized_levenshtein_similarity('apple', 'pineapple')
+print tk.normalized_levenshtein_similarity('aaa', '')
 
-r = tk.jaro_winkler('My string', 'My tsring')
-print r.similarity(), r.distance()
-r = tk.jaro_winkler('My string', 'My ntrisg')
-print r.similarity(), r.distance()
-r = tk.jaro_winkler('My string', 'My stirng')
-print r.similarity(), r.distance()
+print tk.jaro_winkler_similarity('My string', 'My tsring')
+print tk.jaro_winkler_similarity('My string', 'My ntrisg')
+print tk.jaro_winkler_similarity('My string', 'My stirng')
