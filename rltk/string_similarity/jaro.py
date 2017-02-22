@@ -22,7 +22,7 @@ def _jaro_distance(s1, s2):
     code from Jean-Bernard Ratte@github https://github.com/nap/jaro-winkler-distance
     """
     utils.check_for_none(s1, s2)
-    utils.check_for_type(str, s1, s2)
+    utils.check_for_type(basestring, s1, s2)
 
     shorter, longer = s1.lower(), s2.lower()
 

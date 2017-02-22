@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 
 from ..string_similarity.tokenizer import q_grams
@@ -5,6 +7,22 @@ from ..string_similarity import *
 
 def test_q_grams():
     assert q_grams('abc', 3) == ['##a', '#ab', 'abc', 'bc#', 'c##']
+
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('abc', 'abc', 0),
+    ('acc', 'abcd', None),
+    ('testing', 'test', None),
+    ('hello~', 'alloha', 5)
+])
+def test_hamming_distance(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            hamming_distance(s1, s2)
+    if len(s1) != len(s2):
+        with pytest.raises(ValueError):
+            hamming_distance(s1, s2)
+    else:
+        assert hamming_distance(s1, s2) == distance
 
 @pytest.mark.parametrize('s1, s2, distance, similarity', [
     ('abc', 'def', 3, 0.0),
@@ -14,37 +32,165 @@ def test_q_grams():
 ])
 def test_levenshtein(s1, s2, distance, similarity):
     if s1 is None or s2 is None:
-        with pytest.raises(ValueError) as ex:
+        with pytest.raises(ValueError):
             levenshtein_similarity(s1, s2)
-        with pytest.raises(ValueError) as ex:
+        with pytest.raises(ValueError):
             levenshtein_distance(s1, s2)
     else:
         assert levenshtein_distance(s1, s2) == distance
         assert levenshtein_similarity(s1, s2) == similarity
 
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('dixon', 'dicksonx', 0.767),
+    ('martha', 'marhta', 0.944),
+    ('dwayne', 'duane', 0.822),
+    (u'0ð00', u'0ð00', 1)
+])
+def test_jaro_distance(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(TypeError):
+            jaro_distance(s1, s2)
+    else:
+        assert pytest.approx(jaro_distance(s1, s2), 0.001) == distance
+
+@pytest.mark.parametrize('s1, s2, similarity', [
+    ('dixon', 'dicksonx', 0.813),
+    ('martha', 'marhta', 0.961),
+    ('dwayne', 'duane', 0.84),
+    ('William', 'Williams', 0.975),
+    ('', 'foo', 0),
+    ('a', 'a', 1),
+    ('abc', 'xyz', 0)
+])
+def test_jaro_winkler(s1, s2, similarity):
+    if s1 is None or s2 is None:
+        with pytest.raises(TypeError):
+            jaro_winkler_similarity(s1, s2)
+    else:
+        assert pytest.approx(jaro_winkler_similarity(s1, s2), 0.001) == similarity
+
 @pytest.mark.parametrize('s, code', [
-    ('Soundex',    'S532'), ('Example',     'E251'),
-    ('Sownteks',   'S532'), ('Ekzampul',    'E251'),
-    ('Euler',      'E460'), ('Gauss',       'G200'),
-    ('Hilbert',    'H416'), ('Knuth',       'K530'),
-    ('Lloyd',      'L300'), ('Lukasiewicz', 'L222'),
-    ('Ellery',     'E460'), ('Ghosh',       'G200'),
-    ('Heilbronn',  'H416'), ('Kant',        'K530'),
-    ('Ladd',       'L300'), ('Lissajous',   'L222'),
-    ('Wheaton',    'W350'), ('Burroughs',   'B620'),
-    ('Burrows',    'B620'), ('O\'Hara',     'O600'),
-    ('Washington', 'W252'), ('Lee',         'L000'),
-    ('Gutierrez',  'G362'), ('Pfister',     'P236'),
-    ('Jackson',    'J250'), ('Tymczak',     'T522'),
-    ('VanDeusen',  'V532'), ('Ashcraft',    'A261'),
-    ('Gutierrez',  'G362'),
+    ('Soundex','S532'),
+    ('Example', 'E251'),
+    ('Sownteks', 'S532'),
+    ('Ekzampul','E251'),
+    ('Euler', 'E460'),
+    ('Gauss', 'G200'),
+    ('Hilbert','H416'),
+    ('Knuth', 'K530'),
+    ('Lloyd', 'L300'),
+    ('Lukasiewicz', 'L222'),
+    ('Ellery', 'E460'),
+    ('Ghosh', 'G200'),
+    ('Heilbronn', 'H416'),
+    ('Kant','K530'),
+    ('Ladd', 'L300'),
+    ('Lissajous', 'L222'),
+    ('Wheaton','W350'),
+    ('Burroughs', 'B620'),
+    ('Burrows','B620'),
+    ('O\'Hara', 'O600'),
+    ('Washington', 'W252'),
+    ('Lee', 'L000'),
+    ('Gutierrez', 'G362'),
+    ('Pfister', 'P236'),
+    ('Jackson','J250'),
+    ('Tymczak', 'T522'),
+    ('VanDeusen', 'V532'),
+    ('Ashcraft','A261'),
+    ('Gutierrez', 'G362'),
+    (u'Çáŕẗéř', 'C636'),
 ])
 def test_soundex(s, code):
     if s is None:
-        with pytest.raises(ValueError) as ex:
+        with pytest.raises(ValueError):
             soundex(s)
     if isinstance(s, int):
-        with pytest.raises(TypeError) as ex:
+        with pytest.raises(TypeError):
             soundex(s)
     else:
         assert soundex(s) == code
+
+@pytest.mark.parametrize('s, code', [
+    ('DGIB','JB'),
+    ('metaphone','MTFN'),
+    ('wHErE','WR'),
+    ('shell','XL'),
+    ('this is a difficult string','0S IS A TFKLT STRNK'),
+    ('aeromancy','ERMNS'),
+    ('Antidisestablishmentarianism','ANTTSSTBLXMNTRNSM'),
+    ('sunlight labs','SNLT LBS'),
+    ('sonlite laabz','SNLT LBS'),
+    (u'Çáŕẗéř','KRTR'),
+    ('kentucky','KNTK'),
+    ('KENTUCKY','KNTK'),
+    ('NXNXNX','NKSNKSNKS'),
+    ('Aapti','PT'),
+    ('Aarti','RT'),
+    ('CIAB','XB'),
+    ('NQ','NK'),
+    ('sian','XN'),
+    ('gek','JK'),
+    ('Hb','HB'),
+    ('Bho','BH'),
+    ('Tiavyi','XFY'),
+    ('Xhot','XHT'),
+    ('Xnot','SNT'),
+    ('g','K'),
+    ('8 queens','KNS'),
+    ('Utah','UT'),
+    ('WH','W')
+])
+def test_metaphone(s, code):
+    if s is None:
+        with pytest.raises(ValueError):
+            metaphone(s)
+    if isinstance(s, int):
+        with pytest.raises(TypeError):
+            metaphone(s)
+    else:
+        assert metaphone(s) == code
+
+@pytest.mark.parametrize('s, code', [
+    ('Worthy','WARTY'),
+    ('Ogata','OGAT'),
+    ('montgomery','MANTGANARY'),
+    ('Costales','CASTAL'),
+    ('Tu','T'),
+    ('martincevic','MARTANCAFAC'),
+    ('Catherine','CATARAN'),
+    ('Katherine','CATARAN'),
+    ('Katerina','CATARAN'),
+    ('Johnathan','JANATAN'),
+    ('Jonathan','JANATAN'),
+    ('John','JAN'),
+    ('Teresa','TARAS'),
+    ('Theresa','TARAS'),
+    ('Jessica','JASAC'),
+    ('Joshua','JAS'),
+    ('Bosch','BAS'),
+    ('Lapher','LAFAR'),
+    ('wiyh','WY'),
+    ('MacArthur','MCARTAR'),
+    ('Pheenard','FANAD'),
+    ('Schmittie','SNATY'),
+    ('Knaqze','NAGS'),
+    ('Knokno','NAN'),
+    ('Knoko','NAC'),
+    ('Macaw','MC'),
+    ('T','T'),
+    ('S','S'),
+    ('P','P'),
+    ('K','C'),
+    ('M','M'),
+    ('E','E')
+])
+def test_nysiis(s, code):
+    if s is None:
+        with pytest.raises(ValueError):
+            nysiis(s)
+    if isinstance(s, int):
+        with pytest.raises(TypeError):
+            nysiis(s)
+    else:
+        assert nysiis(s) == code

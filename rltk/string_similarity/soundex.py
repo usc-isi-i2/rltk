@@ -11,8 +11,7 @@ def soundex(s):
     utils.check_for_none(s)
     utils.check_for_type(basestring, s)
 
-    if isinstance(s, unicode):
-        s = unicodedata.normalize('NFKD', s)
+    s = utils.unicode_normalize(s)
 
     if len(s) == 0:
         raise ValueError('Empty string')
