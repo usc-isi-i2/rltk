@@ -2,13 +2,8 @@ from collections import defaultdict
 
 import utils
 
-def _levenshtein(s1, s2):
-    """
-    code modifed from niR@github https://github.com/pupuhime
-    time: O(n1*n2)
-    space: O(n1*n2)
-    """
-
+def _levenshtein(s1, s2, insert, delete, substitute,
+                 insert_default, delete_default, substitute_default):
     utils.check_for_none(s1, s2)
     utils.check_for_type(str, s1, s2)
 
@@ -19,29 +14,47 @@ def _levenshtein(s1, s2):
     if n1 == 0 and n2 == 0:
         return 0
 
-    if n1 == 0 or n2 == 0:
-        return max(n1, n2)
+    # if n1 == 0 or n2 == 0:
+    #     return max(n1, n2)
 
-    lev_matrix = [[0 for i1 in range(n1 + 1)] for i2 in range(n2 + 1)]
-    for i1 in range(1, n1 + 1):
-        lev_matrix[0][i1] = i1
-    for i2 in range(1, n2 + 1):
-        lev_matrix[i2][0] = i2
-    for i2 in range(1, n2 + 1):
-        for i1 in range(1, n1 + 1):
-            cost = 0 if s1[i1 - 1] == s2[i2 - 1] else 1
-            elem = min(lev_matrix[i2 - 1][i1] + 1,
-                       lev_matrix[i2][i1 - 1] + 1,
-                       lev_matrix[i2 - 1][i1 - 1] + cost)
-            lev_matrix[i2][i1] = elem
-    return lev_matrix[-1][-1]
+    dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+    for i in xrange(n1 + 1):
+        for j in xrange(n2 + 1):
+            if i == 0 and j == 0: # [0,0]
+                continue
+            if i == 0: # most top row
+                c = s2[j-1]
+                dp[i][j] = insert[c] if c in insert else insert_default
+                dp[i][j] += dp[i][j-1]
+            elif j == 0: # most left column
+                c = s1[i-1]
+                dp[i][j] = delete[c] if c in delete else delete_default
+                dp[i][j] += dp[i-1][j]
+            else:
+                c1, c2 = s1[i-1], s2[j-1]
+                insert_cost = insert[c2] if c2 in insert else insert_default
+                delete_cost = delete[c1] if c1 in delete else delete_default
+                substitute_cost = substitute[c1][c2] \
+                    if c1 in substitute and c2 in substitute[c1] else substitute_default
 
-def levenshtein_similarity(s1, s2):
-    lev = _levenshtein(s1, s2)
+                if c1 == c2:
+                    dp[i][j] = dp[i-1][j-1]
+                else:
+                    dp[i][j] = min(dp[i][j-1] + insert_cost,
+                                   dp[i-1][j] + delete_cost,
+                                   dp[i-1][j-1] + substitute_cost)
+    return dp[n1][n2]
+
+def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
+                           insert_default=1, delete_default=1, substitute_default=1):
+    lev = _levenshtein(s1, s2, insert, delete, substitute,
+                           insert_default, delete_default, substitute_default)
     return 1 - float(lev) / max(len(s1), len(s2)) if lev != 0 else 1
 
-def levenshtein_distance(s1, s2):
-    return _levenshtein(s1, s2)
+def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
+                           insert_default=1, delete_default=1, substitute_default=1):
+    return _levenshtein(s1, s2, insert, delete, substitute,
+                           insert_default, delete_default, substitute_default)
 
 
 def _normalized_levenshtein(s1, s2):

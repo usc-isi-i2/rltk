@@ -40,6 +40,25 @@ def test_levenshtein(s1, s2, distance, similarity):
         assert levenshtein_distance(s1, s2) == distance
         assert levenshtein_similarity(s1, s2) == similarity
 
+@pytest.mark.parametrize('s1, s2, insert, delete, substitute,'
+                         'insert_default, delete_default, substitute_default, distance', [
+    ('', 'abc', {'c':50}, {}, {}, 100, 100, 100, 250),
+    ('a', 'abc', {'c':50}, {}, {}, 100, 100, 100, 150),
+    ('ab', 'abc', {'c':50}, {}, {}, 100, 100, 100, 50),
+    ('abc', 'abc', {'c':50}, {}, {}, 100, 100, 100, 0),
+    ('abcd', 'abc', {}, {'d':50}, {}, 100, 100, 100, 50),
+    ('abd', 'abc', {}, {}, {'d':{'c':50}}, 100, 100, 100, 50),
+])
+def test_weighted_levenshtein(s1, s2, insert, delete, substitute,
+                 insert_default, delete_default, substitute_default, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            levenshtein_distance(s1, s2, insert, delete, substitute,
+                 insert_default, delete_default, substitute_default)
+    else:
+        assert levenshtein_distance(s1, s2, insert, delete, substitute,
+                 insert_default, delete_default, substitute_default) == distance
+
 @pytest.mark.parametrize('s1, s2, distance', [
     ('', '', 0),
     ('abc', '', 3),
