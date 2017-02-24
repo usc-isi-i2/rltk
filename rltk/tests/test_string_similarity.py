@@ -2,8 +2,8 @@
 
 import pytest
 
-from ..string_similarity.tokenizer import q_grams
-from ..string_similarity import *
+from ..similarity.tokenizer import q_grams
+from ..similarity import *
 
 def test_q_grams():
     assert q_grams('abc', 3) == ['##a', '#ab', 'abc', 'bc#', 'c##']
