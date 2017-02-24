@@ -53,15 +53,15 @@ def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
     Args:
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
-        insert (dict(str, int)): Insert cost of characters. Defaults to empty dict.
-        delete (dict(str, int)): Delete cost of characters. Defaults to empty dict.
+        insert (dict(str, int), optional): Insert cost of characters. Defaults to empty dict.
+        delete (dict(str, int), optional): Delete cost of characters. Defaults to empty dict.
         substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
         insert_default (int, optional): Default value of insert cost. Defaults to 1.
         delete_default (int, optional): Default value of delete cost. Defaults to 1.
         substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
 
     Returns:
-        int: Levenshtein Similarity between [0.0, 1.0].
+        float: Levenshtein Similarity between [0.0, 1.0].
     """
 
     return 1 - _normalized_levenshtein(s1, s2, insert, delete, substitute,
@@ -75,8 +75,8 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     Args:
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
-        insert (dict(str, int)): Insert cost of characters. Defaults to empty dict.
-        delete (dict(str, int)): Delete cost of characters. Defaults to empty dict.
+        insert (dict(str, int), optional): Insert cost of characters. Defaults to empty dict.
+        delete (dict(str, int), optional): Delete cost of characters. Defaults to empty dict.
         substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
         insert_default (int, optional): Default value of insert cost. Defaults to 1.
         delete_default (int, optional): Default value of delete cost. Defaults to 1.
@@ -116,15 +116,15 @@ def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     Args:
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
-        insert (dict(str, int)): Insert cost of characters. Defaults to empty dict.
-        delete (dict(str, int)): Delete cost of characters. Defaults to empty dict.
+        insert (dict(str, int), optional): Insert cost of characters. Defaults to empty dict.
+        delete (dict(str, int), optional): Delete cost of characters. Defaults to empty dict.
         substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
         insert_default (int, optional): Default value of insert cost. Defaults to 1.
         delete_default (int, optional): Default value of delete cost. Defaults to 1.
         substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
 
     Returns:
-        int: Normalized Levenshtein Distance between [0.0, 1.0].
+        float: Normalized Levenshtein Distance between [0.0, 1.0].
 
     Examples:
         >>> rltk.normalized_levenshtein_distance('ab', 'abc')
@@ -145,7 +145,7 @@ def damerau_levenshtein_distance(s1, s2):
         s2 (str): Sequence 2.
 
     Returns:
-        int: Damerau Levenshtein Distance.
+        float: Damerau Levenshtein Distance.
 
     Examples:
         >>> rltk.damerau_levenshtein_distance('abcd', 'acbd')

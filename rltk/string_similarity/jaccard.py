@@ -18,7 +18,7 @@ def jaccard_index_similarity(set1, set2):
         set2 (set): Set 2.
 
     Returns:
-        int: Jaccard Index similarity.
+        float: Jaccard Index similarity.
 
     Examples:
         >>> rltk.jaccard_index_similarity(set(['a','b']), set(['a','c']))

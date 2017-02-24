@@ -2,8 +2,22 @@ import utils
 
 def metaphone(s):
     """
-    code from https://github.com/jamesturk/jellyfish
+    Metaphone fundamentally improves on the Soundex algorithm by using information about variations and inconsistencies in English spelling and pronunciation to produce a more accurate encoding, which does a better job of matching words and names which sound similar. As with Soundex, similar-sounding words should share the same keys. Metaphone is available as a built-in operator in a number of systems.
+
+    Args:
+        s (str): Sequence.
+
+    Returns:
+        str: Coded sequence.
+
+    Examples:
+        >>> rltk.metaphone('ashcraft')
+        'AXKRFT'
+        >>> rltk.metaphone('pineapple')
+        'PNPL'
     """
+    # code from https://github.com/jamesturk/jellyfish
+
     utils.check_for_none(s)
     utils.check_for_type(basestring, s)
 

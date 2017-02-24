@@ -2,8 +2,23 @@ import utils
 
 def nysiis(s):
     """
-    code from https://github.com/jamesturk/jellyfish
+    New York State Immunization Information System (NYSIIS) Phonetic Code is a phonetic algorithm created by `The New York State Department of Health's (NYSDOH) Bureau of Immunization
+    <https://www.health.ny.gov/prevention/immunization/information_system/>`_.
+
+    Args:
+        s (str): Sequence.
+
+    Returns:
+        str: Coded sequence.
+
+    Examples:
+        >>> rltk.metaphone('ashcraft')
+        'AXKRFT'
+        >>> rltk.metaphone('pineapple')
+        'PNPL'
     """
+    # code from https://github.com/jamesturk/jellyfish
+
     utils.check_for_none(s)
     utils.check_for_type(basestring, s)
 

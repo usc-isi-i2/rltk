@@ -19,7 +19,7 @@ def cosine_similarity(set1, set2):
         set2 (set): Set 2.
 
     Returns:
-        int: Consine similarity in range [0.0, 1.0].
+        float: Consine similarity in range [0.0, 1.0].
 
     Examples:
         >>> rltk.cosine_similarity(set([1,2]), set([3,4]))

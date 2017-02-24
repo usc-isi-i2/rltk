@@ -15,13 +15,11 @@ def jaro_winkler_similarity(s1, s2, threshold = 0.7, scaling_factor = 0.1):
     Args:
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
-        threshold (int, optional): Boost threshold, prefix bonus is only added when compared strings have a Jaro
-        Distance above it. Defaults to 0.7.
-        scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards for having common
-        prefixes. Defaults to 0.1.
+        threshold (int, optional): Boost threshold, prefix bonus is only added when compared strings have a Jaro Distance above it. Defaults to 0.7.
+        scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards for having common prefixes. Defaults to 0.1.
 
     Returns:
-        int: Jaro Winkler Similarity.
+        float: Jaro Winkler Similarity.
 
     Examples:
         >>> rltk.jaro_winkler_similarity('abchello', 'abcworld')
@@ -38,13 +36,11 @@ def jaro_winkler_distance(s1, s2, threshold = 0.7, scaling_factor = 0.1):
         Args:
             s1 (str): Sequence 1.
             s2 (str): Sequence 2.
-            threshold (int, optional): Boost threshold, prefix bonus is only added when compared strings have a Jaro
-            Distance above it. Defaults to 0.7.
-            scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards for having common
-            prefixes. Defaults to 0.1.
+            threshold (int, optional): Boost threshold, prefix bonus is only added when compared strings have a Jaro Distance above it. Defaults to 0.7.
+            scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards for having common prefixes. Defaults to 0.1.
 
         Returns:
-            int: Jaro Winkler Similarity.
+            float: Jaro Winkler Similarity.
 
         Examples:
             >>> rltk.jaro_winkler_similarity('abchello', 'abcworld')
@@ -61,7 +57,7 @@ def jaro_distance(s1, s2):
         s2 (str): Sequence 2.
 
     Returns:
-        int: Jaro Distance.
+        float: Jaro Distance.
 
     Examples:
         >>> rltk.jaro_distance('abc', 'abd')
