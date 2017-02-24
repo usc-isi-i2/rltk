@@ -2,8 +2,19 @@ import utils
 
 def soundex(s):
     """
-    U.S. Census soundex
-    https://www.archives.gov/research/census/soundex.html
+    The standard used for this implementation is provided by `U.S. Census Bureau <https://www.archives.gov/research/census/soundex.html>`_.
+
+    Args:
+        s (str): Sequence.
+
+    Returns:
+        str: Coded sequence.
+
+    Examples:
+        >>> rltk.soundex('ashcraft')
+        'A261'
+        >>> rltk.soundex('pineapple')
+        'P514'
     """
 
     utils.check_for_none(s)

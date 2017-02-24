@@ -22,7 +22,7 @@ def _levenshtein(s1, s2, insert, delete, substitute,
         for j in xrange(n2 + 1):
             if i == 0 and j == 0: # [0,0]
                 continue
-            if i == 0: # most top row
+            elif i == 0: # most top row
                 c = s2[j-1]
                 dp[i][j] = insert[c] if c in insert else insert_default
                 dp[i][j] += dp[i][j-1]
@@ -48,7 +48,7 @@ def _levenshtein(s1, s2, insert, delete, substitute,
 def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
                            insert_default=1, delete_default=1, substitute_default=1):
     """
-    The Levenshtein similarity is computed as 1 - levenshtein_distance / max(len(s1), len(s2))
+    The Levenshtein similarity is computed as 1 - normalized_levenshtein_distance.
 
     Args:
         s1 (str): Sequence 1.
@@ -61,12 +61,11 @@ def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
         substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
 
     Returns:
-        int: Levenshtein similarity.
+        int: Levenshtein Similarity between [0.0, 1.0].
     """
 
-    lev = _levenshtein(s1, s2, insert, delete, substitute,
+    return 1 - _normalized_levenshtein(s1, s2, insert, delete, substitute,
                            insert_default, delete_default, substitute_default)
-    return 1 - float(lev) / max(len(s1), len(s2)) if lev != 0 else 1
 
 def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
                            insert_default=1, delete_default=1, substitute_default=1):
@@ -84,7 +83,7 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
         substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
 
     Returns:
-        int: Levenshtein distance.
+        int: Levenshtein Distance.
 
     Examples:
         >>> rltk.levenshtein_distance('ab', 'abc')
@@ -98,24 +97,62 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
                            insert_default, delete_default, substitute_default)
 
 
-def _normalized_levenshtein(s1, s2):
-    lev = _levenshtein(s1, s2)
+def _normalized_levenshtein(s1, s2, insert, delete, substitute,
+                           insert_default, delete_default, substitute_default):
+    lev = _levenshtein(s1, s2, insert, delete, substitute,
+                           insert_default, delete_default, substitute_default)
 
-    n1, n2 = len(s1), len(s2)
-    max_len = max(n1, n2)
+    max_len = max(len(s1), len(s2))
     if max_len == 0:
         return 0
 
     return float(lev) / max_len
 
-def normalized_levenshtein_similarity(s1, s2):
-    return 1 - normalized_levenshtein_distance(s1, s2)
+def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
+                           insert_default=1, delete_default=1, substitute_default=1):
+    """
+    This distance is computed as levenshtein distance divided by the length of the longest string.
 
-def normalized_levenshtein_distance(s1, s2):
-    return _normalized_levenshtein(s1, s2)
+    Args:
+        s1 (str): Sequence 1.
+        s2 (str): Sequence 2.
+        insert (dict(str, int)): Insert cost of characters. Defaults to empty dict.
+        delete (dict(str, int)): Delete cost of characters. Defaults to empty dict.
+        substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
+        insert_default (int, optional): Default value of insert cost. Defaults to 1.
+        delete_default (int, optional): Default value of delete cost. Defaults to 1.
+        substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
+
+    Returns:
+        int: Normalized Levenshtein Distance between [0.0, 1.0].
+
+    Examples:
+        >>> rltk.normalized_levenshtein_distance('ab', 'abc')
+        0.333333333333
+        >>> rltk.normalized_levenshtein_distance('a', 'abc', insert = {'c':50},
+        ... insert_default=100, delete_default=100, substitute_default=100)
+        50.0
+    """
+    return _normalized_levenshtein(s1, s2, insert, delete, substitute,
+                           insert_default, delete_default, substitute_default)
 
 def damerau_levenshtein_distance(s1, s2):
-    # code modified from https://github.com/jamesturk/jellyfish
+    """
+    Similar to Levenshtein, Damerau-Levenshtein distance is the minimum number of operations needed to transform one string into the other, where an operation is defined as an insertion, deletion, or substitution of a single character, or a transposition of two adjacent characters.
+
+    Args:
+        s1 (str): Sequence 1.
+        s2 (str): Sequence 2.
+
+    Returns:
+        int: Damerau Levenshtein Distance.
+
+    Examples:
+        >>> rltk.damerau_levenshtein_distance('abcd', 'acbd')
+        1
+        >>> rltk.damerau_levenshtein_distance('abbd', 'acad')
+        2
+    """
 
     utils.check_for_none(s1, s2)
     utils.check_for_type(basestring, s1, s2)
@@ -126,34 +163,31 @@ def damerau_levenshtein_distance(s1, s2):
     n1, n2 = len(s1), len(s2)
     infinite = n1 + n2
 
-    # character array
-    da = defaultdict(int)
+    char_arr = defaultdict(int)
+    dp = [[0] * (n2 + 2) for _ in xrange(n1 + 2)]
 
-    # distance matrix
-    score = [[0] * (n2 + 2) for x in xrange(n1 + 2)]
-
-    score[0][0] = infinite
+    dp[0][0] = infinite
     for i in xrange(0, n1 + 1):
-        score[i + 1][0] = infinite
-        score[i + 1][1] = i
+        dp[i + 1][0] = infinite
+        dp[i + 1][1] = i
     for i in xrange(0, n2 + 1):
-        score[0][i + 1] = infinite
-        score[1][i + 1] = i
+        dp[0][i + 1] = infinite
+        dp[1][i + 1] = i
 
     for i in xrange(1, n1 + 1):
         db = 0
         for j in xrange(1, n2 + 1):
-            i1 = da[s2[j - 1]]
+            i1 = char_arr[s2[j - 1]]
             j1 = db
             cost = 1
             if s1[i - 1] == s2[j - 1]:
                 cost = 0
                 db = j
 
-            score[i + 1][j + 1] = min(score[i][j] + cost,
-                                      score[i + 1][j] + 1,
-                                      score[i][j + 1] + 1,
-                                      score[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1))
-        da[s1[i - 1]] = i
+                dp[i + 1][j + 1] = min(dp[i][j] + cost,
+                                       dp[i + 1][j] + 1,
+                                       dp[i][j + 1] + 1,
+                                       dp[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1))
+        char_arr[s1[i - 1]] = i
 
-    return score[n1 + 1][n2 + 1]
+    return dp[n1 + 1][n2 + 1]
