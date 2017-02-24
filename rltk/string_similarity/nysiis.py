@@ -1,5 +1,3 @@
-import unicodedata
-
 import utils
 
 def nysiis(s):

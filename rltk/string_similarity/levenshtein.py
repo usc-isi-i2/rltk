@@ -47,12 +47,53 @@ def _levenshtein(s1, s2, insert, delete, substitute,
 
 def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
                            insert_default=1, delete_default=1, substitute_default=1):
+    """
+    The Levenshtein similarity is computed as 1 - levenshtein_distance / max(len(s1), len(s2))
+
+    Args:
+        s1 (str): Sequence 1.
+        s2 (str): Sequence 2.
+        insert (dict(str, int)): Insert cost of characters. Defaults to empty dict.
+        delete (dict(str, int)): Delete cost of characters. Defaults to empty dict.
+        substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
+        insert_default (int, optional): Default value of insert cost. Defaults to 1.
+        delete_default (int, optional): Default value of delete cost. Defaults to 1.
+        substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
+
+    Returns:
+        int: Levenshtein similarity.
+    """
+
     lev = _levenshtein(s1, s2, insert, delete, substitute,
                            insert_default, delete_default, substitute_default)
     return 1 - float(lev) / max(len(s1), len(s2)) if lev != 0 else 1
 
 def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
                            insert_default=1, delete_default=1, substitute_default=1):
+    """
+    The Levenshtein distance between two words is the minimum number of single-character edits (insertions, deletions or substitutions) required to change one word into the other.
+
+    Args:
+        s1 (str): Sequence 1.
+        s2 (str): Sequence 2.
+        insert (dict(str, int)): Insert cost of characters. Defaults to empty dict.
+        delete (dict(str, int)): Delete cost of characters. Defaults to empty dict.
+        substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
+        insert_default (int, optional): Default value of insert cost. Defaults to 1.
+        delete_default (int, optional): Default value of delete cost. Defaults to 1.
+        substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
+
+    Returns:
+        int: Levenshtein distance.
+
+    Examples:
+        >>> rltk.levenshtein_distance('ab', 'abc')
+        1
+        >>> rltk.levenshtein_distance('a', 'abc', insert = {'c':50},
+        ... insert_default=100, delete_default=100, substitute_default=100)
+        150
+    """
+
     return _levenshtein(s1, s2, insert, delete, substitute,
                            insert_default, delete_default, substitute_default)
 
@@ -74,9 +115,7 @@ def normalized_levenshtein_distance(s1, s2):
     return _normalized_levenshtein(s1, s2)
 
 def damerau_levenshtein_distance(s1, s2):
-    """
-    code modified from https://github.com/jamesturk/jellyfish
-    """
+    # code modified from https://github.com/jamesturk/jellyfish
 
     utils.check_for_none(s1, s2)
     utils.check_for_type(basestring, s1, s2)

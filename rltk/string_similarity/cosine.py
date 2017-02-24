@@ -11,8 +11,36 @@ def _cosine(set1, set2):
     return float(len(set1 & set2)) / (math.sqrt(float(len(set1))) * math.sqrt(float(len(set2))))
 
 def cosine_similarity(set1, set2):
+    """
+    The similarity between the two strings is the cosine of the angle between these two vectors representation.
+
+    Args:
+        set1 (set): Set 1.
+        set2 (set): Set 2.
+
+    Returns:
+        int: Consine similarity in range [0,1].
+
+    Examples:
+        >>> rltk.cosine_similarity(set([1,2]), set([3,4]))
+        0.0
+        >>> rltk.cosine_similarity(set([1,2]), set([2,3]))
+        0.4999999999999999
+        >>> rltk.cosine_similarity(set([1,2]), set([1,2]))
+        0.9999999999999998
+    """
     return _cosine(set1, set2)
 
 def cosine_distance(set1, set2):
+    """
+    Distance of Cosine similarity is computed as 1 - cosine_similarity.
+
+    Args:
+        set1 (set): Set 1.
+        set2 (set): Set 2.
+
+    Returns:
+        int: Distance of Consine similarity.
+    """
     return 1 - cosine_similarity(set1, set2)
 
