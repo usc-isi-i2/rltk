@@ -184,10 +184,10 @@ def damerau_levenshtein_distance(s1, s2):
                 cost = 0
                 db = j
 
-                dp[i + 1][j + 1] = min(dp[i][j] + cost,
-                                       dp[i + 1][j] + 1,
-                                       dp[i][j + 1] + 1,
-                                       dp[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1))
+            dp[i + 1][j + 1] = min(dp[i][j] + cost,
+                                   dp[i + 1][j] + 1,
+                                   dp[i][j + 1] + 1,
+                                   dp[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1))
         char_arr[s1[i - 1]] = i
 
     return dp[n1 + 1][n2 + 1]

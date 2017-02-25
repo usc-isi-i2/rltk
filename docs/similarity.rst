@@ -25,8 +25,8 @@ Shingles (n-gram) based
 .. automodule:: similarity.tf_idf
     :members:
 
-Phoetic
--------
+Phonetic
+--------
 
 .. automodule:: similarity.soundex
     :members:

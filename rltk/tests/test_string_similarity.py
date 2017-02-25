@@ -106,6 +106,45 @@ def test_jaro_winkler(s1, s2, similarity):
     else:
         assert pytest.approx(jaro_winkler_similarity(s1, s2), 0.001) == similarity
 
+@pytest.mark.parametrize('set1, set2, similarity', [
+    (set(['abc', 'bcd', 'cde']), set(['cde', 'efg', 'fgh']), 0.3333),
+    (set(['abc', 'def']), set(['abc', 'def']), 1.0),
+    (set(['abc', 'def']), set(['hij', 'klm']), 0.0)
+])
+def test_cosine_similarity(set1, set2, similarity):
+    if set1 is None or set2 is None:
+        with pytest.raises(TypeError):
+            cosine_similarity(set1, set2)
+    else:
+        assert pytest.approx(cosine_similarity(set1, set2), 0.001) == similarity
+
+@pytest.mark.parametrize('set1, set2, similarity', [
+    (set(['abc', 'bcd', 'cde']), set(['cde', 'efg', 'fgh']), 0.2),
+    (set(['abc', 'def']), set(['abc', 'def']), 1.0),
+    (set(['abc', 'def']), set(['hij', 'klm']), 0.0)
+])
+def test_jaccard_index_similarity(set1, set2, similarity):
+    if set1 is None or set2 is None:
+        with pytest.raises(TypeError):
+            jaccard_index_similarity(set1, set2)
+    else:
+        assert pytest.approx(jaccard_index_similarity(set1, set2), 0.001) == similarity
+
+@pytest.mark.parametrize('bag1, bag2, corpus_list, dampen, score', [
+    (['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a']], False, 0.1754),
+    (['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a'], ['b']], True, 0.1117),
+    (['a', 'b', 'a'], ['a'], [['a', 'b', 'a'], ['a', 'c'], ['a']], False, 0.5547),
+    (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], False, 0.0),
+    (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], True, 0.0),
+    (['a', 'b', 'a'], ['a'], None, False, 0.7071)
+])
+def test_tf_idf(bag1, bag2, corpus_list, dampen, score):
+    if bag1 is None or bag2 is None:
+        with pytest.raises(TypeError):
+            tf_idf(bag1, bag2)
+    else:
+        assert pytest.approx(tf_idf(bag1, bag2, corpus_list, dampen), 0.001) == score
+
 @pytest.mark.parametrize('s, code', [
     ('Soundex','S532'),
     ('Example', 'E251'),

@@ -68,7 +68,8 @@ def jaro_distance(s1, s2):
     return _jaro_distance(s1, s2)
 
 def _jaro_distance(s1, s2):
-    # code from Jean-Bernard Ratte@github https://github.com/nap/jaro-winkler-distance
+    # code from https://github.com/nap/jaro-winkler-distance
+    # Copyright Jean-Bernard Ratte
 
     utils.check_for_none(s1, s2)
     utils.check_for_type(basestring, s1, s2)

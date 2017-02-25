@@ -5,6 +5,8 @@ import utils
 
 def _tf_idf(bag1, bag2, corpus_list, dampen):
     # code modified from py_stringmatching
+    # Copyright (c) 2016, anhaidgroup
+    # All rights reserved.
 
     utils.check_for_none(bag1, bag2)
     utils.check_for_type(list, bag1, bag2)
@@ -47,7 +49,7 @@ def _tf_idf(bag1, bag2, corpus_list, dampen):
 
     return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
 
-def tf_idf_similarity(bag1, bag2, corpus_list=None, dampen=True):
+def tf_idf(bag1, bag2, corpus_list=None, dampen=False):
     """
     Computes TF/IDF measure. This measure employs the notion of TF/IDF score commonly used in information retrieval (IR) to find documents that are relevant to keyword queries. The intuition underlying the TF/IDF measure is that two strings are similar if they share distinguishing terms.
 
@@ -55,11 +57,17 @@ def tf_idf_similarity(bag1, bag2, corpus_list=None, dampen=True):
         bag1 (list): Bag 1.
         bag2 (list): Bag 2.
         corpus_list (list(list), optional): The corpus that will be used to compute TF and IDF values. This corpus is a list of strings, where each string has been tokenized into a list of tokens (that is, a bag of tokens). Defaults is to None.
-        dampen (bool): Flag to indicate whether math.log() should be used in TF and IDF formulas. Defaults to True.
+        dampen (bool, optional): Flag to indicate whether math.log() should be used in TF and IDF formulas. Defaults to False.
 
     Returns:
         float: TF/IDF score.
 
     Examples:
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a']])
+        0.17541160386140586
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a'], ['b']], True)
+        0.11166746710505392
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a'], [['a', 'b', 'a'], ['a', 'c'], ['a']])
+        0.5547001962252291
     """
     return _tf_idf(bag1, bag2, corpus_list, dampen)

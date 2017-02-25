@@ -18,6 +18,9 @@ def nysiis(s):
         'PNPL'
     """
     # code from https://github.com/jamesturk/jellyfish
+    # Copyright (c) 2015, James Turk
+    # Copyright (c) 2015, Sunlight Foundation
+    # All rights reserved.
 
     utils.check_for_none(s)
     utils.check_for_type(basestring, s)
