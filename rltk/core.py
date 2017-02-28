@@ -14,18 +14,17 @@ class RLTK(object):
         if name in self._rs_dict and type != self._rs_dict[name]['type']:
             raise ValueError('Invalid name for resource, it is used by another type')
 
-    def load_edit_distance_table(self, name, insert={}, delete={}, substitute={},
-                           insert_default=1, delete_default=1, substitute_default=1):
+    def load_edit_distance_table(self, name, cost_dict):
 
         self._check_valid_resource(name, 'edit_distance_table')
 
         data = {
-            'insert': insert,
-            'delete': delete,
-            'substitute': substitute,
-            'insert_default': insert_default,
-            'delete_default': delete_default,
-            'substitute_default': substitute_default
+            'insert': cost_dict['insert'] if 'insert' in cost_dict else {},
+            'delete': cost_dict['delete'] if 'delete' in cost_dict else {},
+            'substitute': cost_dict['substitute'] if 'substitute' in cost_dict else {},
+            'insert_default': cost_dict['insert_default'] if 'insert_default' in cost_dict else {},
+            'delete_default': cost_dict['delete_default'] if 'delete_default' in cost_dict else {},
+            'substitute_default': cost_dict['substitute_default'] if 'substitute_default' in cost_dict else {}
         }
 
         self._rs_dict[name] = {
