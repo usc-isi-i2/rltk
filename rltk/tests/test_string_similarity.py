@@ -130,20 +130,26 @@ def test_jaccard_index_similarity(set1, set2, similarity):
     else:
         assert pytest.approx(jaccard_index_similarity(set1, set2), 0.001) == similarity
 
-@pytest.mark.parametrize('bag1, bag2, corpus_list, dampen, score', [
-    (['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a']], False, 0.1754),
-    (['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a'], ['b']], True, 0.1117),
-    (['a', 'b', 'a'], ['a'], [['a', 'b', 'a'], ['a', 'c'], ['a']], False, 0.5547),
-    (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], False, 0.0),
-    (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], True, 0.0),
-    (['a', 'b', 'a'], ['a'], None, False, 0.7071)
+@pytest.mark.parametrize('bag1, bag2, df_corpus, doc_size, math_log, score', [
+    # (['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a']], False, 0.1754),
+    # (['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a'], ['b']], True, 0.1117),
+    # (['a', 'b', 'a'], ['a'], [['a', 'b', 'a'], ['a', 'c'], ['a']], False, 0.5547),
+    # (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], False, 0.0),
+    # (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], True, 0.0),
+    # (['a', 'b', 'a'], ['a'], None, False, 0.7071)
+    (['a', 'b', 'a'], ['a', 'c'],{'a':3, 'b':1, 'c':1}, 3, False, 0.1754),
+    (['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True, 0.1117),
+    (['a', 'b', 'a'], ['a'], {'a':3, 'b':1, 'c':1}, 3, False, 0.5547),
+    (['a', 'b', 'a'], ['a'], {'x':1, 'y':1, 'w':1, 'q':1}, 3, False, 0.0),
+    (['a', 'b', 'a'], ['a'], {'x':1, 'y':1, 'w':1, 'q':1}, 3, True, 0.0),
+    (['a', 'b', 'a'], ['a'], None, 0, False, 0.7071)
 ])
-def test_tf_idf(bag1, bag2, corpus_list, dampen, score):
-    if bag1 is None or bag2 is None:
+def test_tf_idf(bag1, bag2, df_corpus, doc_size, math_log, score):
+    if bag1 is None or bag2 is None or df_corpus is None:
         with pytest.raises(TypeError):
             tf_idf(bag1, bag2)
     else:
-        assert pytest.approx(tf_idf(bag1, bag2, corpus_list, dampen), 0.001) == score
+        assert pytest.approx(tf_idf(bag1, bag2, df_corpus, doc_size, math_log), 0.001) == score
 
 @pytest.mark.parametrize('s, code', [
     ('Soundex','S532'),

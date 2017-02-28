@@ -34,27 +34,33 @@ class RLTK(object):
         }
 
 
-    def load_df_corpus(self, name, file_path, file_type='text', mode='update', jl_path=None):
+    def load_df_corpus(self, name, file_path, file_type='text', mode='append', jl_path=None):
         self._check_valid_resource(name, 'df_corpus')
 
-        # get original dict item for update
+        # get original dict item for appending
         # or create / replace it to a new one
         item = {
             'type': 'df_corpus',
             'data': dict(),
-            'total_documents': 0
+            'doc_size': 0
         } if not (mode == 'update' and name in self._rs_dict) else self._rs_dict[name]
 
         with open(file_path) as f:
             for line in f:
-                token = line.rstrip('\n')
+                token = line.rstrip('\n').split(' ')
+                if len(token) == 0: # empty line or error in format
+                    continue
+                token = set(token)
 
-                # count
-                if token not in item['data']:
-                    item['data'][token] = 0
-                item['data'][token] += 1
+                # count for token
+                for t in token:
+                    if t not in item['data']:
+                        item['data'][t] = 0
+                    item['data'][t] += 1
 
-        item['total_documents'] += 1
+                # count for docs
+                item['doc_size'] += 1
+
         self._rs_dict[name] = item
 
     def hamming_distance(self, s1, s2):
@@ -129,11 +135,10 @@ class RLTK(object):
     def cosine_distance(self, set1, set2):
         return cosine_distance(set1, set2)
 
-    # def tf_idf(self, bag1, bag2, name, dampen=False):
-    #     self._check_valid_resource(name, 'df_corpus')
-    #
-    #     corpus_list = self._get_value('tf_idf.corpus_list')
-    #     return tf_idf(bag1, bag2, corpus_list, dampen)
+    def tf_idf(self, bag1, bag2, name, math_log=False):
+        self._check_valid_resource(name, 'df_corpus')
+
+        return tf_idf(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
 
     def soundex(self, s):
         return soundex(s)
