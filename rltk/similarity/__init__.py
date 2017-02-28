@@ -9,18 +9,3 @@ from tf_idf import tf_idf
 from soundex import soundex
 from metaphone import metaphone
 from nysiis import nysiis
-
-
-class RLTK(object):
-
-    _init_dict = dict()
-
-    def __init__(self, init_dict):
-        _init_dict = init_dict
-
-    def levenshtein_distance(self, s1, s2):
-        levenshtein_distance(s1, s2)
-
-
-def init(**kwargs):
-    return RLTK(kwargs)
