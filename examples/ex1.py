@@ -10,5 +10,4 @@ tk.load_df_corpus('B1', 'df_corpus_1.txt', file_type='text', mode='append')
 
 print tk.levenshtein_distance('a', 'abc')
 print tk.levenshtein_distance('a', 'abc', name='A1')
-print tk.normalized_levenshtein_distance('a', 'abc', name='A1')
 print tk.tf_idf(['a', 'b', 'a'], ['a', 'c','d','f'], name='B1')

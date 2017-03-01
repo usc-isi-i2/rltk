@@ -88,7 +88,13 @@ html_theme = 'alabaster' # default, alabaster, pyramid, bizstyle
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'page_width': '1600px',
+    'sidebar_width': '300px',
+    'github_user': 'usc-isi-i2',
+    'github_repo': 'rltk',
+    'github_banner': 'true',
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

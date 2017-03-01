@@ -2,8 +2,8 @@ from collections import defaultdict
 
 import utils
 
-def _levenshtein(s1, s2, insert, delete, substitute,
-                 insert_default, delete_default, substitute_default):
+def _levenshtein(s1, s2, insert={}, delete={}, substitute={},
+                 insert_default=1, delete_default=1, substitute_default=1):
     utils.check_for_none(s1, s2)
     utils.check_for_type(str, s1, s2)
 
@@ -45,27 +45,19 @@ def _levenshtein(s1, s2, insert, delete, substitute,
                                    dp[i-1][j-1] + substitute_cost)
     return dp[n1][n2]
 
-def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
-                           insert_default=1, delete_default=1, substitute_default=1):
+def levenshtein_similarity(s1, s2):
     """
     The Levenshtein similarity is computed as 1 - normalized_levenshtein_distance.
 
     Args:
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
-        insert (dict(str, int), optional): Insert cost of characters. Defaults to empty dict.
-        delete (dict(str, int), optional): Delete cost of characters. Defaults to empty dict.
-        substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
-        insert_default (int, optional): Default value of insert cost. Defaults to 1.
-        delete_default (int, optional): Default value of delete cost. Defaults to 1.
-        substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
 
     Returns:
         float: Levenshtein Similarity between [0.0, 1.0].
     """
 
-    return 1 - _normalized_levenshtein(s1, s2, insert, delete, substitute,
-                           insert_default, delete_default, substitute_default)
+    return 1 - _normalized_levenshtein(s1, s2)
 
 def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
                            insert_default=1, delete_default=1, substitute_default=1):
@@ -97,10 +89,8 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
                            insert_default, delete_default, substitute_default)
 
 
-def _normalized_levenshtein(s1, s2, insert, delete, substitute,
-                           insert_default, delete_default, substitute_default):
-    lev = _levenshtein(s1, s2, insert, delete, substitute,
-                           insert_default, delete_default, substitute_default)
+def _normalized_levenshtein(s1, s2):
+    lev = _levenshtein(s1, s2)
 
     max_len = max(len(s1), len(s2))
     if max_len == 0:
@@ -108,20 +98,13 @@ def _normalized_levenshtein(s1, s2, insert, delete, substitute,
 
     return float(lev) / max_len
 
-def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
-                           insert_default=1, delete_default=1, substitute_default=1):
+def normalized_levenshtein_distance(s1, s2):
     """
     This distance is computed as levenshtein distance divided by the length of the longest string.
 
     Args:
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
-        insert (dict(str, int), optional): Insert cost of characters. Defaults to empty dict.
-        delete (dict(str, int), optional): Delete cost of characters. Defaults to empty dict.
-        substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
-        insert_default (int, optional): Default value of insert cost. Defaults to 1.
-        delete_default (int, optional): Default value of delete cost. Defaults to 1.
-        substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
 
     Returns:
         float: Normalized Levenshtein Distance between [0.0, 1.0].
@@ -129,12 +112,8 @@ def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     Examples:
         >>> rltk.normalized_levenshtein_distance('ab', 'abc')
         0.333333333333
-        >>> rltk.normalized_levenshtein_distance('a', 'abc', insert = {'c':50},
-        ... insert_default=100, delete_default=100, substitute_default=100)
-        50.0
     """
-    return _normalized_levenshtein(s1, s2, insert, delete, substitute,
-                           insert_default, delete_default, substitute_default)
+    return _normalized_levenshtein(s1, s2)
 
 def damerau_levenshtein_distance(s1, s2):
     """
