@@ -23,7 +23,7 @@ def _tf_idf(bag1, bag2, df_corpus, doc_size, math_log):
     for element in total_unique_elements:
         if element not in df_corpus:
             continue
-        idf_element = doc_size * 1.0 / (df_corpus[element] if element in df_corpus else 1)
+        idf_element = doc_size * 1.0 / df_corpus[element]
         v_x = 0 if element not in tf_x else (math.log(idf_element) * math.log(tf_x[element] + 1)) if math_log else (
             idf_element * tf_x[element])
         v_y = 0 if element not in tf_y else (math.log(idf_element) * math.log(tf_y[element] + 1)) if math_log else (
@@ -42,18 +42,19 @@ def tf_idf(bag1, bag2, df_corpus, doc_size, math_log=False):
     Args:
         bag1 (list): Bag 1.
         bag2 (list): Bag 2.
-        corpus_list (list(list), optional): The corpus that will be used to compute TF and IDF values. This corpus is a list of strings, where each string has been tokenized into a list of tokens (that is, a bag of tokens). Defaults is to None.
-        dampen (bool, optional): Flag to indicate whether math.log() should be used in TF and IDF formulas. Defaults to False.
+        df_corpus (dict): The pre calculated document frequency of corpus.
+        doc_size (int): total documents used in corpus.
+        math_log (bool, optional): Flag to indicate whether math.log() should be used in TF and IDF formulas. Defaults to False.
 
     Returns:
-        float: TF/IDF score.
+        float: TF/IDF cosine similarity.
 
     Examples:
-        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a']])
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':1, 'c':1}, 3)
         0.17541160386140586
-        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a'], ['b']], True)
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True)
         0.11166746710505392
-        >>> rltk.tfidf(['a', 'b', 'a'], ['a'], [['a', 'b', 'a'], ['a', 'c'], ['a']])
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a'], {'a':3, 'b':1, 'c':1}, 3)
         0.5547001962252291
     """
     return _tf_idf(bag1, bag2, df_corpus, doc_size, math_log)

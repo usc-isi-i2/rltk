@@ -15,11 +15,29 @@ Installation (need to upload to PYPI later)::
 
    pip install rltk
 
-Example::
+Example 1::
 
    >>> import rltk
    >>> rltk.levenshtein_distance('abc', 'abd')
    1
+
+In RLTK, you can simply load the the resource you need and give it name, then reuse it by name in later methods.
+
+Example 2::
+
+   >>> import rltk
+   >>>
+   >>> edit_distance_cost = {'insert': {'c':50}, 'insert_default':100, 'delete_default':100, 'substitute_default':100}
+   >>>
+   >>> tk = rltk.init()
+   >>> tk.load_edit_distance_table('A1', edit_distance_cost) # load resource
+   >>> tk.levenshtein_distance('a', 'abc')
+   >>> 2
+   >>> tk.levenshtein_distance('a', 'abc', name='A1')
+   >>> 150
+   >>> tk.normalized_levenshtein_distance('a', 'abc', name='A1')
+   >>> 50.0
+
 
 API Reference
 --------------

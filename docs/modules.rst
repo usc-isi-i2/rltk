@@ -1,7 +1,7 @@
-similarity
+RLTK
 =================
 
 .. toctree::
    :maxdepth: 4
 
-   similarity
+   rltk
