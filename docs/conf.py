@@ -89,11 +89,32 @@ html_theme = 'alabaster' # default, alabaster, pyramid, bizstyle
 # documentation.
 #
 html_theme_options = {
-    'page_width': '1600px',
-    'sidebar_width': '300px',
+    'page_width': '1380px',
+    'sidebar_width': '220px',
     'github_user': 'usc-isi-i2',
     'github_repo': 'rltk',
     'github_banner': 'true',
+    'github_type': 'star',
+    'extra_nav_links': {
+        'RLTK @ GitHub': 'https://github.com/usc-isi-i2/rltk',
+        # 'RLTK @ PyPI': 'https://github.com/usc-isi-i2/rltk',
+        'Issue Tracker': 'https://github.com/usc-isi-i2/rltk/issues',
+        'USC/ISI-I2': 'http://usc-isi-i2.github.io/'
+    },
+    'show_powered_by': False
+}
+
+html_show_sourcelink = False
+
+html_sidebars = {
+    '**': [
+        'about.html',
+        'localtoc.html',
+        'navigation.html',
+        # 'relations.html',
+        'searchbox.html',
+        # 'donate.html',
+    ]
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

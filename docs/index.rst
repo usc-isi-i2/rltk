@@ -3,15 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-RLTK's documentation
-=====================
+RLTK: Record Linkage ToolKit
+============================
 
-Record Linkage ToolKit.
+.. include:: ./../README.rst
+      :start-after: begin-intro
+      :end-before: end-intro
 
-Getting Start
---------------
 
-Installation (need to upload to PYPI later)::
+Getting Started
+---------------
+
+Installation (need to upload to PyPI later)::
 
    pip install rltk
 
