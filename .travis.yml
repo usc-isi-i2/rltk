@@ -1,9 +1,13 @@
 sudo: false
+branches:
+    only:
+        - master
+        - stable
 language: python
 python:
     - '2.7'
 install:
     - pip install -r requirements.txt
-    - pip install pytest>=3
+    - pip install --upgrade --force-reinstall pytest>=3
 script:
     - python -m pytest -v --color=yes

@@ -24,7 +24,7 @@ Example 1::
    >>> rltk.levenshtein_distance('abc', 'abd')
    1
 
-In RLTK, you can simply load the the resource you need and give it name, then reuse it by name in later methods.
+In RLTK, you can simply load the resource you need and give it a name, then reuse it by name in later methods.
 
 Example 2::
 

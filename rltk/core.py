@@ -1,4 +1,7 @@
 from similarity import *
+import json
+from jsonpath_rw import parse
+from digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
 class Core(object):
 
@@ -45,20 +48,24 @@ class Core(object):
         }
 
 
-    def load_df_corpus(self, name, file_path, file_type='text', mode='append', jl_path=None):
+    def load_df_corpus(self, name, file_path, file_type='text', mode='append', json_path=None):
         """
         Load document frequency corpus resource.
 
         Args:
             name (str): Name of the resource.
             file_path (str): Path of the df_corpus file.
-            file_type (str): text or json_lines. For text file,
-                each line treated as a document and tokens in line should separated by whitespace.
+            file_type (str): text or json_lines.
+                For text file, each line is treated as a document and tokens in line should separated by whitespace.
+                For json line file, each json object is treated as a document. `json_path` should be \
+                set and point to a string which will be \
+                tokenized by `dig-crf-tokenizer <https://github.com/usc-isi-i2/dig-crf-tokenizer>`_.
             mode (str): 'append' or 'replace'. Defaults to 'append'.
-            jl_path (str): Only works when `file_type` is 'json_lines'.
+            json_path (str): Only works when `file_type` is 'json_lines'.
 
         Examples:
-            >>> tk.load_df_corpus('B1', 'df_corpus_1.txt', file_type='text', mode='append')
+            >>> tk.load_df_corpus('B1', 'df_corpus_1.txt', file_type='text', mode='replace')
+            >>> tk.load_df_corpus('B2', 'jl_file_1.jsonl', file_type='json_lines', json_path='desc[*]')
         """
         self._check_valid_resource(name, 'df_corpus')
 
@@ -70,23 +77,61 @@ class Core(object):
             'doc_size': 0
         } if not (mode == 'update' and name in self._rs_dict) else self._rs_dict[name]
 
-        with open(file_path) as f:
-            for line in f:
-                token = line.rstrip('\n').split(' ')
-                if len(token) == 0: # empty line or error in format
-                    continue
-                token = set(token)
+        if file_type == 'text':
 
-                # count for token
-                for t in token:
-                    if t not in item['data']:
-                        item['data'][t] = 0
-                    item['data'][t] += 1
+            with open(file_path) as f:
+                for line in f:
+                    token = line.rstrip('\n').split(' ')
+                    if len(token) == 0: # empty line or error in format
+                        continue
+                    token = set(token)
 
-                # count for docs
-                item['doc_size'] += 1
+                    # count for token
+                    for t in token:
+                        if t not in item['data']:
+                            item['data'][t] = 0
+                        item['data'][t] += 1
 
-        self._rs_dict[name] = item
+                    # count for docs
+                    item['doc_size'] += 1
+
+            self._rs_dict[name] = item
+
+        elif file_type == 'json_lines':
+
+            if json_path is None:
+                raise ValueError('Invalid json path')
+            crf_tokenizer = CrfTokenizer()
+            with open(file_path) as f:
+                for line in f:
+                    line = line.rstrip('\n')
+                    line = json.loads(line)
+                    doc_parts = [match.value for match in parse(json_path).find(line)]
+
+                    if doc_parts is None:
+                        continue
+
+                    # count
+                    for part in doc_parts:
+                        if not isinstance(part, basestring):
+                            raise TypeError('json_path must points to a string')
+
+                        token = crf_tokenizer.tokenize(part)
+
+                        # count for token
+                        for t in token:
+                            if t not in item['data']:
+                                item['data'][t] = 0
+                            item['data'][t] += 1
+
+                    # count for docs
+                    item['doc_size'] += 1
+
+            self._rs_dict[name] = item
+
+
+        else:
+            raise ValueError('Unsupported file type')
 
     def hamming_distance(self, s1, s2):
         """
