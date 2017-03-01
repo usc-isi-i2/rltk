@@ -2,9 +2,16 @@ RLTK: Record Linkage ToolKit
 ============================
 
 .. begin-intro
+.. image:: https://img.shields.io/badge/license-MIT-blue.svg
+    :target: https://raw.githubusercontent.com/usc-isi-i2/rltk/master/LICENSE
+    :alt: License
+
+.. image:: https://api.travis-ci.org/usc-isi-i2/rltk.svg?branch=master
+    :target: https://travis-ci.org/usc-isi-i2/rltk
+    :alt: Travis
 
 .. image:: https://readthedocs.org/projects/rltk/badge/?version=latest
-    :target: http://rltk.readthedocs.io/en/latest/
+    :target: http://rltk.readthedocs.io/en/latest
     :alt: Documents
 
 The Record Linkage ToolKit (RLTK) is a general-purpose open-source record linkage platform that allows users to build powerful Python programs that link records (represented as arbitrarily structured JSON documents) referring to the same underlying entity. Record linkage is an extremely important problem that shows up in domains extending from social networks to bibliographic data and biomedicine. Current open platforms for record linkage have problems scaling even to moderately sized datasets, or are just not easy to use (even by experts). RLTK attempts to address all of these issues.
