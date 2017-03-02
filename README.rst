@@ -20,6 +20,7 @@ RLTK supports a full, scalable record linkage pipeline, including multi-core alg
 
 Although easy to use, RLTK also contains advanced modules that allow you to automate record linkage by giving you access to state-of-the-art algorithms that were only published recently and have no other open-source implementations we are aware of. Some of these algorithms have been applied to extremely difficult domains such as Dark Web and human trafficking data. Last but not least, RLTK gives you easy facilities to convert your native data format (such as CSV, natural language documents, XML, RDF, graph formats etc.) into JSON so you have to invest minimal manual labor to get started.
 
+RLTK is being built by the information integration group at ISI (http://usc-isi-i2.github.io/home/), with funding from multiple projects funded by the DARPA LORELEI and MEMEX programs and the IARPA CAUSE program.
 RLTK is under active maintenance and we expect to keep adding new features and state-of-the-art record linkage algorithms in the foreseeable future, in addition to continuously supporting our adopters to integrate the platform into their applications.
 
 .. end-intro
