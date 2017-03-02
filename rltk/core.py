@@ -55,7 +55,7 @@ class Core(object):
         Args:
             name (str): Name of the resource.
             file_path (str): Path of the df_corpus file.
-            file_type (str): text or json_lines.
+            file_type (str): 'text' or 'json_lines'.
                 For text file, each line is treated as a document and tokens in line should separated by whitespace.
                 For json line file, each json object is treated as a document. `json_path` should be \
                 set and point to a string which will be \
@@ -84,7 +84,7 @@ class Core(object):
             'type': 'df_corpus',
             'data': dict(),
             'doc_size': 0
-        } if not (mode == 'update' and name in self._rs_dict) else self._rs_dict[name]
+        } if not (mode == 'append' and name in self._rs_dict) else self._rs_dict[name]
 
         with open(file_path, 'r') as f:
             for line in f:
@@ -325,15 +325,15 @@ class Core(object):
             set2 (set): Set 2.
 
         Returns:
-            float: Consine similarity in range [0.0, 1.0].
+            float: Consine similarity.
 
         Examples:
             >>> tk.cosine_similarity(set([1,2]), set([3,4]))
             0.0
             >>> tk.cosine_similarity(set([1,2]), set([2,3]))
-            0.4999999999999999
+            0.5
             >>> tk.cosine_similarity(set([1,2]), set([1,2]))
-            0.9999999999999998
+            1.0
         """
         return cosine_similarity(set1, set2)
 

@@ -25,9 +25,9 @@ def cosine_similarity(set1, set2):
         >>> rltk.cosine_similarity(set([1,2]), set([3,4]))
         0.0
         >>> rltk.cosine_similarity(set([1,2]), set([2,3]))
-        0.4999999999999999
+        0.5
         >>> rltk.cosine_similarity(set([1,2]), set([1,2]))
-        0.9999999999999998
+        1.0
     """
     return _cosine(set1, set2)
 
