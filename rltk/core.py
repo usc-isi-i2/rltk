@@ -1,13 +1,23 @@
-from similarity import *
 import json
+import os
+
 from jsonpath_rw import parse
 from digCrfTokenizer.crf_tokenizer import CrfTokenizer
+
+from similarity import *
+
 
 class Core(object):
 
     # resource dict
     # each item should have at least has 2 keys: type, data
     _rs_dict = dict()
+
+    # absolute root path for all relative paths in configurations
+    _root_path = ''
+
+    def __init__(self):
+        self.set_root_path('.')
 
     def _has_resource(self, name, type):
         if name not in self._rs_dict or type != self._rs_dict[name]['type']:
@@ -86,7 +96,7 @@ class Core(object):
             'doc_size': 0
         } if not (mode == 'append' and name in self._rs_dict) else self._rs_dict[name]
 
-        with open(file_path, 'r') as f:
+        with open(self._get_abs_path(file_path), 'r') as f:
             for line in f:
                 line = line.rstrip('\n')
 
@@ -118,6 +128,27 @@ class Core(object):
                 item['doc_size'] += 1
 
         self._rs_dict[name] = item
+
+    def set_root_path(self, root_path):
+        """
+        Set root path for relative paths in all configurations.
+
+        Args:
+            root_path (str): Root path for relative path.
+        """
+        self._root_path = os.path.abspath(root_path)
+
+    def get_root_path(self):
+        """
+        Get current root path.
+
+        Returns:
+            str: Current root path.
+        """
+        return self._root_path
+
+    def _get_abs_path(self, path):
+        return path if os.path.isabs(path) else os.path.join(self._root_path, path)
 
     def hamming_distance(self, s1, s2):
         """
