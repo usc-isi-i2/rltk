@@ -1,0 +1,23 @@
+{
+	"missing_value_default": 0,
+	"error_handling": "exception",
+	"logging": {
+		"file_path": "log1.log",
+		"level": "info",
+        "_format": ""
+	},
+	"features": [
+      {
+		"function": "levenshtein_similarity",
+        "json_path": ["name", "name"],
+        "get_first": true,
+		"other_parameters": {}
+	  },
+      {
+		"function": "levenshtein_similarity",
+        "json_path": ["gender", "gender"],
+        "get_first": true,
+		"other_parameters": {}
+	  }
+    ]
+}

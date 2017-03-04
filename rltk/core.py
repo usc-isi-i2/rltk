@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 from jsonpath_rw import parse
 from digCrfTokenizer.crf_tokenizer import CrfTokenizer
@@ -12,6 +13,9 @@ class Core(object):
     # resource dict
     # each item should have at least has 2 keys: type, data
     _rs_dict = dict()
+
+    # config dict
+    _cfg_dict = dict()
 
     # absolute root path for all relative paths in configurations
     _root_path = ''
@@ -68,7 +72,7 @@ class Core(object):
             file_type (str): 'text' or 'json_lines'.
                 For text file, each line is treated as a document and tokens in line should separated by whitespace.
                 For json line file, each json object is treated as a document. `json_path` should be \
-                set and point to a string which will be \
+                set and point to an array of strings which will be \
                 tokenized by `dig-crf-tokenizer <https://github.com/usc-isi-i2/dig-crf-tokenizer>`_.
             mode (str): 'append' or 'replace'. Defaults to 'append'.
             json_path (str): Only works when `file_type` is 'json_lines'.
@@ -114,13 +118,13 @@ class Core(object):
                     line = line.rstrip('\n')
                     line = json.loads(line)
                     doc_parts = [match.value for match in parse(json_path).find(line)]
-                    if doc_parts is None:
+                    if len(doc_parts) == 0:
                         continue
 
                     crf_tokenizer = CrfTokenizer()
                     for part in doc_parts:
                         if not isinstance(part, basestring):
-                            raise TypeError('json_path must points to a string')
+                            raise TypeError('json_path must points to an array of strings')
                         tokens = crf_tokenizer.tokenize(part)
                         count_for_token(tokens)
 
@@ -128,6 +132,79 @@ class Core(object):
                 item['doc_size'] += 1
 
         self._rs_dict[name] = item
+
+    def load_feature_configuration(self, name, file_path):
+        if name in self._cfg_dict:
+            raise ValueError('Invalid name for feature configuration, it is already in use')
+
+
+        LOGGING_STRING_MAP = {'info': logging.INFO, 'warning': logging.WARNING, 'error': logging.ERROR}
+
+        with open(self._get_abs_path(file_path), 'r') as f:
+            config = json.loads(f.read())
+
+            # missing value default
+            if 'missing_value_default' not in config:
+                raise ValueError('Missing value of missing_value_default')
+
+            # error handling
+            if 'error_handling' not in config:
+                raise ValueError('Missing value of error_handling')
+            else:
+                if config['error_handling'] not in ('ignore', 'exception'):
+                    raise ValueError('Invalid value of error_handling')
+
+            # logging
+            if 'logging' in config:
+                if 'file_path' not in config['logging']:
+                    raise ValueError('Missing value of error_handling')
+                logger_name = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
+                logger = logging.getLogger(logger_name)
+                log_file = logging.FileHandler(self._get_abs_path(config['logging']['file_path']))
+                logger.addHandler(log_file)
+                log_format = config['logging']['format'] if 'format' in config['logging'] \
+                        else '%(asctime)s %(levelname)s %(message)s'
+                log_file.setFormatter(logging.Formatter(log_format))
+                log_level = config['logging']['level'] if 'level' in config['logging'] else 'error'
+                log_level = LOGGING_STRING_MAP[log_level] # str to logging enum
+                logger.setLevel(log_level)
+                config['logging'] = logger_name # replace json object to logger name
+
+            # features
+            if 'features' not in config:
+                raise ValueError('Missing value of features')
+
+            self._cfg_dict[name] = config
+
+    def compute_feature_vector(self, obj1, obj2, name):
+        if name not in self._cfg_dict:
+            raise ValueError('Invalid name of feature configuration')
+
+        config = self._cfg_dict[name]
+        logger = logging.getLogger(config['logging'])
+        vector = []
+
+        # process
+        for feature in config['features']:
+            try:
+                if 'get_first' not in feature:
+                    feature['get_first'] = True
+                feature_function = getattr(self, feature['function'])
+                p1 = [match.value for match in parse(feature['json_path'][0]).find(obj1)]
+                p2 = [match.value for match in parse(feature['json_path'][1]).find(obj2)]
+                if feature['get_first'] is True:
+                    p1 = p1[0]
+                    p2 = p2[0]
+                ret = feature_function(p1, p2, **feature['other_parameters'])
+                vector.append(ret)
+            except Exception as e:
+                logger.error(e.message)
+                if config['error_handling'] == 'exception':
+                    raise e
+                else: # ignore
+                    pass
+
+        return vector
 
     def set_root_path(self, root_path):
         """
