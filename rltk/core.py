@@ -185,7 +185,7 @@ class Core(object):
         vector = []
 
         # process
-        for feature in config['features']:
+        for idx, feature in enumerate(config['features']):
             try:
                 if 'get_first' not in feature:
                     feature['get_first'] = True
@@ -198,11 +198,12 @@ class Core(object):
                 ret = feature_function(p1, p2, **feature['other_parameters'])
                 vector.append(ret)
             except Exception as e:
-                logger.error(e.message)
+                logger.error('[{0}-{1}] {2}'.format(name, idx, e.message))
                 if config['error_handling'] == 'exception':
                     raise e
                 else: # ignore
                     pass
+                vector.append(config['missing_value_default'])
 
         return vector
 
