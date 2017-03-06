@@ -214,6 +214,16 @@ class Core(object):
                         raise ValueError('Missing value in Object2 by json_path \'{0}\''
                                          .format(feature['json_path'][1]))
                     p1, p2 = p1[0], p2[0]
+
+                # other parameters
+                if 'other_parameters' not in feature:
+                    if 'other_parameters_file_path' not in feature:
+                        raise ValueError('Missing value of other_parameters (file_path)')
+                    else:
+                        with open(self._get_abs_path(feature['other_parameters_file_path'])) as f:
+                            feature['other_parameters'] = json.loads(f.read())
+
+                # run
                 ret = feature_function(p1, p2, **feature['other_parameters'])
 
                 vector.append(ret)
@@ -240,13 +250,11 @@ class Core(object):
             }
             return ret_dict
         except Exception as e:
-            logger.error('[{0}-{1}] {2}'.format(name, idx, e.message))
+            logger.error('[{0}] {1}'.format(name, e.message))
             if config['error_handling'] == 'exception':
                 raise e
             else:  # ignore
                 pass
-
-
 
     def set_root_path(self, root_path):
         """
