@@ -14,9 +14,6 @@ class Core(object):
     # each item should have at least has 2 keys: type, data
     _rs_dict = dict()
 
-    # config dict
-    _cfg_dict = dict()
-
     # absolute root path for all relative paths in configurations
     _root_path = ''
 
@@ -134,12 +131,15 @@ class Core(object):
         self._rs_dict[name] = item
 
     def load_feature_configuration(self, name, file_path):
-        if name in self._cfg_dict:
-            raise ValueError('Invalid name for feature configuration, it is already in use')
-
+        self._check_valid_resource(name, 'feature_configuration')
 
         LOGGING_STRING_MAP = {'info': logging.INFO, 'warning': logging.WARNING, 'error': logging.ERROR}
 
+        item = {
+            'name': name,
+            'type': 'feature_configuration',
+            'data': None
+        }
         with open(self._get_abs_path(file_path), 'r') as f:
             config = json.loads(f.read())
 
@@ -170,32 +170,52 @@ class Core(object):
                 logger.setLevel(log_level)
                 config['logging'] = logger_name # replace json object to logger name
 
+            # id path
+            if 'id_path' not in config or len(config['id_path']) == 0:
+                raise ValueError('Missing value of id_path')
+            if len(config['id_path']) == 1:
+                config['id_path'].append(config['id_path'][0]) # duplicate it
+
             # features
             if 'features' not in config:
                 raise ValueError('Missing value of features')
 
-            self._cfg_dict[name] = config
+            item['data'] = config
+            self._rs_dict[name] = item
 
     def compute_feature_vector(self, obj1, obj2, name):
-        if name not in self._cfg_dict:
-            raise ValueError('Invalid name of feature configuration')
+        self._has_resource(name, 'feature_configuration')
 
-        config = self._cfg_dict[name]
+        config = self._rs_dict[name]['data']
         logger = logging.getLogger(config['logging'])
         vector = []
 
         # process
         for idx, feature in enumerate(config['features']):
             try:
+                # function pointer
+                feature_function = getattr(self, feature['function'])
+
+                # json path
+                if 'json_path' not in feature or len(feature['json_path']) == 0:
+                    raise ValueError('Missing value of json_path')
+                p1 = [match.value for match in parse(feature['json_path'][0]).find(obj1)]
+                p2 = [match.value for match in parse(feature['json_path'][1]).find(obj2)] \
+                    if len(feature['json_path']) > 1 else p1
+
+                # get first
                 if 'get_first' not in feature:
                     feature['get_first'] = True
-                feature_function = getattr(self, feature['function'])
-                p1 = [match.value for match in parse(feature['json_path'][0]).find(obj1)]
-                p2 = [match.value for match in parse(feature['json_path'][1]).find(obj2)]
                 if feature['get_first'] is True:
-                    p1 = p1[0]
-                    p2 = p2[0]
+                    if len(p1) == 0:
+                        raise ValueError('Missing value in Object1 by json_path \'{0}\''
+                                         .format(feature['json_path'][0]))
+                    if len(p2) == 0:
+                        raise ValueError('Missing value in Object2 by json_path \'{0}\''
+                                         .format(feature['json_path'][1]))
+                    p1, p2 = p1[0], p2[0]
                 ret = feature_function(p1, p2, **feature['other_parameters'])
+
                 vector.append(ret)
             except Exception as e:
                 logger.error('[{0}-{1}] {2}'.format(name, idx, e.message))
@@ -205,7 +225,28 @@ class Core(object):
                     pass
                 vector.append(config['missing_value_default'])
 
-        return vector
+        # return vector
+        try:
+            # id path
+            id1 = [match.value for match in parse(config['id_path'][0]).find(obj1)]
+            if len(id1) == 0:
+                raise ValueError('Missing id in Object1')
+            id2 = [match.value for match in parse(config['id_path'][1]).find(obj2)]
+            if len(id2) == 0:
+                raise ValueError('Missing id in Object2')
+            ret_dict = {
+                'id': [id1[0], id2[0]],
+                'feature_vector': vector
+            }
+            return ret_dict
+        except Exception as e:
+            logger.error('[{0}-{1}] {2}'.format(name, idx, e.message))
+            if config['error_handling'] == 'exception':
+                raise e
+            else:  # ignore
+                pass
+
+
 
     def set_root_path(self, root_path):
         """
