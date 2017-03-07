@@ -2,17 +2,24 @@
 
 import pytest
 
-from ..similarity.tokenizer import q_grams
+# from ..similarity.tokenizer import q_grams
 from ..similarity import *
 
-def test_q_grams():
-    assert q_grams('abc', 3) == ['##a', '#ab', 'abc', 'bc#', 'c##']
+# only test hash code for phonetic algorithms
+from ..similarity.nysiis import _nysiis
+from ..similarity.soundex import _soundex
+from ..similarity.metaphone import _metaphone
+
+# def test_q_grams():
+#     assert q_grams('abc', 3) == ['##a', '#ab', 'abc', 'bc#', 'c##']
 
 @pytest.mark.parametrize('s1, s2, distance', [
     ('abc', 'abc', 0),
     ('acc', 'abcd', None),
     ('testing', 'test', None),
-    ('hello~', 'alloha', 5)
+    ('hello~', 'alloha', 5),
+    ([1,2,3], [3,2,3], 1),
+    ([2,3,1], [3,2,1], 2)
 ])
 def test_hamming_distance(s1, s2, distance):
     if s1 is None or s2 is None:
@@ -106,17 +113,16 @@ def test_jaro_winkler(s1, s2, similarity):
     else:
         assert pytest.approx(jaro_winkler_similarity(s1, s2), 0.001) == similarity
 
-@pytest.mark.parametrize('set1, set2, similarity', [
-    (set(['abc', 'bcd', 'cde']), set(['cde', 'efg', 'fgh']), 0.3333),
-    (set(['abc', 'def']), set(['abc', 'def']), 1.0),
-    (set(['abc', 'def']), set(['hij', 'klm']), 0.0)
+@pytest.mark.parametrize('vec1, vec2, similarity', [
+    ([1, 2, 1, 3], [2, 5, 2, 3], 0.916),
+    ([1, 2], [2, 3], 0.992)
 ])
-def test_cosine_similarity(set1, set2, similarity):
-    if set1 is None or set2 is None:
+def test_cosine_similarity(vec1, vec2, similarity):
+    if vec1 is None or vec2 is None:
         with pytest.raises(TypeError):
-            cosine_similarity(set1, set2)
+            cosine_similarity(vec1, vec2)
     else:
-        assert pytest.approx(cosine_similarity(set1, set2), 0.001) == similarity
+        assert pytest.approx(cosine_similarity(vec1, vec2), 0.001) == similarity
 
 @pytest.mark.parametrize('set1, set2, similarity', [
     (set(['abc', 'bcd', 'cde']), set(['cde', 'efg', 'fgh']), 0.2),
@@ -147,9 +153,9 @@ def test_jaccard_index_similarity(set1, set2, similarity):
 def test_tf_idf(bag1, bag2, df_corpus, doc_size, math_log, score):
     if bag1 is None or bag2 is None or df_corpus is None:
         with pytest.raises(TypeError):
-            tf_idf(bag1, bag2)
+            tf_idf_similarity(bag1, bag2)
     else:
-        assert pytest.approx(tf_idf(bag1, bag2, df_corpus, doc_size, math_log), 0.001) == score
+        assert pytest.approx(tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log), 0.001) == score
 
 @pytest.mark.parametrize('s, code', [
     ('Soundex','S532'),
@@ -186,12 +192,12 @@ def test_tf_idf(bag1, bag2, df_corpus, doc_size, math_log, score):
 def test_soundex(s, code):
     if s is None:
         with pytest.raises(ValueError):
-            soundex(s)
+            _soundex(s)
     if isinstance(s, int):
         with pytest.raises(TypeError):
-            soundex(s)
+            _soundex(s)
     else:
-        assert soundex(s) == code
+        assert _soundex(s) == code
 
 @pytest.mark.parametrize('s, code', [
     ('DGIB','JB'),
@@ -226,12 +232,12 @@ def test_soundex(s, code):
 def test_metaphone(s, code):
     if s is None:
         with pytest.raises(ValueError):
-            metaphone(s)
+            _metaphone(s)
     if isinstance(s, int):
         with pytest.raises(TypeError):
-            metaphone(s)
+            _metaphone(s)
     else:
-        assert metaphone(s) == code
+        assert _metaphone(s) == code
 
 @pytest.mark.parametrize('s, code', [
     ('Worthy','WARTY'),
@@ -270,9 +276,9 @@ def test_metaphone(s, code):
 def test_nysiis(s, code):
     if s is None:
         with pytest.raises(ValueError):
-            nysiis(s)
+            _nysiis(s)
     if isinstance(s, int):
         with pytest.raises(TypeError):
-            nysiis(s)
+            _nysiis(s)
     else:
-        assert nysiis(s) == code
+        assert _nysiis(s) == code

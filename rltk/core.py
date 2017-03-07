@@ -139,7 +139,7 @@ class Core(object):
             file_path (str): Path of the feature configuration file. This file should be formatted in json.
 
         Examples
-            >>> tk1.load_feature_configuration('C1', 'feature_config_1.json')
+            >>> tk.load_feature_configuration('C1', 'feature_config_1.json')
 
             Content of configuration file (please remove all comments before using):
 
@@ -350,8 +350,8 @@ class Core(object):
         other.
 
         Args:
-            s1 (str): Sequence 1.
-            s2 (str): Sequence 2.
+            s1 (str or list): Sequence 1.
+            s2 (str or list): Sequence 2.
 
         Returns:
             int: Hamming distance between two sequences.
@@ -359,12 +359,42 @@ class Core(object):
         Examples:
             >>> tk.hamming_distance('ab','cd')
             2
-            >>> tk.hamming_distance('ab','bc')
-            2
-            >>> tk.hamming_distance('ab','ab')
-            0
+            >>> tk.hamming_distance([1,2,3],[3,2,3])
+            1
         """
         return hamming_distance(s1, s2)
+
+    def hamming_similarity(self, s1, s2):
+        """
+        Hamming similarity is computed as 1 - normalized_hamming_distance.
+
+        Args:
+            s1 (str or list): Sequence 1.
+            s2 (str or list): Sequence 2.
+
+        Returns:
+            float: Hamming similarity.
+
+        Examples:
+            >>> tk.hamming_similarity('ab','cd')
+            0
+            >>> tk.hamming_similarity([1,2,3],[3,2,3])
+            0.666666666667
+        """
+        return hamming_distance(s1, s2)
+
+    def normalized_hamming_distance(self, s1, s2):
+        """
+        Hamming similarity is computed as 1 - normalized_hamming_distance.
+
+        Args:
+            s1 (str or list): Sequence 1.
+            s2 (str or list): Sequence 2.
+
+        Returns:
+            float: Normalized Hamming distance.
+        """
+        return normalized_hamming_distance(s1, s2)
 
     def levenshtein_similarity(self, s1, s2):
         """
@@ -562,20 +592,7 @@ class Core(object):
         """
         return cosine_similarity(set1, set2)
 
-    def cosine_distance(self, set1, set2):
-        """
-        Distance of Cosine similarity is computed as 1 - cosine_similarity.
-
-        Args:
-            set1 (set): Set 1.
-            set2 (set): Set 2.
-
-        Returns:
-            int: Distance of Consine similarity.
-        """
-        return cosine_distance(set1, set2)
-
-    def tf_idf(self, bag1, bag2, name, math_log=False):
+    def tf_idf_similarity(self, bag1, bag2, name, math_log=False):
         """
         Computes TF/IDF measure. This measure employs the notion of TF/IDF score commonly used in information retrieval (IR) to find documents that are relevant to keyword queries. The intuition underlying the TF/IDF measure is that two strings are similar if they share distinguishing terms.
 
@@ -590,64 +607,64 @@ class Core(object):
             float: TF/IDF similarity.
 
         Examples:
-            >>> tk.tf_idf(['a', 'b', 'a'], ['a', 'c','d','f'], name='B1')
+            >>> tk.tf_idf_similarity(['a','b','a'], ['a','c','d','f'], name='B1')
             0.17541160386140586
         """
         self._has_resource(name, 'df_corpus')
-        return tf_idf(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
+        return tf_idf_similarity(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
 
-    def soundex(self, s):
+    def soundex_similarity(self, s1, s2):
         """
-        The standard used for this implementation is provided by `U.S. Census Bureau <https://www.archives.gov/research/census/soundex.html>`_.
+        The standard used for soundex implementation is provided by `U.S. Census Bureau <https://www.archives.gov/research/census/soundex.html>`_.
+        soundex('ashcraft') == 'A261, soundex('pineapple') == 'P514'.
 
         Args:
-            s (str): Sequence.
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
 
         Returns:
-            str: Coded sequence.
+            int: 1 for same soundex code, 0 for different.
 
         Examples:
-            >>> tk.soundex('ashcraft')
-            'A261'
-            >>> tk.soundex('pineapple')
-            'P514'
+            >>> tk.soundex_similarity('ashcraft', 'pineapple')
+            0
         """
-        return soundex(s)
+        return soundex_similarity(s1, s2)
 
-    def metaphone(self, s):
+    def metaphone_similarity(self, s1, s2):
         """
         Metaphone fundamentally improves on the Soundex algorithm by using information about variations and inconsistencies in English spelling and pronunciation to produce a more accurate encoding, which does a better job of matching words and names which sound similar. As with Soundex, similar-sounding words should share the same keys. Metaphone is available as a built-in operator in a number of systems.
+        metaphone('ashcraft') == 'AXKRFT', metaphone('pineapple') == 'PNPL'.
 
         Args:
-            s (str): Sequence.
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
 
         Returns:
-            str: Coded sequence.
+            int: 1 for same metaphone code, 0 for different.
 
         Examples:
-            >>> tk.metaphone('ashcraft')
-            'AXKRFT'
-            >>> tk.metaphone('pineapple')
-            'PNPL'
+            >>> tk.metaphone_similarity('ashcraft', 'pineapple')
+            0
         """
-        return metaphone(s)
+        return metaphone_similarity(s1, s2)
 
-    def nysiis(self, s):
+    def nysiis_similarity(self, s1, s2):
         """
         New York State Immunization Information System (NYSIIS) Phonetic Code is a phonetic algorithm created by `The New York State Department of Health's (NYSDOH) Bureau of Immunization
         <https://www.health.ny.gov/prevention/immunization/information_system/>`_.
+        metaphone('ashcraft') == 'AXKRFT', metaphone('pineapple') == 'PNPL'.
 
         Args:
-            s (str): Sequence.
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
 
         Returns:
-            str: Coded sequence.
+            int: 1 for same NYSIIS code, 0 for different.
 
         Examples:
-            >>> tk.metaphone('ashcraft')
-            'AXKRFT'
-            >>> tk.metaphone('pineapple')
-            'PNPL'
+            >>> tk.nysiis_similarity('ashcraft', 'pineapple')
+            0
         """
-        return nysiis(s)
+        return nysiis_similarity(s1, s2)
 

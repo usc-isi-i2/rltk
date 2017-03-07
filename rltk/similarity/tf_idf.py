@@ -4,7 +4,28 @@ import math
 import utils
 
 
-def _tf_idf(bag1, bag2, df_corpus, doc_size, math_log):
+def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
+    """
+    Computes TF/IDF measure. This measure employs the notion of TF/IDF score commonly used in information retrieval (IR) to find documents that are relevant to keyword queries. The intuition underlying the TF/IDF measure is that two strings are similar if they share distinguishing terms.
+
+    Args:
+        bag1 (list): Bag 1.
+        bag2 (list): Bag 2.
+        df_corpus (dict): The pre calculated document frequency of corpus.
+        doc_size (int): total documents used in corpus.
+        math_log (bool, optional): Flag to indicate whether math.log() should be used in TF and IDF formulas. Defaults to False.
+
+    Returns:
+        float: TF/IDF cosine similarity.
+
+    Examples:
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':1, 'c':1}, 3)
+        0.17541160386140586
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True)
+        0.11166746710505392
+        >>> rltk.tfidf(['a', 'b', 'a'], ['a'], {'a':3, 'b':1, 'c':1}, 3)
+        0.5547001962252291
+    """
 
     utils.check_for_none(bag1, bag2, df_corpus)
     utils.check_for_type(list, bag1, bag2)
@@ -34,78 +55,3 @@ def _tf_idf(bag1, bag2, df_corpus, doc_size, math_log):
 
     # cosine similarity
     return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
-
-def tf_idf(bag1, bag2, df_corpus, doc_size, math_log=False):
-    """
-    Computes TF/IDF measure. This measure employs the notion of TF/IDF score commonly used in information retrieval (IR) to find documents that are relevant to keyword queries. The intuition underlying the TF/IDF measure is that two strings are similar if they share distinguishing terms.
-
-    Args:
-        bag1 (list): Bag 1.
-        bag2 (list): Bag 2.
-        df_corpus (dict): The pre calculated document frequency of corpus.
-        doc_size (int): total documents used in corpus.
-        math_log (bool, optional): Flag to indicate whether math.log() should be used in TF and IDF formulas. Defaults to False.
-
-    Returns:
-        float: TF/IDF cosine similarity.
-
-    Examples:
-        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':1, 'c':1}, 3)
-        0.17541160386140586
-        >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True)
-        0.11166746710505392
-        >>> rltk.tfidf(['a', 'b', 'a'], ['a'], {'a':3, 'b':1, 'c':1}, 3)
-        0.5547001962252291
-    """
-    return _tf_idf(bag1, bag2, df_corpus, doc_size, math_log)
-
-
-# def tf_idf_original(bag1, bag2, corpus_list=None, dampen=False):
-#     return _tf_idf_original(bag1, bag2, corpus_list, dampen)
-#
-# def _tf_idf_original(bag1, bag2, corpus_list, dampen):
-#     # code modified from py_stringmatching
-#     # Copyright (c) 2016, anhaidgroup
-#     # All rights reserved.
-#
-#     utils.check_for_none(bag1, bag2)
-#     utils.check_for_type(list, bag1, bag2)
-#
-#     # if corpus is not provided treat input string as corpus
-#     if corpus_list is None:
-#         corpus_list = [bag1, bag2]
-#     corpus_size = len(corpus_list)
-#
-#      # term frequency for input strings
-#     tf_x, tf_y = collections.Counter(bag1), collections.Counter(bag2)
-#
-#     # number of documents an element appeared
-#     element_freq = {}
-#
-#     # set of unique element
-#     total_unique_elements = set()
-#     for document in corpus_list:
-#         temp_set = set()
-#         for element in document:
-#             # adding element only if it is present in one of two input string
-#             if element in bag1 or element in bag2:
-#                 temp_set.add(element)
-#                 total_unique_elements.add(element)
-#
-#         # update element document frequency for this document
-#         for element in temp_set:
-#             element_freq[element] = element_freq[element] + 1 if element in element_freq else 1
-#     idf_element, v_x, v_y, v_x_y, v_x_2, v_y_2 = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-#
-#     # tfidf calculation
-#     for element in total_unique_elements:
-#         idf_element = corpus_size * 1.0 / element_freq[element]
-#         v_x = 0 if element not in tf_x else (math.log(idf_element) * math.log(tf_x[element] + 1)) if dampen else (
-#             idf_element * tf_x[element])
-#         v_y = 0 if element not in tf_y else (math.log(idf_element) * math.log(tf_y[element] + 1)) if dampen else (
-#             idf_element * tf_y[element])
-#         v_x_y += v_x * v_y
-#         v_x_2 += v_x * v_x
-#         v_y_2 += v_y * v_y
-#
-#     return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))

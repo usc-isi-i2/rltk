@@ -1,6 +1,6 @@
 import utils
 
-def soundex(s):
+def _soundex(s):
     """
     The standard used for this implementation is provided by `U.S. Census Bureau <https://www.archives.gov/research/census/soundex.html>`_.
 
@@ -59,3 +59,6 @@ def soundex(s):
     sdx = sdx[0:4].ljust(4, '0')
 
     return sdx
+
+def soundex_similarity(s1, s2):
+    return 1 if _soundex(s1) == _soundex(s2) else 0

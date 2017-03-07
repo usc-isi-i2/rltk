@@ -1,6 +1,6 @@
 import utils
 
-def nysiis(s):
+def _nysiis(s):
     """
     New York State Immunization Information System (NYSIIS) Phonetic Code is a phonetic algorithm created by `The New York State Department of Health's (NYSDOH) Bureau of Immunization
     <https://www.health.ny.gov/prevention/immunization/information_system/>`_.
@@ -111,3 +111,6 @@ def nysiis(s):
     # step 8 was already done
 
     return key
+
+def nysiis_similarity(s1, s2):
+    return 1 if _nysiis(s1) == _nysiis(s2) else 0
