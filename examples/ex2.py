@@ -2,7 +2,7 @@
 
 import rltk
 
-j1 = {'id': 1, 'name': 'abc', 'gender': 'male'},
+j1 = {'id': 1, 'name': 'abc', 'gender': 'male'}
 j2 = {'id': '2','name': 'bcd', 'gender': 'male'}
 edit_distance_cost = {'insert': {'c':50}, 'insert_default':100, 'delete_default':100, 'substitute_default':100}
 

@@ -19,6 +19,7 @@ class Core(object):
 
     def __init__(self):
         self.set_root_path('.')
+        self._crf_tokenizer = CrfTokenizer()
 
     def _has_resource(self, name, type):
         if name not in self._rs_dict or type != self._rs_dict[name]['type']:
@@ -118,11 +119,10 @@ class Core(object):
                     if len(doc_parts) == 0:
                         continue
 
-                    crf_tokenizer = CrfTokenizer()
                     for part in doc_parts:
                         if not isinstance(part, basestring):
                             raise TypeError('json_path must points to an array of strings')
-                        tokens = crf_tokenizer.tokenize(part)
+                        tokens = self._crf_tokenizer.tokenize(part)
                         count_for_token(tokens)
 
                 # count for docs (each line is a doc)
@@ -131,6 +131,57 @@ class Core(object):
         self._rs_dict[name] = item
 
     def load_feature_configuration(self, name, file_path):
+        """
+        Load feature configuration resource.
+
+        Args:
+            name (str): Name of the resource.
+            file_path (str): Path of the feature configuration file. This file should be formatted in json.
+
+        Examples
+            >>> tk1.load_feature_configuration('C1', 'feature_config_1.json')
+
+            Content of configuration file (please remove all comments before using):
+
+            .. code-block:: javascript
+
+                {
+                    // the id_path for id field.
+                    // only need one element if json dicts have the same structure.
+                    "id_path": ["id", "index"],
+                    // default value for missing result value.
+                    "missing_value_default": 0,
+                    // ignore or exception.
+                    "error_handling": "exception",
+                    // optional, only log to file when it is set.
+                    "logging": {
+                        // log file path.
+                        "file_path": "log1.log",
+                        // optional, log output level.
+                        "level": "error",
+                        // optional, log format. It can be error, warning, info.
+                        "format": "%(asctime)s %(levelname)s %(message)s"
+                    },
+                    // feature vectors
+                    "features": [
+                        {
+                            // function.
+                            "function": "levenshtein_distance",
+                            // json path for fields.
+                            // only need one element if json dicts have the same structure.
+                            "json_path": ["gender", "$.person.gender"],
+                            // optional, other parameters that need to be used in function.
+                            "other_parameters": {},
+                            // optional, the content of file should be a json dict.
+                            // If `other_parameters` is set, this value will be ignored.
+                            "other_parameters_file_path": "lev_parameters_1.json"
+                        },
+                        ...
+                    ]
+                }
+
+
+        """
         self._check_valid_resource(name, 'feature_configuration')
 
         LOGGING_STRING_MAP = {'info': logging.INFO, 'warning': logging.WARNING, 'error': logging.ERROR}
@@ -184,6 +235,22 @@ class Core(object):
             self._rs_dict[name] = item
 
     def compute_feature_vector(self, obj1, obj2, name):
+        """
+        Compute feature vector for two objects.
+
+        Args:
+            obj1 (dict): Object1, json dict.
+            obj2 (dict): Object2, json dict.
+            name (str): Name of resource (feature configuration).
+
+        Returns:
+            dict: feature vector.
+
+        Examples:
+            >>> tk.load_feature_configuration('C1', 'feature_config_1.json')
+            >>> print tk.compute_feature_vector(j1, j2, name='C1')
+            {'id': [1, '2'], 'feature_vector': [0.33333333333333337, 1.0]}
+        """
         self._has_resource(name, 'feature_configuration')
 
         config = self._rs_dict[name]['data']
@@ -218,7 +285,7 @@ class Core(object):
                 # other parameters
                 if 'other_parameters' not in feature:
                     if 'other_parameters_file_path' not in feature:
-                        raise ValueError('Missing value of other_parameters (file_path)')
+                        feature['other_parameters'] = {}
                     else:
                         with open(self._get_abs_path(feature['other_parameters_file_path'])) as f:
                             feature['other_parameters'] = json.loads(f.read())
