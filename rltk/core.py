@@ -385,7 +385,7 @@ class Core(object):
 
     def normalized_hamming_distance(self, s1, s2):
         """
-        Hamming similarity is computed as 1 - normalized_hamming_distance.
+        This normalized distance is computed as hamming distance divided by the maximum length of two sequences.
 
         Args:
             s1 (str or list): Sequence 1.
@@ -605,7 +605,7 @@ class Core(object):
             set2 (set): Set 2.
 
         Returns:
-            float: Consine similarity.
+            float: Cosine similarity.
 
         Examples:
             >>> tk.cosine_similarity([1, 2, 1, 3], [2, 5, 2, 3])
