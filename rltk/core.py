@@ -396,7 +396,7 @@ class Core(object):
         """
         return normalized_hamming_distance(s1, s2)
 
-    def levenshtein_similarity(self, s1, s2):
+    def levenshtein_similarity(self, s1, s2, name):
         """
         The Levenshtein similarity is computed as 1 - normalized_levenshtein_distance.
 
@@ -406,9 +406,21 @@ class Core(object):
             name (str): Name of resource (edit distance table).
 
         Returns:
-            float: Levenshtein Similarity between [0.0, 1.0].
+            float: Levenshtein Similarity.
         """
-        return levenshtein_similarity(s1, s2)
+        if name is None:
+            return levenshtein_similarity(s1, s2)
+        else:
+            self._has_resource(name, 'edit_distance_table')
+
+            insert = self._rs_dict[name]['data']['insert']
+            delete = self._rs_dict[name]['data']['delete']
+            substitute = self._rs_dict[name]['data']['substitute']
+            insert_default = self._rs_dict[name]['data']['insert_default']
+            delete_default = self._rs_dict[name]['data']['delete_default']
+            substitute_default = self._rs_dict[name]['data']['substitute_default']
+            return levenshtein_similarity(s1, s2, insert, delete, substitute,
+                               insert_default, delete_default, substitute_default)
 
     def levenshtein_distance(self, s1, s2, name=None):
         """
@@ -443,19 +455,32 @@ class Core(object):
             return levenshtein_distance(s1, s2, insert, delete, substitute,
                                insert_default, delete_default, substitute_default)
 
-    def normalized_levenshtein_distance(self, s1, s2):
+    def normalized_levenshtein_distance(self, s1, s2, name):
         """
-        This distance is computed as levenshtein distance divided by the length of the longest string. This method
-        doesn't support customization of operation cost.
+        This normalized distance is computed as levenshtein distance divided by the maximum cost of insertion from
+        empty string to s1 or s2.
 
         Args:
             s1 (str): Sequence 1.
             s2 (str): Sequence 2.
+            name (str): Name of resource (edit distance table).
 
         Returns:
-            float: Normalized Levenshtein Distance between [0.0, 1.0].
+            float: Normalized Levenshtein Distance.
         """
-        return normalized_levenshtein_distance(s1, s2)
+        if name is None:
+            return normalized_levenshtein_distance(s1, s2)
+        else:
+            self._has_resource(name, 'edit_distance_table')
+
+            insert = self._rs_dict[name]['data']['insert']
+            delete = self._rs_dict[name]['data']['delete']
+            substitute = self._rs_dict[name]['data']['substitute']
+            insert_default = self._rs_dict[name]['data']['insert_default']
+            delete_default = self._rs_dict[name]['data']['delete_default']
+            substitute_default = self._rs_dict[name]['data']['substitute_default']
+            return normalized_levenshtein_distance(s1, s2, insert, delete, substitute,
+                               insert_default, delete_default, substitute_default)
 
     def damerau_levenshtein_distance(self, s1, s2):
         """
