@@ -608,12 +608,8 @@ class Core(object):
             float: Consine similarity.
 
         Examples:
-            >>> tk.cosine_similarity(set([1,2]), set([3,4]))
-            0.0
-            >>> tk.cosine_similarity(set([1,2]), set([2,3]))
-            0.5
-            >>> tk.cosine_similarity(set([1,2]), set([1,2]))
-            1.0
+            >>> tk.cosine_similarity([1, 2, 1, 3], [2, 5, 2, 3])
+            0.916341933823
         """
         return cosine_similarity(set1, set2)
 
