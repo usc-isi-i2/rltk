@@ -17,8 +17,7 @@
     {
       "function": "levenshtein_similarity",
       "json_path": ["gender", "gender"],
-      "get_first": true,
-      "other_parameters": {}
+      "get_first": true
     }
   ]
 }
