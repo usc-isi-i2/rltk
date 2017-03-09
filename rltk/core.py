@@ -146,7 +146,7 @@ class Core(object):
             .. code-block:: javascript
 
                 {
-                    // the id_path for id field.
+                    // the id_path for id field. The id should be a string or number.
                     // only need one element if json dicts have the same structure.
                     "id_path": ["id", "index"],
                     // default value for missing result value.
@@ -322,6 +322,52 @@ class Core(object):
                 raise e
             else:  # ignore
                 pass
+
+    def featurize_ground_truth(self, feature_file_path, ground_truth_file_path, output_file_path=None):
+        """
+        Featurize the orginal feature file with ground truth.
+
+        Args:
+            feature_file_path (str): Json line file of feature vector dicts. \
+                Each json object should contains a field of id with the array of two elements.
+            ground_truth_file_path (str): Json line file of ground truth.\
+                Each json object should contains a field of id with the array of two elements. \
+                It also need to contains a field named `label` for ground truth.
+            output_file_path (str): If it is None, the featurized object will print to STDOUT. \
+                Defaults to None.
+        """
+        def hashed_id(ids):
+            if len(ids) != 2:
+                raise ValueError('Incorrect number of id')
+            sort_ids = sorted(ids)
+
+            # in order to solve the collision in hashing differentiate types of data
+            # and to keep just one level comparison of hash key,
+            # add fixed length of type mark first
+            # here str != unicode (maybe it needs to compare on their base class basestring)
+            return '{0}-{1}-{2}-{3}'\
+                .format(type(ids[0]).__name__, type(ids[1]).__name__, str(ids[0]), str(ids[1]))
+
+        # read ground truth into memory
+        ground_truth = dict()
+        with open(self._get_abs_path(feature_file_path), 'r') as f:
+            for line in f:
+                data = json.loads(line)
+                k, v = hashed_id(data['id']), data['label']
+                ground_truth[k] = v
+
+        # featurize feature file
+        with open(self._get_abs_path(ground_truth_file_path), 'r') as f:
+            for line in f:
+                data = json.loads(line)
+                k = hashed_id(data['id'])
+                if k in ground_truth:
+                    data['label'] = ground_truth[k]
+                    if output_file_path is not None:
+                        with open(self._get_abs_path(output_file_path), 'w') as out:
+                            print >> out, data
+                    else:
+                        print data
 
     def set_root_path(self, root_path):
         """
