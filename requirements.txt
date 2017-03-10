@@ -1,6 +1,9 @@
 alabaster>=0.7.9
 digCrfTokenizer
 jsonpath-rw>=1.4.0
+numpy>=1.10
 Sphinx>=1.5
+scikit-learn>=0.18.0
+scipy>=0.10.0
 sphinx-autobuild>=0.6.0
 sphinxcontrib-napoleon>=0.6.0

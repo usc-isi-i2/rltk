@@ -6,7 +6,7 @@ from jsonpath_rw import parse
 from digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
 from similarity import *
-
+from classifier import *
 
 class Core(object):
 
@@ -325,7 +325,7 @@ class Core(object):
 
     def featurize_ground_truth(self, feature_file_path, ground_truth_file_path, output_file_path=None):
         """
-        Featurize the orginal feature file with ground truth.
+        Featurize the ground truth wby feature vector.
 
         Args:
             feature_file_path (str): Json line file of feature vector dicts. \
@@ -333,7 +333,7 @@ class Core(object):
             ground_truth_file_path (str): Json line file of ground truth.\
                 Each json object should contains a field of id with the array of two elements. \
                 It also need to contains a field named `label` for ground truth.
-            output_file_path (str): If it is None, the featurized object will print to STDOUT. \
+            output_file_path (str): If it is None, the featurized ground truth will print to STDOUT. \
                 Defaults to None.
         """
         def hashed_id(ids):
@@ -368,6 +368,20 @@ class Core(object):
                             print >> out, data
                     else:
                         print data
+
+    def train_classifier(self, featurized_groundtruth, config):
+        x, y = [], []
+        for obj in featurized_groundtruth:
+            x.append(obj['feature_vector'])
+            y += obj['label']
+
+        # train
+        if config['function'] == 'svm':
+            if 'model_parameters' not in config:
+                config['model_parameters'] = {}
+            if 'svm_parameters' not in config:
+                config['svm_parameters'] = {}
+            return svm(config['svm_parameters']).fit(x, y, **config['model_parameters'])
 
     def set_root_path(self, root_path):
         """
