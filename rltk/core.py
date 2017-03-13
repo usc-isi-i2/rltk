@@ -369,19 +369,33 @@ class Core(object):
                     else:
                         print data
 
-    def train_classifier(self, featurized_groundtruth, config):
+    def train_classifier(self, featurized_ground_truth, config):
+        """
+        Using featurized ground truth to train classifier.
+
+        Args:
+            featurized_ground_truth (dict): Array of featurized ground truth json dicts.
+            config (dict): Configuration dict of classifier and parameters includes `function`, \
+                `function_parameters` and `model_parameter`. \
+                It accepts `svm`, `k_neighbors`, `gaussian_process`, `decision_tree`, \
+                `random_forest`, `ada_boost`, `mlp`, `gaussian_naive_bayes`, `quadratic_discriminant_analysis` \
+                as function.
+
+        Returns:
+            Object: Model of the classifier.
+        """
         x, y = [], []
-        for obj in featurized_groundtruth:
+        for obj in featurized_ground_truth:
             x.append(obj['feature_vector'])
             y += obj['label']
 
         # train
-        if config['function'] == 'svm':
-            if 'model_parameters' not in config:
-                config['model_parameters'] = {}
-            if 'svm_parameters' not in config:
-                config['svm_parameters'] = {}
-            return svm(config['svm_parameters']).fit(x, y, **config['model_parameters'])
+        function = get_classifier_class(config['function'])
+        if 'function_parameters' not in config:
+            config['function_parameters'] = {}
+        if 'model_parameters' not in config:
+            config['model_parameters'] = {}
+        return function(**config['function_parameters']).fit(x, y, **config['model_parameters'])
 
     def set_root_path(self, root_path):
         """
