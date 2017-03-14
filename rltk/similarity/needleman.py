@@ -3,6 +3,7 @@ import utils
 def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
     """
     return the score of making s2 to s1
+    if there's no score found in score_table, match & mismatch will be used.
     """
     def get_score(c1, c2):
         if c1 in score_table and c2 in score_table[c1]:
@@ -11,7 +12,7 @@ def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={
             return match if c1 == c2 else mismatch
 
     utils.check_for_none(s1, s2)
-    utils.check_for_type(str, s1, s2)
+    utils.check_for_type(basestring, s1, s2)
 
     s1 = utils.unicode_normalize(s1)
     s2 = utils.unicode_normalize(s2)
@@ -49,4 +50,5 @@ def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={
             ret_score += gap
         else:
             j -= 1
+
     return ret_score
