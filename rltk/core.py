@@ -672,6 +672,30 @@ class Core(object):
         """
         return jaccard_index_distance(set1, set2)
 
+    def hybrid_jaccard_similarity(self, set1, set2, threshold=0.5, function=jaro_winkler_similarity, parameters={}):
+        """
+        Generalized Jaccard Measure.
+
+        Args:
+            set1 (set): Set 1.
+            set2 (set): Set 2.
+            threshold (float): The threshold to keep the score of similarity function. \
+                Defaults to 0.5.
+            function (function): The reference of a similarity measure function. \
+                It should return the value in range [0,1]. Defaults to `jaccard_index_similarity`.
+            parameters (dict): Other parameters of function. Defaults to empty dict.
+
+        Returns:
+            float: Hybrid Jaccard similarity.
+
+        Examples:
+            >>> def hybrid_test_similarity(m ,n):
+            ...     ...
+            >>> tk.hybrid_jaccard_similarity(set(['a','b','c']), set(['p', 'q']), function=hybrid_test_similarity)
+            0.533333333333
+        """
+        return hybrid_jaccard_similarity(set1, set2, threshold, function, parameters)
+
     def cosine_similarity(self, set1, set2):
         """
         The similarity between the two strings is the cosine of the angle between these two vectors representation.
