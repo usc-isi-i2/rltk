@@ -640,6 +640,23 @@ class Core(object):
         """
         return jaro_winkler_distance(s1, s2, threshold, scaling_factor, prefix_len)
 
+    def dice_similarity(self, set1, set2):
+        """
+        The Dice similarity score is defined as twice the intersection of two sets divided by sum of lengths.
+
+        Args:
+            set1 (set): Set 1.
+            set2 (set): Set 2.
+
+        Returns:
+            float: Dice similarity.
+
+        Examples:
+            >>> tk.dice_similarity(set(['a', 'b']), set(['c', 'b']))
+            0.5
+        """
+        return dice_similarity(set1, set2)
+
     def jaccard_index_similarity(self, set1, set2):
         """
         The Jaccard Index Similarity is then computed as intersection(set1, set2) / union(set1, set2).
