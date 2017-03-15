@@ -138,7 +138,7 @@ class Core(object):
             name (str): Name of the resource.
             file_path (str): Path of the feature configuration file. This file should be formatted in json.
 
-        Examples
+        Examples:
             >>> tk.load_feature_configuration('C1', 'feature_config_1.json')
 
             Content of configuration file (please remove all comments before using):
@@ -325,7 +325,7 @@ class Core(object):
 
     def featurize_ground_truth(self, feature_file_path, ground_truth_file_path, output_file_path=None):
         """
-        Featurize the ground truth wby feature vector.
+        Featurize the ground truth by feature vector.
 
         Args:
             feature_file_path (str): Json line file of feature vector dicts. \
@@ -592,7 +592,7 @@ class Core(object):
         """
         return jaro_distance(self, s1, s2)
 
-    def jaro_winkler_similarity(self, s1, s2, threshold=0.7, scaling_factor=0.1):
+    def jaro_winkler_similarity(self, s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):
         """
         The max length for common prefix is 4.
 
@@ -603,6 +603,7 @@ class Core(object):
                 when compared strings have a Jaro Distance above it. Defaults to 0.7.
             scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards \
                 for having common prefixes. Defaults to 0.1.
+            prefix_len (int): Length of common prefix. Defaults to 4.
 
         Returns:
             float: Jaro Winkler Similarity.
@@ -613,9 +614,9 @@ class Core(object):
             >>> tk.jaro_winkler_similarity('hello', 'world')
             0.4666666666666666
         """
-        return jaro_winkler_similarity(s1, s2, threshold, scaling_factor)
+        return jaro_winkler_similarity(s1, s2, threshold, scaling_factor, prefix_len)
 
-    def jaro_winkler_distance(self, s1, s2, threshold=0.7, scaling_factor=0.1):
+    def jaro_winkler_distance(self, s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):
         """
         Jaro Winkler Distance is computed as 1 - jaro_winkler_similarity.
 
@@ -626,6 +627,7 @@ class Core(object):
                 a Jaro Distance above it. Defaults to 0.7.
             scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards\
                 for having common prefixes. Defaults to 0.1.
+            prefix_len (int): Length of common prefix. Defaults to 4.
 
         Returns:
             float: Jaro Winkler Similarity.
@@ -636,7 +638,7 @@ class Core(object):
             >>> tk.jaro_winkler_similarity('hello', 'world')
             0.4666666666666666
         """
-        return jaro_winkler_distance(s1, s2, threshold, scaling_factor)
+        return jaro_winkler_distance(s1, s2, threshold, scaling_factor, prefix_len)
 
     def jaccard_index_similarity(self, set1, set2):
         """

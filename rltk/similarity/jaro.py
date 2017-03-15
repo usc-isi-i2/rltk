@@ -1,14 +1,16 @@
 import math
 import utils
 
-def _jaro_winkler(s1, s2, threshold = 0.7, scaling_factor = 0.1):
+
+def _jaro_winkler(s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):
     jaro = _jaro_distance(s1, s2)
     if jaro > threshold:
-        l = min(len(_get_prefix(s1, s2)), 4) # max len of common prefix is 4
+        l = min(len(_get_prefix(s1, s2)), prefix_len) # max len of common prefix is 4
         jaro += (scaling_factor * l * (1.0 - jaro))
     return jaro
 
-def jaro_winkler_similarity(s1, s2, threshold = 0.7, scaling_factor = 0.1):
+
+def jaro_winkler_similarity(s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):
     """
     The max length for common prefix is 4.
 
@@ -27,9 +29,10 @@ def jaro_winkler_similarity(s1, s2, threshold = 0.7, scaling_factor = 0.1):
         >>> rltk.jaro_winkler_similarity('hello', 'world')
         0.4666666666666666
     """
-    return _jaro_winkler(s1, s2, threshold, scaling_factor)
+    return _jaro_winkler(s1, s2, threshold, scaling_factor, prefix_len)
 
-def jaro_winkler_distance(s1, s2, threshold = 0.7, scaling_factor = 0.1):
+
+def jaro_winkler_distance(s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):
     """
     Jaro Winkler Distance is computed as 1 - jaro_winkler_similarity.
 
@@ -48,7 +51,8 @@ def jaro_winkler_distance(s1, s2, threshold = 0.7, scaling_factor = 0.1):
         >>> rltk.jaro_winkler_similarity('hello', 'world')
         0.4666666666666666
     """
-    return 1 - _jaro_winkler(s1, s2, threshold, scaling_factor)
+    return 1 - _jaro_winkler(s1, s2, threshold, scaling_factor, prefix_len)
+
 
 def jaro_distance(s1, s2):
     """
