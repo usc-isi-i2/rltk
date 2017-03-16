@@ -13,6 +13,7 @@ from ..similarity.metaphone import _metaphone
 # def test_q_grams():
 #     assert q_grams('abc', 3) == ['##a', '#ab', 'abc', 'bc#', 'c##']
 
+
 @pytest.mark.parametrize('s1, s2, distance', [
     ('abc', 'abc', 0),
     ('acc', 'abcd', None),
@@ -31,6 +32,18 @@ def test_hamming_distance(s1, s2, distance):
     else:
         assert hamming_distance(s1, s2) == distance
 
+@pytest.mark.parametrize('set1, set2, similarity', [
+    (set(['data', 'science']), set(['data']), 0.667),
+    (set([1, 1, 2, 3, 4]), set([2, 3, 4, 5, 6, 7, 7, 8]), 0.545)
+])
+def test_dice_similarity(set1, set2, similarity):
+    if set1 is None or set2 is None:
+        with pytest.raises(ValueError):
+            dice_similarity(set1, set2)
+    else:
+        assert pytest.approx(dice_similarity(set1, set2), 0.001) == similarity
+
+
 @pytest.mark.parametrize('s1, s2, distance, similarity', [
     ('abc', 'def', 3, 0.0),
     ('aaa', 'aaa', 0, 1.0),
@@ -46,6 +59,7 @@ def test_levenshtein(s1, s2, distance, similarity):
     else:
         assert levenshtein_distance(s1, s2) == distance
         assert levenshtein_similarity(s1, s2) == similarity
+
 
 @pytest.mark.parametrize('s1, s2, insert, delete, substitute,'
                          'insert_default, delete_default, substitute_default, distance', [
@@ -66,6 +80,7 @@ def test_weighted_levenshtein(s1, s2, insert, delete, substitute,
         assert levenshtein_distance(s1, s2, insert, delete, substitute,
                  insert_default, delete_default, substitute_default) == distance
 
+
 @pytest.mark.parametrize('s1, s2, distance', [
     ('', '', 0),
     ('abc', '', 3),
@@ -84,6 +99,19 @@ def test_damerau_levenshtein(s1, s2, distance):
     else:
         assert damerau_levenshtein_distance(s1, s2) == distance
 
+# @pytest.mark.parametrize('s1, s2, score', [
+#     ('John Singer Sargent', 'John S. Sargent', 25),
+#     ('John Singer Sargent', 'Jane Klinger Sargent', 24),
+#     ('John Stanislaus Sargent', 'John S. Sargent', 23)
+# ])
+# def test_needleman_wunsch(s1, s2, score):
+#     if s1 is None or s2 is None:
+#         with pytest.raises(ValueError):
+#             needleman_wunsch_score(s1, s2)
+#     else:
+#         assert needleman_wunsch_score(s1, s2) == score
+
+
 @pytest.mark.parametrize('s1, s2, distance', [
     ('dixon', 'dicksonx', 0.767),
     ('martha', 'marhta', 0.944),
@@ -96,6 +124,7 @@ def test_jaro_distance(s1, s2, distance):
             jaro_distance(s1, s2)
     else:
         assert pytest.approx(jaro_distance(s1, s2), 0.001) == distance
+
 
 @pytest.mark.parametrize('s1, s2, similarity', [
     ('dixon', 'dicksonx', 0.813),
@@ -113,6 +142,7 @@ def test_jaro_winkler(s1, s2, similarity):
     else:
         assert pytest.approx(jaro_winkler_similarity(s1, s2), 0.001) == similarity
 
+
 @pytest.mark.parametrize('vec1, vec2, similarity', [
     ([1, 2, 1, 3], [2, 5, 2, 3], 0.916),
     ([1, 2], [2, 3], 0.992)
@@ -123,6 +153,7 @@ def test_cosine_similarity(vec1, vec2, similarity):
             cosine_similarity(vec1, vec2)
     else:
         assert pytest.approx(cosine_similarity(vec1, vec2), 0.001) == similarity
+
 
 @pytest.mark.parametrize('set1, set2, similarity', [
     (set(['abc', 'bcd', 'cde']), set(['cde', 'efg', 'fgh']), 0.2),
@@ -135,6 +166,7 @@ def test_jaccard_index_similarity(set1, set2, similarity):
             jaccard_index_similarity(set1, set2)
     else:
         assert pytest.approx(jaccard_index_similarity(set1, set2), 0.001) == similarity
+
 
 @pytest.mark.parametrize('bag1, bag2, df_corpus, doc_size, math_log, score', [
     # (['a', 'b', 'a'], ['a', 'c'], [['a', 'b', 'a'], ['a', 'c'], ['a']], False, 0.1754),
@@ -156,6 +188,39 @@ def test_tf_idf(bag1, bag2, df_corpus, doc_size, math_log, score):
             tf_idf_similarity(bag1, bag2)
     else:
         assert pytest.approx(tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log), 0.001) == score
+
+
+def test_hybrid_jaccard_similarity():
+    # use a fixed test cases here only to test hybrid jaccard itself.
+    def test_function(m, n):
+        if m == 'a' and n == 'p':
+            return 0.7
+        if m == 'a' and n == 'q':
+            return 0.8
+        if m == 'b' and n == 'p':
+            return 0.5
+        if m == 'b' and n == 'q':
+            return 0.9
+        if m == 'c' and n == 'p':
+            return 0.2
+        if m == 'c' and n == 'q':
+            return 0.1
+
+    assert pytest.approx(hybrid_jaccard_similarity(set(['a','b','c']), set(['p', 'q']), function=test_function),
+                         0.001) == 0.5333
+
+
+@pytest.mark.parametrize('bag1, bag2, similarity', [
+    (['paul', 'johnson'], ['johson', 'paule'], 0.944),
+    (['Niall'], ['Neal'], 0.805)
+])
+def test_monge_elkan_similarity(bag1, bag2, similarity):
+    if bag1 is None or bag2 is None:
+        with pytest.raises(TypeError):
+            monge_elkan_similarity(bag1, bag2)
+    else:
+        assert pytest.approx(monge_elkan_similarity(bag1, bag2), 0.001) == similarity
+
 
 @pytest.mark.parametrize('s, code', [
     ('Soundex','S532'),
@@ -199,6 +264,7 @@ def test_soundex(s, code):
     else:
         assert _soundex(s) == code
 
+
 @pytest.mark.parametrize('s, code', [
     ('DGIB','JB'),
     ('metaphone','MTFN'),
@@ -238,6 +304,7 @@ def test_metaphone(s, code):
             _metaphone(s)
     else:
         assert _metaphone(s) == code
+
 
 @pytest.mark.parametrize('s, code', [
     ('Worthy','WARTY'),

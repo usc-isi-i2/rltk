@@ -39,7 +39,6 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
     for ele1 in bag1:
         max_score = MIN_FLOAT
         for ele2 in bag2:
-            print ele1, ele2, function(ele1, ele2, **parameters)
             max_score = max(max_score, function(ele1, ele2, **parameters))
         score_sum += max_score
 
