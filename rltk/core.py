@@ -689,7 +689,7 @@ class Core(object):
         """
         return jaccard_index_distance(set1, set2)
 
-    def hybrid_jaccard_similarity(self, set1, set2, threshold=0.5, function=jaro_winkler_similarity, parameters={}):
+    def hybrid_jaccard_similarity(self, set1, set2, threshold=0.5, function=None, parameters={}):
         """
         Generalized Jaccard Measure.
 
@@ -699,7 +699,8 @@ class Core(object):
             threshold (float): The threshold to keep the score of similarity function. \
                 Defaults to 0.5.
             function (function): The reference of a similarity measure function. \
-                It should return the value in range [0,1]. Defaults to `jaccard_index_similarity`.
+                It should return the value in range [0,1]. If it is set to None, \
+                `jaro_winlker_similarity` will be used.
             parameters (dict): Other parameters of function. Defaults to empty dict.
 
         Returns:
@@ -711,7 +712,30 @@ class Core(object):
             >>> tk.hybrid_jaccard_similarity(set(['a','b','c']), set(['p', 'q']), function=hybrid_test_similarity)
             0.533333333333
         """
+
+        if not function:
+            function = self.jaro_winkler_similarity
         return hybrid_jaccard_similarity(set1, set2, threshold, function, parameters)
+
+    def monge_elkan_similarity(self, bag1, bag2, function=None, parameters={}):
+        """
+        Monge Elkan similarity.
+
+        Args:
+            bag1 (list): Bag 1.
+            bag2 (list): Bag 2.
+            function (function): The reference of a similarity measure function. \
+                It should return the value in range [0,1]. If it is set to None, \
+                `jaro_winlker_similarity` will be used.
+            parameters (dict): Other parameters of function. Defaults to empty dict.
+
+        Returns:
+            float: Monge Elkan similarity.
+        """
+
+        if not function:
+            function = self.jaro_winkler_similarity
+        return monge_elkan_similarity(bag1, bag2, function, parameters)
 
     def cosine_similarity(self, set1, set2):
         """
