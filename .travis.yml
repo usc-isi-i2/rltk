@@ -6,6 +6,12 @@ branches:
 language: python
 python:
     - '2.7'
+addons:
+  apt:
+    packages:
+      - python-scipy
+      - libatlas3gf-base
+      - libatlas-dev
 install:
     - pip install -r requirements.txt
     - pip install --upgrade --force-reinstall pytest>=3
