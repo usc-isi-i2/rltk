@@ -2,7 +2,6 @@ import utils
 
 def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
     """
-    return the score of making s2 to s1
     if there's no score found in score_table, match & mismatch will be used.
     """
     def get_score(c1, c2):
@@ -28,27 +27,41 @@ def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={
             if i == 0 and j == 0: # [0,0]
                 continue
             elif i == 0: # most top row
-                dp[i][j] = mismatch + dp[i][j-1]
+                dp[i][j] = gap + dp[i][j-1]
             elif j == 0: # most left column
-                dp[i][j] = mismatch + dp[i-1][j]
+                dp[i][j] = gap + dp[i-1][j]
             else:
-                dp[i][j] = max(dp[i][j-1] + mismatch,
-                               dp[i-1][j] + mismatch,
+                dp[i][j] = max(dp[i][j-1] + gap,
+                               dp[i-1][j] + gap,
                                dp[i-1][j-1] + get_score(s1[i-1], s2[j-1]))
 
-    # traceback to find alignment and compute score
-    ret_score = 0
-    i, j = n1, n2
-    while i > 0 or j > 0:
-        score = get_score(s1[i-1], s2[j-1])
-        if i > 0 and j > 0 and dp[i][j] == dp[i-1][j-1] + score:
-            i -= 1
-            j -= 1
-            ret_score += score
-        elif i > 0 and dp[i][j] == dp[i-1][j] + mismatch:
-            i -= 1
-            ret_score += gap
-        else:
-            j -= 1
+    # # traceback to find alignment
+    # i, j = n1, n2
+    # a, b = '', ''
+    # while i > 0 or j > 0:
+    #     score = get_score(s1[i-1], s2[j-1])
+    #     if i > 0 and j > 0 and dp[i][j] == dp[i-1][j-1] + score:
+    #         a = s1[i-1] + a
+    #         b = s2[j-1] + b
+    #         i -= 1
+    #         j -= 1
+    #     elif i > 0 and dp[i][j] == dp[i-1][j] + gap:
+    #         a = s1[i-1] + a
+    #         b = '-' + b
+    #         i -= 1
+    #     else:
+    #         a = '-' + a
+    #         b = s2[j-1] + b
+    #         j -= 1
+    # print a, b
 
-    return ret_score
+    return dp[n1][n2]
+
+# in wiki:
+# John- -Singer Sargent
+# J-ane Klinger Sargent
+# 28.5
+# in lecture slide:
+# John S-inger Sargent
+# Jane Klinger Sargent
+# 24.5
