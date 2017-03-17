@@ -6,15 +6,16 @@ branches:
 language: python
 python:
     - '2.7'
+cache: apt
 addons:
   apt:
     packages:
-      - python-scipy
-      - gfortran
-      - libatlas3gf-base
       - libatlas-dev
+      - libatlas-base-dev
       - liblapack-dev
-      - libopenblas-dev
+      - gfortran
+      - python-numpy
+      - python-scipy
 install:
     - pip install -r requirements.txt
     - pip install --upgrade --force-reinstall pytest>=3
