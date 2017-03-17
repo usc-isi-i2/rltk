@@ -12,8 +12,13 @@ addons:
       - python-scipy
       - libatlas3gf-base
       - libatlas-dev
+      - liblapack-dev
+      - libopenblas-dev
 install:
     - pip install -r requirements.txt
     - pip install --upgrade --force-reinstall pytest>=3
 script:
     - python -m pytest -v --color=yes
+os:
+  - linux
+  - osx
