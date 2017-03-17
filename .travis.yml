@@ -10,6 +10,7 @@ addons:
   apt:
     packages:
       - python-scipy
+      - gfortran
       - libatlas3gf-base
       - libatlas-dev
       - liblapack-dev
@@ -21,4 +22,3 @@ script:
     - python -m pytest -v --color=yes
 os:
   - linux
-  - osx
