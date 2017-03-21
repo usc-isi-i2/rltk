@@ -59,6 +59,25 @@ class Core(object):
             'data': data
         }
 
+    def load_alignment_score_matrix(self, name, score_dict):
+        """
+        Load alignment score matrix for alignment measure methods like Needleman-Wunsch.
+
+        Args:
+            name (str): Name of the resource.
+            score_dict (dict): Alignment score matrix.
+
+        Examples:
+            >>> score_table = {'a': {'c': 3}, 'e': {'f': 9, 'k': 1}}
+            >>> tk.load_edit_distance_table('D1', score_table)
+        """
+        self._check_valid_resource(name, 'alignment_score_matrix')
+
+        self._rs_dict[name] = {
+            'type': 'alignment_score_matrix',
+            'data': score_dict
+        }
+
 
     def load_df_corpus(self, name, file_path, file_type='text', mode='append', json_path=None):
         """
@@ -81,9 +100,10 @@ class Core(object):
         """
         def count_for_token(tokens_):
             for t in tokens_:
-                if t not in item['data']:
-                    item['data'][t] = 0
-                item['data'][t] += 1
+                item['data'][t] = item['data'].get(t, 0) + 1
+                # if t not in item['data']:
+                #     item['data'][t] = 0
+                # item['data'][t] += 1
 
         self._check_valid_resource(name, 'df_corpus')
 
@@ -477,7 +497,7 @@ class Core(object):
         Args:
             s1 (str): Sequence 1.
             s2 (str): Sequence 2.
-            name (str): Name of resource (edit distance table).
+            name (str): Name of resource (edit distance table). Defaults to None.
 
         Returns:
             float: Levenshtein Similarity.
@@ -503,7 +523,7 @@ class Core(object):
         Args:
             s1 (str): Sequence 1.
             s2 (str): Sequence 2.
-            name (str): Name of resource (edit distance table).
+            name (str): Name of resource (edit distance table). Defaults to None.
 
         Returns:
             int: Levenshtein Distance.
@@ -537,7 +557,7 @@ class Core(object):
         Args:
             s1 (str): Sequence 1.
             s2 (str): Sequence 2.
-            name (str): Name of resource (edit distance table).
+            name (str): Name of resource (edit distance table). Defaults to None.
 
         Returns:
             float: Normalized Levenshtein Distance.
@@ -574,6 +594,29 @@ class Core(object):
             2
         """
         return damerau_levenshtein_distance(s1, s2)
+
+    def needleman_wunsch_similarity(self, s1, s2, name=None, match=2, mismatch=-1, gap=-0.5):
+        """
+        This Needleman Wunsch Similarity is computed as needlman_wunsch_score over maximum score of s1 and s2.
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+            name (str): Name of resource (alignment score matrix). Defaults to None.
+            match (int): Score of match.
+            mismatch (int): Score of mismatch.
+            gap (int): Gap penalty.
+
+        Returns:
+            float: Needleman Wunsch Similarity.
+        """
+        if name is None:
+            return needleman_wunsch_similarity(s1, s2, match, mismatch, gap)
+        else:
+            self._has_resource(name, 'alignment_score_matrix')
+
+            score_table = self._rs_dict[name]['data']
+            return needleman_wunsch_similarity(s1, s2, match, mismatch, gap, score_table)
 
     def jaro_distance(self, s1, s2):
         """

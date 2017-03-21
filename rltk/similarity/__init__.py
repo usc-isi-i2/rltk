@@ -2,7 +2,7 @@ from hamming import hamming_distance, hamming_similarity, normalized_hamming_dis
 from dice import dice_similarity
 from levenshtein import levenshtein_distance, levenshtein_similarity, \
     normalized_levenshtein_distance, damerau_levenshtein_distance
-from needleman import needleman_wunsch_score
+from needleman import needleman_wunsch_score, needleman_wunsch_similarity
 from jaro import jaro_winkler_distance, jaro_winkler_similarity, jaro_distance
 from jaccard import jaccard_index_similarity, jaccard_index_distance
 from cosine import cosine_similarity

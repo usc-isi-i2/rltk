@@ -1,14 +1,16 @@
 import utils
 
-def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
+def _get_score(c1, c2, match, mismatch, score_table):
     """
     if there's no score found in score_table, match & mismatch will be used.
     """
-    def get_score(c1, c2):
-        if c1 in score_table and c2 in score_table[c1]:
-            return score_table[c1][c2]
-        else:
-            return match if c1 == c2 else mismatch
+    if c1 in score_table and c2 in score_table[c1]:
+        return score_table[c1][c2]
+    else:
+        return match if c1 == c2 else mismatch
+
+
+def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
 
     utils.check_for_none(s1, s2)
     utils.check_for_type(basestring, s1, s2)
@@ -33,35 +35,21 @@ def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={
             else:
                 dp[i][j] = max(dp[i][j-1] + gap,
                                dp[i-1][j] + gap,
-                               dp[i-1][j-1] + get_score(s1[i-1], s2[j-1]))
-
-    # # traceback to find alignment
-    # i, j = n1, n2
-    # a, b = '', ''
-    # while i > 0 or j > 0:
-    #     score = get_score(s1[i-1], s2[j-1])
-    #     if i > 0 and j > 0 and dp[i][j] == dp[i-1][j-1] + score:
-    #         a = s1[i-1] + a
-    #         b = s2[j-1] + b
-    #         i -= 1
-    #         j -= 1
-    #     elif i > 0 and dp[i][j] == dp[i-1][j] + gap:
-    #         a = s1[i-1] + a
-    #         b = '-' + b
-    #         i -= 1
-    #     else:
-    #         a = '-' + a
-    #         b = s2[j-1] + b
-    #         j -= 1
-    # print a, b
+                               dp[i-1][j-1] + _get_score(s1[i-1], s2[j-1], match, mismatch, score_table))
 
     return dp[n1][n2]
 
-# in wiki:
-# John- -Singer Sargent
-# J-ane Klinger Sargent
-# 28.5
-# in lecture slide:
-# John S-inger Sargent
-# Jane Klinger Sargent
-# 24.5
+
+def needleman_wunsch_similarity(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
+
+    nm = needleman_wunsch_score(s1, s2, match, mismatch, gap, score_table)
+
+    score_s1 = sum([_get_score(c1, c1, match, mismatch, score_table) for c1 in s1])
+    score_s2 = sum([_get_score(c2, c2, match, mismatch, score_table) for c2 in s2])
+
+    max_score = max(score_s1, score_s2)
+
+    if max_score < nm:
+        raise ValueError('Illegal value of score_table')
+
+    return float(nm) / max_score
