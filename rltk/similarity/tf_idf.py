@@ -3,7 +3,6 @@ import math
 
 import utils
 
-
 def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
     """
     Computes TF/IDF measure. This measure employs the notion of TF/IDF score commonly used in information retrieval (IR) to find documents that are relevant to keyword queries. The intuition underlying the TF/IDF measure is that two strings are similar if they share distinguishing terms.
@@ -31,7 +30,7 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
     utils.check_for_none(bag1, bag2, df_corpus)
     utils.check_for_type(list, bag1, bag2)
 
-     # term frequency for input strings
+    # term frequency for input strings
     t_x, t_y = collections.Counter(bag1), collections.Counter(bag2)
     tf_x = {k: float(v) / len(bag1) for k, v in t_x.iteritems()}
     tf_y = {k: float(v) / len(bag2) for k, v in t_y.iteritems()}
@@ -53,6 +52,43 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
             idf_element * tf_x[element])
         v_y = 0 if element not in tf_y else (math.log(idf_element) * tf_y[element]) if math_log else (
             idf_element * tf_y[element])
+        v_x_y += v_x * v_y
+        v_x_2 += v_x * v_x
+        v_y_2 += v_y * v_y
+
+    # cosine similarity
+    return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
+
+
+def compute_tf(bag):
+    t = collections.Counter(bag)
+    return {k: float(v) / len(bag) for k, v in t.iteritems()}
+
+
+def compute_idf(df, doc_size, math_log=False):
+    return {k: doc_size * 1.0 / v if math_log is False \
+            else math.log(doc_size * 1.0 / v) \
+            for k, v in df.iteritems()}
+
+
+def cached_tf_idf_similarity(bag1, bag2, tf_dict1, tf_dict2, idf_dict):
+
+    utils.check_for_type(list, bag1, bag2)
+
+    # unique element
+    total_unique_elements = set()
+    total_unique_elements.update(bag1)
+    total_unique_elements.update(bag2)
+
+    idf_element, v_x, v_y, v_x_y, v_x_2, v_y_2 = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+
+    for element in total_unique_elements:
+        if element not in idf_dict:
+            continue
+
+        idf_element = idf_dict[element]
+        v_x = 0 if element not in tf_dict1 else idf_element * tf_dict1[element]
+        v_y = 0 if element not in tf_dict2 else idf_element * tf_dict2[element]
         v_x_y += v_x * v_y
         v_x_2 += v_x * v_x
         v_y_2 += v_y * v_y

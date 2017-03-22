@@ -818,6 +818,25 @@ class Core(object):
         self._has_resource(name, 'df_corpus')
         return tf_idf_similarity(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
 
+    def compute_tf(self, bag):
+        return compute_tf(bag)
+
+    def compute_idf(self, name, new_name, math_log=False):
+        self._has_resource(name, 'df_corpus')
+
+        data = compute_idf(self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
+
+        self._check_valid_resource(new_name, 'idf_corpus')
+        self._rs_dict[new_name] = {
+            'type': 'idf_corpus',
+            'data': data
+        }
+
+    def cached_tf_idf_similarity(self, bag1, bag2, tf_dict1, tf_dict2, idf_name):
+        self._has_resource(idf_name, 'idf_corpus')
+
+        return cached_tf_idf_similarity(bag1, bag2, tf_dict1, tf_dict2, self._rs_dict[idf_name]['data'])
+
     def soundex_similarity(self, s1, s2):
         """
         The standard used for soundex implementation is provided by `U.S. Census Bureau <https://www.archives.gov/research/census/soundex.html>`_.
