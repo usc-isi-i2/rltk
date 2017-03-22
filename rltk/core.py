@@ -86,13 +86,13 @@ class Core(object):
         Args:
             name (str): Name of the resource.
             file_path (str): Path of the df_corpus file.
-            file_type (str): 'text' or 'json_lines'.
+            file_type (str, optional): 'text' or 'json_lines'.
                 For text file, each line is treated as a document and tokens in line should separated by whitespace.
                 For json line file, each json object is treated as a document. `json_path` should be \
                 set and point to an array of strings which will be \
                 tokenized by `dig-crf-tokenizer <https://github.com/usc-isi-i2/dig-crf-tokenizer>`_.
-            mode (str): 'append' or 'replace'. Defaults to 'append'.
-            json_path (str): Only works when `file_type` is 'json_lines'.
+            mode (str, optional): 'append' or 'replace'. Defaults to 'append'.
+            json_path (str, optional): Only works when `file_type` is 'json_lines'.
 
         Examples:
             >>> tk.load_df_corpus('B1', 'df_corpus_1.txt', file_type='text', mode='replace')
@@ -353,7 +353,7 @@ class Core(object):
             ground_truth_file_path (str): Json line file of ground truth.\
                 Each json object should contains a field of id with the array of two elements. \
                 It also need to contains a field named `label` for ground truth.
-            output_file_path (str): If it is None, the featurized ground truth will print to STDOUT. \
+            output_file_path (str, optional): If it is None, the featurized ground truth will print to STDOUT. \
                 Defaults to None.
         """
         def hashed_id(ids):
@@ -602,10 +602,10 @@ class Core(object):
         Args:
             s1 (str): Sequence 1.
             s2 (str): Sequence 2.
-            name (str): Name of resource (alignment score matrix). Defaults to None.
-            match (int): Score of match.
-            mismatch (int): Score of mismatch.
-            gap (int): Gap penalty.
+            name (str, optional): Name of resource (alignment score matrix). Defaults to None.
+            match (int, optional): Score of match.
+            mismatch (int, optional): Score of mismatch.
+            gap (int, optional): Gap penalty.
 
         Returns:
             float: Needleman Wunsch Similarity.
@@ -646,7 +646,7 @@ class Core(object):
                 when compared strings have a Jaro Distance above it. Defaults to 0.7.
             scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards \
                 for having common prefixes. Defaults to 0.1.
-            prefix_len (int): Length of common prefix. Defaults to 4.
+            prefix_len (int, optional): Length of common prefix. Defaults to 4.
 
         Returns:
             float: Jaro Winkler Similarity.
@@ -670,7 +670,7 @@ class Core(object):
                 a Jaro Distance above it. Defaults to 0.7.
             scaling_factor (int, optional): Scaling factor for how much the score is adjusted upwards\
                 for having common prefixes. Defaults to 0.1.
-            prefix_len (int): Length of common prefix. Defaults to 4.
+            prefix_len (int, optional): Length of common prefix. Defaults to 4.
 
         Returns:
             float: Jaro Winkler Similarity.
@@ -739,12 +739,12 @@ class Core(object):
         Args:
             set1 (set): Set 1.
             set2 (set): Set 2.
-            threshold (float): The threshold to keep the score of similarity function. \
+            threshold (float, optional): The threshold to keep the score of similarity function. \
                 Defaults to 0.5.
-            function (function): The reference of a similarity measure function. \
+            function (function, optional): The reference of a similarity measure function. \
                 It should return the value in range [0,1]. If it is set to None, \
                 `jaro_winlker_similarity` will be used.
-            parameters (dict): Other parameters of function. Defaults to empty dict.
+            parameters (dict, optional): Other parameters of function. Defaults to empty dict.
 
         Returns:
             float: Hybrid Jaccard similarity.
@@ -767,10 +767,10 @@ class Core(object):
         Args:
             bag1 (list): Bag 1.
             bag2 (list): Bag 2.
-            function (function): The reference of a similarity measure function. \
+            function (function, optional): The reference of a similarity measure function. \
                 It should return the value in range [0,1]. If it is set to None, \
                 `jaro_winlker_similarity` will be used.
-            parameters (dict): Other parameters of function. Defaults to empty dict.
+            parameters (dict, optional): Other parameters of function. Defaults to empty dict.
 
         Returns:
             float: Monge Elkan similarity.
@@ -805,7 +805,7 @@ class Core(object):
             bag1 (list): Bag 1.
             bag2 (list): Bag 2.
             name (str): Name of resource (document frequency corpus).
-            math_log (bool, optional): Flag to indicate whether math.log() should be used in TF and IDF formulas. \
+            math_log (bool, optional): Flag to indicate whether math.log() should be used in IDF formulas. \
                 Defaults to False.
 
         Returns:
@@ -819,9 +819,27 @@ class Core(object):
         return tf_idf_similarity(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
 
     def compute_tf(self, bag):
+        """
+        Pre-compute the Term Frequency for bag.
+
+        Args:
+            bag (list): Bag.
+
+        Returns:
+            dict: Term frequency of all words in bag.
+        """
         return compute_tf(bag)
 
     def compute_idf(self, name, new_name, math_log=False):
+        """
+        Pre-compute the Inverse Document Frequency from Document Frequency corpus.
+
+        Args:
+            name (str): Name of resource (document frequency corpus).
+            new_name (str): Name of new generated inverse document frequency corpus.
+            math_log (bool, optional): Flag to indicate whether math.log() should be used in IDF formulas. \
+                Defaults to False.
+        """
         self._has_resource(name, 'df_corpus')
 
         data = compute_idf(self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
@@ -833,6 +851,20 @@ class Core(object):
         }
 
     def cached_tf_idf_similarity(self, bag1, bag2, tf_dict1, tf_dict2, idf_name):
+        """
+        If you use TF/IDF on a very large dataset or on pairwise comparison, it's better to use this cached version
+        of original TF/IDF.
+
+        Args:
+            bag1 (list): Bag 1.
+            bag2 (list): Bag 2.
+            tf_dict1 (dict): Precomputed TF value (which can be computed by `compute_tf`) for bag 1.
+            tf_dict2 (dict): Precomputed TF value for bag 2.
+            idf_name (str): Name of resource (inverse document frequency corpus).
+
+        Returns:
+            float: TF/IDF similarity.
+        """
         self._has_resource(idf_name, 'idf_corpus')
 
         return cached_tf_idf_similarity(bag1, bag2, tf_dict1, tf_dict2, self._rs_dict[idf_name]['data'])
