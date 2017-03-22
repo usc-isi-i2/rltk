@@ -10,9 +10,6 @@ from ..similarity.nysiis import _nysiis
 from ..similarity.soundex import _soundex
 from ..similarity.metaphone import _metaphone
 
-# def test_q_grams():
-#     assert q_grams('abc', 3) == ['##a', '#ab', 'abc', 'bc#', 'c##']
-
 
 @pytest.mark.parametrize('s1, s2, distance', [
     ('abc', 'abc', 0),
@@ -99,17 +96,17 @@ def test_damerau_levenshtein(s1, s2, distance):
     else:
         assert damerau_levenshtein_distance(s1, s2) == distance
 
-# @pytest.mark.parametrize('s1, s2, score', [
-#     ('John Singer Sargent', 'John S. Sargent', 25),
-#     ('John Singer Sargent', 'Jane Klinger Sargent', 24),
-#     ('John Stanislaus Sargent', 'John S. Sargent', 23)
-# ])
-# def test_needleman_wunsch(s1, s2, score):
-#     if s1 is None or s2 is None:
-#         with pytest.raises(ValueError):
-#             needleman_wunsch_score(s1, s2)
-#     else:
-#         assert needleman_wunsch_score(s1, s2) == score
+@pytest.mark.parametrize('s1, s2, score', [
+    ('John Singer Sargent', 'John S. Sargent', 25),
+    ('John Singer Sargent', 'Jane Klinger Sargent', 28.5),
+    ('John Stanislaus Sargent', 'John S. Sargent', 23)
+])
+def test_needleman_wunsch(s1, s2, score):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            needleman_wunsch_score(s1, s2)
+    else:
+        assert needleman_wunsch_score(s1, s2) == score
 
 
 @pytest.mark.parametrize('s1, s2, distance', [
@@ -176,7 +173,7 @@ def test_jaccard_index_similarity(set1, set2, similarity):
     # (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], True, 0.0),
     # (['a', 'b', 'a'], ['a'], None, False, 0.7071)
     (['a', 'b', 'a'], ['a', 'c'],{'a':3, 'b':1, 'c':1}, 3, False, 0.1754),
-    (['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True, 0.1117),
+    (['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True, 0.1297),
     (['a', 'b', 'a'], ['a'], {'a':3, 'b':1, 'c':1}, 3, False, 0.5547),
     (['a', 'b', 'a'], ['a'], {'x':1, 'y':1, 'w':1, 'q':1}, 3, False, 0.0),
     (['a', 'b', 'a'], ['a'], {'x':1, 'y':1, 'w':1, 'q':1}, 3, True, 0.0),

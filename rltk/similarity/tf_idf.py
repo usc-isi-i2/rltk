@@ -22,16 +22,19 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
         >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':1, 'c':1}, 3)
         0.17541160386140586
         >>> rltk.tfidf(['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True)
-        0.11166746710505392
+        0.12977804138
         >>> rltk.tfidf(['a', 'b', 'a'], ['a'], {'a':3, 'b':1, 'c':1}, 3)
         0.5547001962252291
     """
+    # http://www.tfidf.com/
 
     utils.check_for_none(bag1, bag2, df_corpus)
     utils.check_for_type(list, bag1, bag2)
 
      # term frequency for input strings
-    tf_x, tf_y = collections.Counter(bag1), collections.Counter(bag2)
+    t_x, t_y = collections.Counter(bag1), collections.Counter(bag2)
+    tf_x = {k: float(v) / len(bag1) for k, v in t_x.iteritems()}
+    tf_y = {k: float(v) / len(bag2) for k, v in t_y.iteritems()}
 
     # unique element
     total_unique_elements = set()
@@ -45,9 +48,10 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
         if element not in df_corpus:
             continue
         idf_element = doc_size * 1.0 / df_corpus[element]
-        v_x = 0 if element not in tf_x else (math.log(idf_element) * math.log(tf_x[element] + 1)) if math_log else (
+
+        v_x = 0 if element not in tf_x else (math.log(idf_element) * tf_x[element]) if math_log else (
             idf_element * tf_x[element])
-        v_y = 0 if element not in tf_y else (math.log(idf_element) * math.log(tf_y[element] + 1)) if math_log else (
+        v_y = 0 if element not in tf_y else (math.log(idf_element) * tf_y[element]) if math_log else (
             idf_element * tf_y[element])
         v_x_y += v_x * v_y
         v_x_2 += v_x * v_x
