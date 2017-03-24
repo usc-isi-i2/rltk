@@ -11,5 +11,5 @@ tk.load_df_corpus('B2', 'jl_file_1.jsonl', file_type='json_lines', json_path='de
 
 print tk.levenshtein_distance('a', 'abc')
 print tk.levenshtein_distance('a', 'abc', name='A1')
-print tk.tf_idf(['a', 'b', 'a'], ['a', 'c','d','f'], name='B1')
-print tk.tf_idf(['abc'], ['abc', 'def'], name='B2')
+print tk.tf_idf_similarity(['a', 'b', 'a'], ['a', 'c','d','f'], name='B1')
+print tk.tf_idf_similarity(['abc'], ['abc', 'def'], name='B2')

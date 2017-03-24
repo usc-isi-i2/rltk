@@ -118,24 +118,31 @@ class Core(object):
             'doc_size': 0
         } if not (mode == 'append' and name in self._rs_dict) else self._rs_dict[name]
 
-        with open(self._get_abs_path(file_path), 'r') as f:
-            for line in f:
-                line = line.rstrip('\n')
+        if file_type == 'text':
+            with open(self._get_abs_path(file_path), 'r') as f:
+                for line in f:
+                    line = line.rstrip('\n')
 
-                if file_type == 'text':
                     tokens = line.split(' ')
                     if len(tokens) == 0:
                         continue
                     tokens = set(tokens)
                     count_for_token(tokens)
 
-                elif file_type == 'json_lines':
-                    if json_path is None:
-                        raise ValueError('Invalid json path')
+                # count for docs (each line is a doc)
+                item['doc_size'] += 1
 
+        elif file_type == 'json_lines':
+            if json_path is None:
+                raise ValueError('Invalid json path')
+            with open(self._get_abs_path(file_path), 'r') as f:
+                parse_jl = parse(json_path)
+                for line in f:
                     line = line.rstrip('\n')
+
                     line = json.loads(line)
-                    doc_parts = [match.value for match in parse(json_path).find(line)]
+                    matches = parse_jl.find(line)
+                    doc_parts = [match.value for match in matches]
                     if len(doc_parts) == 0:
                         continue
 
@@ -145,8 +152,8 @@ class Core(object):
                         tokens = self._crf_tokenizer.tokenize(part)
                         count_for_token(tokens)
 
-                # count for docs (each line is a doc)
-                item['doc_size'] += 1
+                    # count for docs (each line is a doc)
+                    item['doc_size'] += 1
 
         self._rs_dict[name] = item
 
@@ -286,9 +293,14 @@ class Core(object):
                 # json path
                 if 'json_path' not in feature or len(feature['json_path']) == 0:
                     raise ValueError('Missing value of json_path')
-                p1 = [match.value for match in parse(feature['json_path'][0]).find(obj1)]
-                p2 = [match.value for match in parse(feature['json_path'][1]).find(obj2)] \
-                    if len(feature['json_path']) > 1 else p1
+                matches1 = parse(feature['json_path'][0]).find(obj1)
+                p1 = [match.value for match in matches1]
+                p2 = None
+                if len(feature['json_path']) > 1:
+                    matches2 = parse(feature['json_path'][1]).find(obj2)
+                    p2 = [match.value for match in matches2]
+                else:
+                    p2 = p1
 
                 # get first
                 if 'get_first' not in feature:
@@ -325,10 +337,12 @@ class Core(object):
         # return vector
         try:
             # id path
-            id1 = [match.value for match in parse(config['id_path'][0]).find(obj1)]
+            matches1 = parse(config['id_path'][0]).find(obj1)
+            id1 = [match.value for match in matches1]
             if len(id1) == 0:
                 raise ValueError('Missing id in Object1')
-            id2 = [match.value for match in parse(config['id_path'][1]).find(obj2)]
+            matches2 = parse(config['id_path'][1]).find(obj2)
+            id2 = [match.value for match in matches2]
             if len(id2) == 0:
                 raise ValueError('Missing id in Object2')
             ret_dict = {
@@ -490,7 +504,7 @@ class Core(object):
         """
         return normalized_hamming_distance(s1, s2)
 
-    def levenshtein_similarity(self, s1, s2, name):
+    def levenshtein_similarity(self, s1, s2, name=None):
         """
         The Levenshtein similarity is computed as 1 - normalized_levenshtein_distance.
 
@@ -549,7 +563,7 @@ class Core(object):
             return levenshtein_distance(s1, s2, insert, delete, substitute,
                                insert_default, delete_default, substitute_default)
 
-    def normalized_levenshtein_distance(self, s1, s2, name):
+    def normalized_levenshtein_distance(self, s1, s2, name=None):
         """
         This normalized distance is computed as levenshtein distance divided by the maximum cost of insertion from
         empty string to s1 or s2.
