@@ -647,7 +647,7 @@ class Core(object):
             >>> tk.jaro_distance('abccd', 'abcdc')
             0.9333333333333332
         """
-        return jaro_distance(self, s1, s2)
+        return jaro_distance(s1, s2)
 
     def jaro_winkler_similarity(self, s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):
         """
