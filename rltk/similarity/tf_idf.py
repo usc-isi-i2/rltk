@@ -60,9 +60,19 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
     return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
 
 
-def compute_tf(bag):
-    t = collections.Counter(bag)
-    return {k: float(v) / len(bag) for k, v in t.iteritems()}
+def compute_tf(t, bag_len):
+    """
+    Args:
+        t (dict): {term: count,...}
+    """
+    return {k: float(v) / bag_len for k, v in t.iteritems()}
+
+
+# # plus 1
+# def compute_idf(df, doc_size, math_log=False):
+#     return {k: float(doc_size) / v if math_log is False \
+#             else math.log(float(doc_size + 1) / (v + 1)) \
+#             for k, v in df.iteritems()}
 
 
 def compute_idf(df, doc_size, math_log=False):
@@ -71,27 +81,24 @@ def compute_idf(df, doc_size, math_log=False):
             for k, v in df.iteritems()}
 
 
-def cached_tf_idf_similarity(bag1, bag2, tf_dict1, tf_dict2, idf_dict):
+def tf_idf_similarity_by_dict(tfidf_dict1, tfidf_dict2):
+    """
+    all terms of dict1 and dict2 should be in corpus
 
-    utils.check_for_type(list, bag1, bag2)
+    tfidf_dict: {term: tfidf, ...}
+    """
+    v_x_y, v_x_2, v_y_2 = 0.0, 0.0, 0.0
 
-    # unique element
-    total_unique_elements = set()
-    total_unique_elements.update(bag1)
-    total_unique_elements.update(bag2)
+    # intersection of dict1 and dict2
+    # ignore the values that are not in both
+    for t in tfidf_dict1.iterkeys():
+        if t in tfidf_dict2:
+            v_x_y = tfidf_dict1[t] * tfidf_dict2[t]
 
-    idf_element, v_x, v_y, v_x_y, v_x_2, v_y_2 = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-
-    for element in total_unique_elements:
-        if element not in idf_dict:
-            continue
-
-        idf_element = idf_dict[element]
-        v_x = 0 if element not in tf_dict1 else idf_element * tf_dict1[element]
-        v_y = 0 if element not in tf_dict2 else idf_element * tf_dict2[element]
-        v_x_y += v_x * v_y
-        v_x_2 += v_x * v_x
-        v_y_2 += v_y * v_y
+    for t, tfidf in tfidf_dict1.iteritems():
+        v_x_2 += tfidf * tfidf
+    for t, tfidf in tfidf_dict2.iteritems():
+        v_y_2 += tfidf * tfidf
 
     # cosine similarity
     return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))

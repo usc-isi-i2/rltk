@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+import collections
 
 from jsonpath_rw import parse
 from digCrfTokenizer.crf_tokenizer import CrfTokenizer
@@ -115,7 +116,7 @@ class Core(object):
         item = {
             'type': 'df_corpus',
             'data': dict(),
-            'doc_size': 0
+            'docs_size': 0
         } if not (mode == 'append' and name in self._rs_dict) else self._rs_dict[name]
 
         if file_type == 'text':
@@ -130,7 +131,7 @@ class Core(object):
                     count_for_token(tokens)
 
                 # count for docs (each line is a doc)
-                item['doc_size'] += 1
+                item['docs_size'] += 1
 
         elif file_type == 'json_lines':
             if json_path is None:
@@ -153,9 +154,72 @@ class Core(object):
                         count_for_token(tokens)
 
                     # count for docs (each line is a doc)
-                    item['doc_size'] += 1
+                    item['docs_size'] += 1
 
         self._rs_dict[name] = item
+
+    def _increase_df_corpus(self, df_corpus, terms):
+        """
+        check if name is valid before using by
+        self._check_valid_resource(name, 'df_corpus')
+        and also check it is actually exist by calling _get_df_corpus
+        """
+        for t in terms:
+            df_corpus['data'][t] = df_corpus['data'].get(t, 0) + 1
+
+    def _get_df_corpus(self, name):
+        self._check_valid_resource(name, 'df_corpus')
+
+        if name not in self._rs_dict:
+            item = {
+                'type': 'df_corpus',
+                'data': dict(),
+                'docs': dict(), #
+                'docs_size': 0,
+                'idf': dict(),
+                # once new doc added, fresh should be false,
+                # idf and all the tfidf in docs should be re-computed
+                'fresh': True
+            }
+            self._rs_dict[name] = item
+
+        return self._rs_dict[name]
+
+    def load_document_data(self, corpus_name, doc_name, tokens):
+
+        self._check_valid_resource(corpus_name, 'df_corpus')
+        df_corpus = self._get_df_corpus(corpus_name)
+
+        doc_item = {
+            'tf': dict(), # term frequency
+            'tf_idf': dict(), # precomputed tfidf score
+        }
+
+        if len(tokens) != 0:
+            counted_terms = collections.Counter(tokens)
+            doc_item['tf'] = compute_tf(counted_terms, len(tokens))
+            df_corpus['docs'][doc_name] = doc_item
+            df_corpus['docs_size'] += 1
+            self._increase_df_corpus(df_corpus, counted_terms.keys())
+            df_corpus['fresh'] = False
+
+    def load_documents(self, corpus_name, file_path, auto_name=False, name_json_path=None, doc_json_path=None):
+        parse_name = parse(name_json_path) if name_json_path is not None else None
+        parse_doc = parse(doc_json_path)
+        i = 0
+        with open(self._get_abs_path(file_path), 'r') as f:
+            for line in f:
+                line = json.loads(line.rstrip('\n'))
+                matches_name = [match.value for match in parse_name.find(line)] \
+                    if name_json_path is not None else None
+                matches_doc = [match.value for match in parse_doc.find(line)]
+                if len(matches_doc) == 0:
+                    continue
+                if auto_name:
+                    self.load_document_data(corpus_name, i, matches_doc[0])
+                    i += 1
+                else:
+                    self.load_document_data(corpus_name, matches_name[0], matches_doc[0])
 
     def load_feature_configuration(self, name, file_path):
         """
@@ -830,58 +894,29 @@ class Core(object):
             0.17541160386140586
         """
         self._has_resource(name, 'df_corpus')
-        return tf_idf_similarity(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
+        return tf_idf_similarity(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['docs_size'], math_log)
 
-    def compute_tf(self, bag):
-        """
-        Pre-compute the Term Frequency for bag.
+    def prep_df_corpus(self, name, math_log=False):
+        self._check_valid_resource(name, 'df_corpus')
+        df_corpus = self._get_df_corpus(name)
 
-        Args:
-            bag (list): Bag.
+        # check if it needs to refresh
+        if df_corpus['fresh'] is False:
+            # compute idf
+            df_corpus['idf'] = compute_idf(df_corpus['data'], df_corpus['docs_size'], math_log)
 
-        Returns:
-            dict: Term frequency of all words in bag.
-        """
-        return compute_tf(bag)
+            # compute tfidf
+            for doc_name, doc in df_corpus['docs'].iteritems():
+                for t, tf in doc['tf'].iteritems():
+                    doc['tf_idf'][t] = doc['tf'][t] * float(df_corpus['idf'][t])
 
-    def compute_idf(self, name, new_name, math_log=False):
-        """
-        Pre-compute the Inverse Document Frequency from Document Frequency corpus.
+            df_corpus['fresh'] = True
 
-        Args:
-            name (str): Name of resource (document frequency corpus).
-            new_name (str): Name of new generated inverse document frequency corpus.
-            math_log (bool, optional): Flag to indicate whether math.log() should be used in IDF formulas. \
-                Defaults to False.
-        """
-        self._has_resource(name, 'df_corpus')
-
-        data = compute_idf(self._rs_dict[name]['data'], self._rs_dict[name]['doc_size'], math_log)
-
-        self._check_valid_resource(new_name, 'idf_corpus')
-        self._rs_dict[new_name] = {
-            'type': 'idf_corpus',
-            'data': data
-        }
-
-    def cached_tf_idf_similarity(self, bag1, bag2, tf_dict1, tf_dict2, idf_name):
-        """
-        If you use TF/IDF on a very large dataset or on pairwise comparison, it's better to use this cached version
-        of original TF/IDF.
-
-        Args:
-            bag1 (list): Bag 1.
-            bag2 (list): Bag 2.
-            tf_dict1 (dict): Precomputed TF value (which can be computed by `compute_tf`) for bag 1.
-            tf_dict2 (dict): Precomputed TF value for bag 2.
-            idf_name (str): Name of resource (inverse document frequency corpus).
-
-        Returns:
-            float: TF/IDF similarity.
-        """
-        self._has_resource(idf_name, 'idf_corpus')
-
-        return cached_tf_idf_similarity(bag1, bag2, tf_dict1, tf_dict2, self._rs_dict[idf_name]['data'])
+    def tf_idf_similarity_between_documents(self, corpus_name, doc_name1, doc_name2):
+        self._check_valid_resource(corpus_name, 'df_corpus')
+        df_corpus = self._get_df_corpus(corpus_name)
+        return tf_idf_similarity_by_dict(
+            df_corpus['docs'][doc_name1]['tf_idf'], df_corpus['docs'][doc_name2]['tf_idf'])
 
     def soundex_similarity(self, s1, s2):
         """
