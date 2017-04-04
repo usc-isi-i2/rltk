@@ -261,6 +261,8 @@ class Core(object):
                             // json path for fields.
                             // only need one element if json dicts have the same structure.
                             "json_path": ["gender", "$.person.gender"],
+                            // optional, format the extracted entities
+                            "after_extraction": ["lambda x: set(x.split(' '))"],
                             // optional, other parameters that need to be used in function.
                             "other_parameters": {},
                             // optional, the content of file should be a json dict.
@@ -312,15 +314,52 @@ class Core(object):
                 logger.setLevel(log_level)
                 config['logging'] = logger_name # replace json object to logger name
 
-            # id path
+            # id path  (pre-compiled)
             if 'id_path' not in config or len(config['id_path']) == 0:
                 raise ValueError('Missing value of id_path')
-            if len(config['id_path']) == 1:
-                config['id_path'].append(config['id_path'][0]) # duplicate it
+            if len(config['id_path']) >= 1:
+                config['id_path'][0] = parse(config['id_path'][0])
+            if len(config['id_path']) == 2:
+                config['id_path'][1] = parse(config['id_path'][1])
 
-            # features
+            # features (pre-compiled)
             if 'features' not in config:
                 raise ValueError('Missing value of features')
+            for idx, feature in enumerate(config['features']):
+
+                # function pointer
+                feature['function'] = getattr(self, feature['function'])
+
+                # json path
+                if 'json_path' not in feature or len(feature['json_path']) == 0:
+                    raise ValueError('Missing value of json_path')
+                if len(feature['json_path']) >= 1:
+                    feature['json_path'][0] = parse(feature['json_path'][0])
+                if len(feature['json_path']) == 2:
+                    feature['json_path'][1] = parse(feature['json_path'][1])
+
+                # get first
+                if 'get_first' not in feature:
+                    feature['get_first'] = True
+
+                # after extraction
+                if 'after_extraction' in feature:
+                    after_extraction = feature['after_extraction']
+                    if len(after_extraction) >= 1:
+                        feature['after_extraction'][0] = eval(after_extraction[0])
+                    if len(after_extraction) == 2:
+                        feature['after_extraction'][1] = eval(after_extraction[1])
+
+                # other parameters
+                if 'other_parameters' not in feature:
+                    feature['other_parameters'] = {}
+                    if 'other_parameters_file_path' in feature:
+                        with open(self._get_abs_path(feature['other_parameters_file_path'])) as f:
+                            feature['other_parameters'] = json.loads(f.read())
+                if 'function' in feature['other_parameters']:
+                    # for hybrid measures, convert inner function string to reference
+                    feature['other_parameters']['function'] = getattr(self, feature['other_parameters']['function'])
+
 
             item['data'] = config
             self._rs_dict[name] = item
@@ -352,23 +391,19 @@ class Core(object):
         for idx, feature in enumerate(config['features']):
             try:
                 # function pointer
-                feature_function = getattr(self, feature['function'])
+                feature_function = feature['function']
 
                 # json path
-                if 'json_path' not in feature or len(feature['json_path']) == 0:
-                    raise ValueError('Missing value of json_path')
-                matches1 = parse(feature['json_path'][0]).find(obj1)
+                p1, p2 = None, None
+                matches1 = feature['json_path'][0].find(obj1)
                 p1 = [match.value for match in matches1]
-                p2 = None
                 if len(feature['json_path']) > 1:
-                    matches2 = parse(feature['json_path'][1]).find(obj2)
+                    matches2 = feature['json_path'][1].find(obj2)
                     p2 = [match.value for match in matches2]
                 else:
                     p2 = p1
 
                 # get first
-                if 'get_first' not in feature:
-                    feature['get_first'] = True
                 if feature['get_first'] is True:
                     if len(p1) == 0:
                         raise ValueError('Missing value in Object1 by json_path \'{0}\''
@@ -378,16 +413,17 @@ class Core(object):
                                          .format(feature['json_path'][1]))
                     p1, p2 = p1[0], p2[0]
 
+                # after extraction
+                after_extraction = feature['after_extraction']
+                p1 = after_extraction[0](p1)
+                p2 = after_extraction[1](p2) if len(after_extraction) > 1 \
+                    else after_extraction[0](p2)
+
                 # other parameters
-                if 'other_parameters' not in feature:
-                    if 'other_parameters_file_path' not in feature:
-                        feature['other_parameters'] = {}
-                    else:
-                        with open(self._get_abs_path(feature['other_parameters_file_path'])) as f:
-                            feature['other_parameters'] = json.loads(f.read())
+                other_parameters = feature['other_parameters']
 
                 # run
-                ret = feature_function(p1, p2, **feature['other_parameters'])
+                ret = feature_function(p1, p2, **other_parameters)
 
                 vector.append(ret)
             except Exception as e:
@@ -401,11 +437,11 @@ class Core(object):
         # return vector
         try:
             # id path
-            matches1 = parse(config['id_path'][0]).find(obj1)
+            matches1 = config['id_path'][0].find(obj1)
             id1 = [match.value for match in matches1]
             if len(id1) == 0:
                 raise ValueError('Missing id in Object1')
-            matches2 = parse(config['id_path'][1]).find(obj2)
+            matches2 = config['id_path'][1].find(obj2)
             id2 = [match.value for match in matches2]
             if len(id2) == 0:
                 raise ValueError('Missing id in Object2')
