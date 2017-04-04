@@ -474,7 +474,7 @@ class Core(object):
         def hashed_id(ids):
             if len(ids) != 2:
                 raise ValueError('Incorrect number of id')
-            sort_ids = sorted(ids)
+            ids = sorted(ids)
 
             # in order to solve the collision in hashing differentiate types of data
             # and to keep just one level comparison of hash key,
@@ -485,24 +485,31 @@ class Core(object):
 
         # read ground truth into memory
         ground_truth = dict()
-        with open(self._get_abs_path(feature_file_path), 'r') as f:
+        with open(self._get_abs_path(ground_truth_file_path), 'r') as f:
             for line in f:
                 data = json.loads(line)
                 k, v = hashed_id(data['id']), data['label']
                 ground_truth[k] = v
 
         # featurize feature file
-        with open(self._get_abs_path(ground_truth_file_path), 'r') as f:
-            for line in f:
-                data = json.loads(line)
-                k = hashed_id(data['id'])
-                if k in ground_truth:
-                    data['label'] = ground_truth[k]
-                    if output_file_path is not None:
-                        with open(self._get_abs_path(output_file_path), 'w') as out:
-                            print >> out, data
-                    else:
+        if output_file_path is None:
+            with open(self._get_abs_path(feature_file_path), 'r') as f:
+                for line in f:
+                    data = json.loads(line)
+                    k = hashed_id(data['id'])
+                    if k in ground_truth:
+                        data['label'] = ground_truth[k]
                         print data
+        else:
+            with open(self._get_abs_path(feature_file_path), 'r') as f:
+                with open(self._get_abs_path(output_file_path), 'w') as out:
+                    for line in f:
+                        data = json.loads(line)
+                        k = hashed_id(data['id'])
+                        if k in ground_truth:
+                            data['label'] = ground_truth[k]
+                            out.write(json.dumps(data))
+                            out.write('\n')
 
     def train_classifier(self, featurized_ground_truth, config):
         """
@@ -522,7 +529,7 @@ class Core(object):
         x, y = [], []
         for obj in featurized_ground_truth:
             x.append(obj['feature_vector'])
-            y += obj['label']
+            y.append(obj['label'])
 
         # train
         function = get_classifier_class(config['function'])
