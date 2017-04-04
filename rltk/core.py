@@ -414,10 +414,11 @@ class Core(object):
                     p1, p2 = p1[0], p2[0]
 
                 # after extraction
-                after_extraction = feature['after_extraction']
-                p1 = after_extraction[0](p1)
-                p2 = after_extraction[1](p2) if len(after_extraction) > 1 \
-                    else after_extraction[0](p2)
+                if 'after_extraction' in feature:
+                    after_extraction = feature['after_extraction']
+                    p1 = after_extraction[0](p1)
+                    p2 = after_extraction[1](p2) if len(after_extraction) > 1 \
+                        else after_extraction[0](p2)
 
                 # other parameters
                 other_parameters = feature['other_parameters']
