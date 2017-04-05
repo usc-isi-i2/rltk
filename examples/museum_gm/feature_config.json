@@ -1,0 +1,17 @@
+{
+  "id_path": ["uri.value", "uri.value"],
+  "missing_value_default": 0,
+  "error_handling": "exception",
+  "logging": {
+    "file_path": "log.log",
+    "level": "info"
+  },
+  "features": [
+    {
+      "function": "hybrid_jaccard_similarity",
+      "json_path": ["name.value", "name.value"],
+      "get_first": true,
+      "user_tokenizer": true
+    }
+  ]
+}

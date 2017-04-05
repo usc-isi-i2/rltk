@@ -1,0 +1,9 @@
+{"id": ["http://vocab.getty.edu/ulan/500009086", "http://data.americanartcollaborative.org/GM/constituent/charles_marion_russell"], "feature_vector": [0.75], "label": 1.0}
+{"id": ["http://vocab.getty.edu/ulan/500009086", "http://data.americanartcollaborative.org/GM/constituent/henry_joseph_sharp"], "feature_vector": [0.4444444444444444], "label": 0.0}
+{"id": ["http://vocab.getty.edu/ulan/500009086", "http://data.americanartcollaborative.org/GM/constituent/kathryn_leighton_woodman"], "feature_vector": [0.45188492063492064], "label": 0.0}
+{"id": ["http://vocab.getty.edu/ulan/500019643", "http://data.americanartcollaborative.org/GM/constituent/charles_marion_russell"], "feature_vector": [0.4484126984126984], "label": 0.0}
+{"id": ["http://vocab.getty.edu/ulan/500019643", "http://data.americanartcollaborative.org/GM/constituent/henry_joseph_sharp"], "feature_vector": [0.75], "label": 1.0}
+{"id": ["http://vocab.getty.edu/ulan/500019643", "http://data.americanartcollaborative.org/GM/constituent/kathryn_leighton_woodman"], "feature_vector": [0.2732142857142857], "label": 0.0}
+{"id": ["http://vocab.getty.edu/ulan/500012516", "http://data.americanartcollaborative.org/GM/constituent/charles_marion_russell"], "feature_vector": [0.2876984126984127], "label": 0.0}
+{"id": ["http://vocab.getty.edu/ulan/500012516", "http://data.americanartcollaborative.org/GM/constituent/henry_joseph_sharp"], "feature_vector": [0.41369047619047616], "label": 0.0}
+{"id": ["http://vocab.getty.edu/ulan/500012516", "http://data.americanartcollaborative.org/GM/constituent/kathryn_leighton_woodman"], "feature_vector": [0.75], "label": 1.0}
