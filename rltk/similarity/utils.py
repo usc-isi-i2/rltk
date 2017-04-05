@@ -14,3 +14,8 @@ def unicode_normalize(s):
     if isinstance(s, unicode):
         s = unicodedata.normalize('NFKD', s)
     return s
+
+def convert_list_to_set(s):
+    if isinstance(s, list):
+        s = set(s)
+    return s

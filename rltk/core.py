@@ -8,6 +8,7 @@ from digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
 from similarity import *
 from classifier import *
+from similarity import utils
 
 class Core(object):
 
@@ -342,13 +343,9 @@ class Core(object):
                 if 'get_first' not in feature:
                     feature['get_first'] = True
 
-                # after extraction
-                if 'after_extraction' in feature:
-                    after_extraction = feature['after_extraction']
-                    if len(after_extraction) >= 1:
-                        feature['after_extraction'][0] = eval(after_extraction[0])
-                    if len(after_extraction) == 2:
-                        feature['after_extraction'][1] = eval(after_extraction[1])
+                # tokenizer
+                if 'user_tokenizer' not in feature:
+                    feature['user_tokenizer'] = False
 
                 # other parameters
                 if 'other_parameters' not in feature:
@@ -413,12 +410,10 @@ class Core(object):
                                          .format(feature['json_path'][1]))
                     p1, p2 = p1[0], p2[0]
 
-                # after extraction
-                if 'after_extraction' in feature:
-                    after_extraction = feature['after_extraction']
-                    p1 = after_extraction[0](p1)
-                    p2 = after_extraction[1](p2) if len(after_extraction) > 1 \
-                        else after_extraction[0](p2)
+                # tokenizer
+                if feature['user_tokenizer'] is True:
+                    p1 = self._crf_tokenizer.tokenize(p1)
+                    p2 = self._crf_tokenizer.tokenize(p2)
 
                 # other parameters
                 other_parameters = feature['other_parameters']
@@ -820,6 +815,8 @@ class Core(object):
             >>> tk.dice_similarity(set(['a', 'b']), set(['c', 'b']))
             0.5
         """
+
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return dice_similarity(set1, set2)
 
     def jaccard_index_similarity(self, set1, set2):
@@ -839,6 +836,8 @@ class Core(object):
             >>> tk.jaccard_index_similarity(set(['a','b']), set(['c','d']))
             0.0
         """
+
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return jaccard_index_similarity(set1, set2)
 
     def jaccard_index_distance(self, set1, set2):
@@ -852,6 +851,8 @@ class Core(object):
         Returns:
             int: Jaccard Index Distance.
         """
+
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return jaccard_index_distance(set1, set2)
 
     def hybrid_jaccard_similarity(self, set1, set2, threshold=0.5, function=None, parameters={}):
@@ -880,6 +881,8 @@ class Core(object):
 
         if not function:
             function = self.jaro_winkler_similarity
+
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return hybrid_jaccard_similarity(set1, set2, threshold, function, parameters)
 
     def monge_elkan_similarity(self, bag1, bag2, function=None, parameters={}):
@@ -917,6 +920,8 @@ class Core(object):
             >>> tk.cosine_similarity([1, 2, 1, 3], [2, 5, 2, 3])
             0.916341933823
         """
+
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return cosine_similarity(set1, set2)
 
     def tf_idf_similarity(self, bag1, bag2, name, math_log=False):
