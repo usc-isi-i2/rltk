@@ -344,8 +344,8 @@ class Core(object):
                     feature['get_first'] = True
 
                 # tokenizer
-                if 'user_tokenizer' not in feature:
-                    feature['user_tokenizer'] = False
+                if 'use_tokenizer' not in feature:
+                    feature['use_tokenizer'] = False
 
                 # other parameters
                 if 'other_parameters' not in feature:
@@ -411,9 +411,11 @@ class Core(object):
                     p1, p2 = p1[0], p2[0]
 
                 # tokenizer
-                if feature['user_tokenizer'] is True:
+                if feature['use_tokenizer'] is True:
                     p1 = self._crf_tokenizer.tokenize(p1)
                     p2 = self._crf_tokenizer.tokenize(p2)
+                    # p1 = filter(None, p1)
+                    # p2 = filter(None, p2)
 
                 # other parameters
                 other_parameters = feature['other_parameters']
@@ -592,7 +594,7 @@ class Core(object):
             >>> tk.hamming_similarity([1,2,3],[3,2,3])
             0.666666666667
         """
-        return hamming_distance(s1, s2)
+        return hamming_similarity(s1, s2)
 
     def normalized_hamming_distance(self, s1, s2):
         """
