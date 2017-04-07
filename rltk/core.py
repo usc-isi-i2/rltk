@@ -1,3 +1,4 @@
+import __builtin__
 import json
 import os
 import logging
@@ -7,6 +8,8 @@ from jsonpath_rw import parse
 from digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
 from similarity import *
+if __builtin__.rltk['enable_cython']:
+    from similarity.cython import *
 from classifier import *
 from similarity import utils
 

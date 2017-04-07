@@ -1,10 +1,22 @@
-from core import *
+import __builtin__
+__builtin__.rltk = {
+    'enable_cython': False
+}
 
-def init():
+import importlib
+
+def init(enable_cython=False):
     """
     Initialization method.
+
+    Args:
+        enable_cython (bool, optional): Enable using cython module. Defaults to False.
 
     Returns:
         object: RLTK object
     """
-    return Core()
+    if enable_cython:
+        __builtin__.rltk['enable_cython'] = True
+
+    import core
+    return core.Core()
