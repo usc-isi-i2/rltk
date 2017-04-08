@@ -3,20 +3,20 @@ __builtin__.rltk = {
     'enable_cython': False
 }
 
-import importlib
+import core
+
+def enable_cython(enable=False):
+    """
+    Enable cython support. It's a global change.
+    """
+    __builtin__.rltk['enable_cython'] = enable
+    reload(core)
 
 def init(enable_cython=False):
     """
     Initialization method.
 
-    Args:
-        enable_cython (bool, optional): Enable using cython module. Defaults to False.
-
     Returns:
         object: RLTK object
     """
-    if enable_cython:
-        __builtin__.rltk['enable_cython'] = True
-
-    import core
     return core.Core()
