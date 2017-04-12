@@ -394,14 +394,14 @@ class Core(object):
                 feature_function = feature['function']
 
                 # json path
-                p1, p2 = None, None
                 matches1 = feature['json_path'][0].find(obj1)
                 p1 = [match.value for match in matches1]
+                matches2 = None
                 if len(feature['json_path']) > 1:
                     matches2 = feature['json_path'][1].find(obj2)
-                    p2 = [match.value for match in matches2]
                 else:
-                    p2 = p1
+                    matches2 = feature['json_path'][0].find(obj2)
+                p2 = [match.value for match in matches2]
 
                 # get first
                 if feature['get_first'] is True:
@@ -442,7 +442,11 @@ class Core(object):
             id1 = [match.value for match in matches1]
             if len(id1) == 0:
                 raise ValueError('Missing id in Object1')
-            matches2 = config['id_path'][1].find(obj2)
+            matches2 = None
+            if len(config['id_path']) > 1:
+                matches2 = config['id_path'][1].find(obj2)
+            else:
+                matches2 = config['id_path'][0].find(obj2)
             id2 = [match.value for match in matches2]
             if len(id2) == 0:
                 raise ValueError('Missing id in Object2')
