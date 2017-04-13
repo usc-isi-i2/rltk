@@ -1,3 +1,5 @@
+import munkres
+
 import utils
 from jaro import jaro_winkler_similarity
 
@@ -8,19 +10,22 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
     utils.check_for_none(set1, set2)
     utils.check_for_type(set, set1, set2)
 
-    max_matching_dict = {s2: MIN_FLOAT for s2 in set2}
-
+    matching_score = []
     for s1 in set1:
+        inner = []
         for s2 in set2:
             score = function(s1, s2, **parameters)
-            if score > threshold:
-                max_matching_dict[s2] = max(max_matching_dict[s2], score)
+            if score < threshold:
+                score = 0.0
+            inner.append(1.0 - score)
+        matching_score.append(inner)
+
+    indexes = munkres.Munkres().compute(matching_score)
 
     score_sum, matching_count = 0.0, 0
-    for v in max_matching_dict.itervalues():
+    for r, c in indexes:
         matching_count += 1
-        if v != MIN_FLOAT:
-            score_sum += v
+        score_sum += 1.0 - matching_score[r][c]  # go back to similarity
 
     if len(set1) + len(set2) - matching_count == 0:
         return 1.0

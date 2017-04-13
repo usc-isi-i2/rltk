@@ -12,7 +12,7 @@ def enable_cython(enable=False):
     __builtin__.rltk['enable_cython'] = enable
     reload(core)
 
-def init(enable_cython=False):
+def init():
     """
     Initialization method.
 
