@@ -566,6 +566,17 @@ class Core(object):
         return path if os.path.isabs(path) else os.path.join(self._root_path, path)
 
     def get_file_iterator(self, file_path, *args, **kwargs):
+        """
+        Args:
+            file_path (str): File path.
+            type (str): It can be `json_line`, `text`, `csv`. \
+                For `json_line` file, `id_path` and `value_path` should also be set. \
+                For `text` file, id will be auto generated.
+                For `csv` file, `id_column` and `value_columns` (list) should be set. \
+                if there's no header, please set `field_names` (list).
+        Returns:
+            misc, list: id, value list.
+        """
         return FileIterator(file_path=self._get_abs_path(file_path), *args, **kwargs)
 
     def hamming_distance(self, s1, s2):
