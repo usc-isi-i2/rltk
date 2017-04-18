@@ -50,7 +50,7 @@ class FileIterator(object):
                 matches = self._value_path_parser.find(line)
                 extracted_value = [match.value for match in matches]
                 if len(extracted_value) == 0:
-                    raise ValueError('Can\'t find id in json line file by id_path')
+                    raise ValueError('Can\'t find value in json line file by value_path')
                 value = extracted_value
             elif self._type == 'csv':
                 line = self._csv_reader.next()
