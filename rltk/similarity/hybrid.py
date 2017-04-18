@@ -17,7 +17,7 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
             score = function(s1, s2, **parameters)
             if score < threshold:
                 score = 0.0
-            inner.append(1.0 - score)
+            inner.append(1.0 - score) # munkres finds out the smallest element
         matching_score.append(inner)
 
     indexes = munkres.Munkres().compute(matching_score)
@@ -48,3 +48,9 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
         score_sum += max_score
 
     return float(score_sum) / float(len(bag1))
+
+
+def symmetric_monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters={}):
+    s1 = monge_elkan_similarity(bag1, bag2, function, parameters)
+    s2 = monge_elkan_similarity(bag2, bag1, function, parameters)
+    return (s1 + s2) / 2

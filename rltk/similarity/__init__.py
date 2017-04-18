@@ -8,7 +8,7 @@ from jaccard import jaccard_index_similarity, jaccard_index_distance
 from cosine import cosine_similarity
 from tf_idf import tf_idf_similarity, compute_idf, compute_tf, tf_idf_similarity_by_dict
 
-from hybrid import hybrid_jaccard_similarity, monge_elkan_similarity
+from hybrid import hybrid_jaccard_similarity, monge_elkan_similarity, symmetric_monge_elkan_similarity
 
 from soundex import soundex_similarity
 from metaphone import metaphone_similarity

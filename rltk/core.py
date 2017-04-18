@@ -12,6 +12,7 @@ if __builtin__.rltk['enable_cython']:
     from similarity.cython import *
 from classifier import *
 from similarity import utils
+from file_iterator import FileIterator
 
 class Core(object):
 
@@ -564,6 +565,9 @@ class Core(object):
     def _get_abs_path(self, path):
         return path if os.path.isabs(path) else os.path.join(self._root_path, path)
 
+    def get_file_iterator(self, file_path, *args, **kwargs):
+        return FileIterator(file_path=self._get_abs_path(file_path), *args, **kwargs)
+
     def hamming_distance(self, s1, s2):
         """
         Hamming distance used to measure the minimum number of substitutions required to change one sequence into the
@@ -913,6 +917,16 @@ class Core(object):
         if not function:
             function = self.jaro_winkler_similarity
         return monge_elkan_similarity(bag1, bag2, function, parameters)
+
+    def symmetric_monge_elkan_similarity(self, bag1, bag2, function=None, parameters={}):
+        """
+        Symmetric Monge Elkan similarity is computed by \
+        (monge_elkan_similarity(b1, b2) + monge_elkan_similarity(b2, b1)) / 2.
+        """
+
+        if not function:
+            function = self.jaro_winkler_similarity
+        return symmetric_monge_elkan_similarity(bag1, bag2, function, parameters)
 
     def cosine_similarity(self, set1, set2):
         """
