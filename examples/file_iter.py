@@ -15,9 +15,13 @@ iter = tk.get_file_iterator('file_iter_test.csv',
 for id, value in iter:
     print id, value
 
-iter2 = iter.copy()
-iter3 = iter.copy()
-for id, value in iter2:
+print '----'
+iter1 = tk.get_file_iterator('file_iter_test.txt', type='text')
+for id, value in iter1:
     print id, value
-for id, value in iter3:
+    break
+iter2 = iter1.copy()
+for id, value in iter1:
+    print id, value
+for id, value in iter2:
     print id, value

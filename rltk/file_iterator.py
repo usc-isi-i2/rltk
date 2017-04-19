@@ -1,6 +1,8 @@
 import json
 import csv
 import hashlib
+import itertools
+
 from jsonpath_rw import parse
 
 
@@ -35,7 +37,18 @@ class FileIterator(object):
             self._id_prefix = hashlib.md5(file_path).hexdigest()[:6]
 
     def __copy__(self):
-        return FileIterator(self._file_path, self._type, **self._kwargs)
+        """
+            Clone the iterator include states
+        """
+        # https://docs.python.org/2/library/itertools.html#itertools.tee
+        # tee is not that helpful here, and it will also occupy a lot of memory
+        # self._file_handler, new_iter = itertools.tee(self._file_handler)
+
+        new_iter = FileIterator(self._file_path, self._type, **self._kwargs)
+        for _ in new_iter:
+            if new_iter._count == self._count:
+                break
+        return new_iter
 
     def copy(self):
         return self.__copy__()
@@ -43,12 +56,12 @@ class FileIterator(object):
     def next(self):
         """
         Returns:
-            misc, dict: object id, value
+            str, dict: object id, value
         """
         try:
             oid, value = None, None
             if self._type == 'json_line':
-                line = self._file_handler.next()
+                line = next(self._file_handler)
                 line = json.loads(line)
 
                 matches = self._id_path_parser.find(line)
@@ -79,7 +92,7 @@ class FileIterator(object):
             return oid, value
 
         except StopIteration as e:
-            self._file_handler.close()
+            # self._file_handler.close()
             raise e
 
     def __iter__(self):
@@ -87,6 +100,7 @@ class FileIterator(object):
 
     def __del__(self):
         try:
-            self._file_handler.close()
+            pass
+            # self._file_handler.close()
         except:
             pass
