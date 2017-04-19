@@ -6,13 +6,17 @@ from jsonpath_rw import parse
 
 class FileIterator(object):
 
+    _file_path = None
+    _type = None
+    _kwargs = {}
     _file_handler = None
     _count = 0
-    _type = None
 
     def __init__(self, file_path, type='text', **kwargs):
-        self._file_handler = open(file_path, 'r')
+        self._file_path = file_path
         self._type = type
+        self._kwargs = kwargs
+        self._file_handler = open(file_path, 'r')
 
         if type == 'json_line':
             # pre-compile json path, raise exception if not exists
@@ -29,6 +33,12 @@ class FileIterator(object):
                 self._file_handler, delimiter=delimiter, quotechar=quotechar, quoting=quoting, fieldnames=field_names)
         else: # text
             self._id_prefix = hashlib.md5(file_path).hexdigest()[:6]
+
+    def __copy__(self):
+        return FileIterator(self._file_path, self._type, **self._kwargs)
+
+    def copy(self):
+        return self.__copy__()
 
     def next(self):
         """
