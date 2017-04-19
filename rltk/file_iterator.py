@@ -63,6 +63,9 @@ class FileIterator(object):
                 value = [line]
 
             self._count += 1
+            # id should be a string
+            if isinstance(oid, int):
+                oid = 'int-' + str(oid)
             return oid, value
 
         except StopIteration as e:

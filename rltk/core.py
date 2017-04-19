@@ -575,7 +575,9 @@ class Core(object):
                 For `csv` file, `id_column` and `value_columns` (list) should be set. \
                 if there's no header, please set `field_names` (list).
         Returns:
-            misc, list: id, value list.
+            str, list: id, value list. \
+                If the extracted id is a int, it will be convert to string with a 'int-' prefix,\
+                for json line only supports string as key in object.
         """
         return FileIterator(file_path=self._get_abs_path(file_path), *args, **kwargs)
 
