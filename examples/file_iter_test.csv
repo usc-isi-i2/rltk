@@ -2,4 +2,7 @@ id,content
 id1,hello
 id2,world
 id3,foo
-id4,bar
+id4,"bar
+bar2
+bar3"
+id5,foo2

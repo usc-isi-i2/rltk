@@ -242,9 +242,6 @@ class Core(object):
             .. code-block:: javascript
 
                 {
-                    // the id_path for id field. The id should be a string or number.
-                    // only need one element if json dicts have the same structure.
-                    "id_path": ["id", "index"],
                     // default value for missing result value.
                     "missing_value_default": 0,
                     // ignore or exception.
@@ -319,14 +316,6 @@ class Core(object):
                 logger.setLevel(log_level)
                 config['logging'] = logger_name # replace json object to logger name
 
-            # id path  (pre-compiled)
-            if 'id_path' not in config or len(config['id_path']) == 0:
-                raise ValueError('Missing value of id_path')
-            if len(config['id_path']) >= 1:
-                config['id_path'][0] = parse(config['id_path'][0])
-            if len(config['id_path']) == 2:
-                config['id_path'][1] = parse(config['id_path'][1])
-
             # features (pre-compiled)
             if 'features' not in config:
                 raise ValueError('Missing value of features')
@@ -365,7 +354,7 @@ class Core(object):
             item['data'] = config
             self._rs_dict[name] = item
 
-    def compute_feature_vector(self, obj1, obj2, name):
+    def _compute_feature_vector(self, obj1, obj2, name):
         """
         Compute feature vector for two objects.
 
@@ -437,84 +426,129 @@ class Core(object):
                 vector.append(config['missing_value_default'])
 
         # return vector
-        try:
-            # id path
-            matches1 = config['id_path'][0].find(obj1)
-            id1 = [match.value for match in matches1]
-            if len(id1) == 0:
-                raise ValueError('Missing id in Object1')
-            matches2 = None
-            if len(config['id_path']) > 1:
-                matches2 = config['id_path'][1].find(obj2)
-            else:
-                matches2 = config['id_path'][0].find(obj2)
-            id2 = [match.value for match in matches2]
-            if len(id2) == 0:
-                raise ValueError('Missing id in Object2')
-            ret_dict = {
-                'id': [id1[0], id2[0]],
-                'feature_vector': vector
-            }
-            return ret_dict
-        except Exception as e:
-            logger.error('[{0}] {1}'.format(name, e.message))
-            if config['error_handling'] == 'exception':
-                raise e
-            else:  # ignore
-                pass
+        return vector
 
-    def featurize_ground_truth(self, feature_file_path, ground_truth_file_path, output_file_path=None):
+    def compute_labeled_features(self, iter1, label_file_path, feature_config_name, feature_output_path, iter2=None):
         """
-        Featurize the ground truth by feature vector.
-
         Args:
-            feature_file_path (str): Json line file of feature vector dicts. \
-                Each json object should contains a field of id with the array of two elements.
-            ground_truth_file_path (str): Json line file of ground truth.\
-                Each json object should contains a field of id with the array of two elements. \
-                It also need to contains a field named `label` for ground truth.
-            output_file_path (str, optional): If it is None, the featurized ground truth will print to STDOUT. \
-                Defaults to None.
+            iter1 (FileIterator): File iterator 1.
+            iter2 (FileIterator): File iterator 2.
         """
-        def hashed_id(ids):
-            if len(ids) != 2:
-                raise ValueError('Incorrect number of id')
-            ids = sorted(ids)
+        self._has_resource(feature_config_name, 'feature_configuration')
 
-            # in order to solve the collision in hashing differentiate types of data
-            # and to keep just one level comparison of hash key,
-            # add fixed length of type mark first
-            # here str != unicode (maybe it needs to compare on their base class basestring)
-            return '{0}-{1}-{2}-{3}'\
-                .format(type(ids[0]).__name__, type(ids[1]).__name__, str(ids[0]), str(ids[1]))
-
-        # read ground truth into memory
-        ground_truth = dict()
-        with open(self._get_abs_path(ground_truth_file_path), 'r') as f:
+        labels = {}
+        with open(self._get_abs_path(label_file_path), 'r') as f:
             for line in f:
-                data = json.loads(line)
-                k, v = hashed_id(data['id']), data['label']
-                ground_truth[k] = v
+                j = json.loads(line)
+                id1, id2 = j['id'][0], j['id'][1]
+                labels[id1] = labels.get(id1, {})
+                labels[id1][id2] = labels.get(id2, j['label'])
 
-        # featurize feature file
-        if output_file_path is None:
-            with open(self._get_abs_path(feature_file_path), 'r') as f:
+        with open(self._get_abs_path(feature_output_path), 'w') as output:
+            for id1, value1 in iter1:
+                if id1 not in labels:
+                    continue
+                curr_iter2 = iter2.copy()
+                for id2, value2 in curr_iter2:
+                    if id2 not in labels[id1]:
+                        continue
+                    v = self._compute_feature_vector(value1, value2, feature_config_name)
+
+                    ret_dict = {
+                        'id': [id1, id2],
+                        'feature_vector': v,
+                        'label': labels[id1][id2]
+                    }
+                    output.write(json.dumps(ret_dict))
+                    output.write('\n')
+
+    def compute_features(self, iter1, feature_config_name, feature_output_path, iter2=None, blocking_path=None):
+        """
+        Args:
+            iter1 (FileIterator): File iterator 1.
+            iter2 (FileIterator): File iterator 2.
+        """
+        self._has_resource(feature_config_name, 'feature_configuration')
+
+        blocking = {}
+        if blocking_path is not None:
+            with open(self._get_abs_path(blocking_path), 'r') as f:
                 for line in f:
-                    data = json.loads(line)
-                    k = hashed_id(data['id'])
-                    if k in ground_truth:
-                        data['label'] = ground_truth[k]
-                        print data
-        else:
-            with open(self._get_abs_path(feature_file_path), 'r') as f:
-                with open(self._get_abs_path(output_file_path), 'w') as out:
-                    for line in f:
-                        data = json.loads(line)
-                        k = hashed_id(data['id'])
-                        if k in ground_truth:
-                            data['label'] = ground_truth[k]
-                            out.write(json.dumps(data))
-                            out.write('\n')
+                    j = json.loads(line)
+                    for k, v in j:
+                        blocking[k] = set(v)
+
+        # if there's no blocking, compare all the possible pairs, O(n^2)
+        with open(self._get_abs_path(feature_output_path), 'w') as output:
+            for id1, value1 in iter1:
+                if blocking_path is not None and id1 not in blocking:
+                    continue
+                # if iter2 exists, it always iterate from start;
+                # else starts from the next element of iter1
+                curr_iter2 = next(iter1.copy()) if iter2 is None else iter2.copy()
+                for id2, value2 in curr_iter2:
+                    if blocking_path is not None and id2 not in blocking[id1]:
+                        continue
+                    v = self._compute_feature_vector(value1, value2, feature_config_name)
+                    ret_dict = {
+                        'id': [id1, id2],
+                        'feature_vector': v
+                    }
+                    output.write(json.dumps(ret_dict))
+                    output.write('\n')
+
+    # def featurize_ground_truth(self, feature_file_path, ground_truth_file_path, output_file_path=None):
+    #     """
+    #     Featurize the ground truth by feature vector.
+    #
+    #     Args:
+    #         feature_file_path (str): Json line file of feature vector dicts. \
+    #             Each json object should contains a field of id with the array of two elements.
+    #         ground_truth_file_path (str): Json line file of ground truth.\
+    #             Each json object should contains a field of id with the array of two elements. \
+    #             It also need to contains a field named `label` for ground truth.
+    #         output_file_path (str, optional): If it is None, the featurized ground truth will print to STDOUT. \
+    #             Defaults to None.
+    #     """
+    #     def hashed_id(ids):
+    #         if len(ids) != 2:
+    #             raise ValueError('Incorrect number of id')
+    #         ids = sorted(ids)
+    #
+    #         # in order to solve the collision in hashing differentiate types of data
+    #         # and to keep just one level comparison of hash key,
+    #         # add fixed length of type mark first
+    #         # here str != unicode (maybe it needs to compare on their base class basestring)
+    #         return '{0}-{1}-{2}-{3}'\
+    #             .format(type(ids[0]).__name__, type(ids[1]).__name__, str(ids[0]), str(ids[1]))
+    #
+    #     # read ground truth into memory
+    #     ground_truth = dict()
+    #     with open(self._get_abs_path(ground_truth_file_path), 'r') as f:
+    #         for line in f:
+    #             data = json.loads(line)
+    #             k, v = hashed_id(data['id']), data['label']
+    #             ground_truth[k] = v
+    #
+    #     # featurize feature file
+    #     if output_file_path is None:
+    #         with open(self._get_abs_path(feature_file_path), 'r') as f:
+    #             for line in f:
+    #                 data = json.loads(line)
+    #                 k = hashed_id(data['id'])
+    #                 if k in ground_truth:
+    #                     data['label'] = ground_truth[k]
+    #                     print data
+    #     else:
+    #         with open(self._get_abs_path(feature_file_path), 'r') as f:
+    #             with open(self._get_abs_path(output_file_path), 'w') as out:
+    #                 for line in f:
+    #                     data = json.loads(line)
+    #                     k = hashed_id(data['id'])
+    #                     if k in ground_truth:
+    #                         data['label'] = ground_truth[k]
+    #                         out.write(json.dumps(data))
+    #                         out.write('\n')
 
     def train_classifier(self, featurized_ground_truth, config):
         """
@@ -570,10 +604,10 @@ class Core(object):
         Args:
             file_path (str): File path.
             type (str): It can be `json_line`, `text`, `csv`. \
-                For `json_line` file, `id_path` and `value_path` should also be set. \
+                For `json_line` file, `id_path` should also be set. \
                 For `text` file, id will be auto generated.
-                For `csv` file, `id_column` and `value_columns` (list) should be set. \
-                if there's no header, please set `field_names` (list).
+                For `csv` file, `id_column` should be set. \
+                if there's no header, please set `column_names` (list).
         Returns:
             str, list: id, value list. \
                 If the extracted id is a int, it will be convert to string with a 'int-' prefix,\
