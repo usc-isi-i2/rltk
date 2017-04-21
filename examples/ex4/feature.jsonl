@@ -1,0 +1,5 @@
+{"id": ["1", "10"], "feature_vector": [0.8]}
+{"id": ["2", "11"], "feature_vector": [1.0]}
+{"id": ["3", "12"], "feature_vector": [1.0]}
+{"id": ["3", "13"], "feature_vector": [0.0]}
+{"id": ["4", "13"], "feature_vector": [0.6666666666666667]}

@@ -1,0 +1,10 @@
+{"id": ["1", "10"], "feature_vector": [0.8], "label": 1.0}
+{"id": ["1", "12"], "feature_vector": [0.19999999999999996], "label": 0.0}
+{"id": ["2", "10"], "feature_vector": [0.19999999999999996], "label": 0.0}
+{"id": ["2", "13"], "feature_vector": [0.0], "label": 0.0}
+{"id": ["3", "10"], "feature_vector": [0.19999999999999996], "label": 0.0}
+{"id": ["3", "12"], "feature_vector": [1.0], "label": 1.0}
+{"id": ["3", "13"], "feature_vector": [0.0], "label": 0.0}
+{"id": ["4", "11"], "feature_vector": [0.19999999999999996], "label": 0.0}
+{"id": ["4", "12"], "feature_vector": [0.0], "label": 0.0}
+{"id": ["4", "13"], "feature_vector": [0.6666666666666667], "label": 1.0}

@@ -3,6 +3,7 @@ import json
 import os
 import logging
 import collections
+import pickle
 
 from jsonpath_rw import parse
 from digCrfTokenizer.crf_tokenizer import CrfTokenizer
@@ -13,6 +14,7 @@ if __builtin__.rltk['enable_cython']:
 from classifier import *
 from similarity import utils
 from file_iterator import FileIterator
+
 
 class Core(object):
 
@@ -428,7 +430,7 @@ class Core(object):
         # return vector
         return vector
 
-    def compute_labeled_features(self, iter1, label_file_path, feature_config_name, feature_output_path, iter2=None):
+    def compute_labeled_features(self, iter1, label_path, feature_config_name, feature_output_path, iter2=None):
         """
         Args:
             iter1 (FileIterator): File iterator 1.
@@ -437,7 +439,7 @@ class Core(object):
         self._has_resource(feature_config_name, 'feature_configuration')
 
         labels = {}
-        with open(self._get_abs_path(label_file_path), 'r') as f:
+        with open(self._get_abs_path(label_path), 'r') as f:
             for line in f:
                 j = json.loads(line)
                 id1, id2 = j['id'][0], j['id'][1]
@@ -475,7 +477,7 @@ class Core(object):
             with open(self._get_abs_path(blocking_path), 'r') as f:
                 for line in f:
                     j = json.loads(line)
-                    for k, v in j:
+                    for k, v in j.iteritems():
                         blocking[k] = set(v)
 
         # if there's no blocking, compare all the possible pairs, O(n^2)
@@ -550,33 +552,68 @@ class Core(object):
     #                         out.write(json.dumps(data))
     #                         out.write('\n')
 
-    def train_classifier(self, featurized_ground_truth, config):
-        """
-        Using featurized ground truth to train classifier.
+    # def train_classifier(self, featurized_ground_truth, config):
+    #     """
+    #     Using featurized ground truth to train classifier.
+    #
+    #     Args:
+    #         featurized_ground_truth (dict): Array of featurized ground truth json dicts.
+    #         config (dict): Configuration dict of classifier and parameters includes `function`, \
+    #             `function_parameters` and `model_parameter`. \
+    #             It accepts `svm`, `k_neighbors`, `gaussian_process`, `decision_tree`, \
+    #             `random_forest`, `ada_boost`, `mlp`, `gaussian_naive_bayes`, `quadratic_discriminant_analysis` \
+    #             as function.
+    #
+    #     Returns:
+    #         Object: Model of the classifier.
+    #     """
+    #     x, y = [], []
+    #     for obj in featurized_ground_truth:
+    #         x.append(obj['feature_vector'])
+    #         y.append(obj['label'])
+    #
+    #     # train
+    #     function = get_classifier_class(config['function'])
+    #     if 'function_parameters' not in config:
+    #         config['function_parameters'] = {}
+    #     if 'model_parameters' not in config:
+    #         config['model_parameters'] = {}
+    #     return function(**config['function_parameters']).fit(x, y, **config['model_parameters'])
 
-        Args:
-            featurized_ground_truth (dict): Array of featurized ground truth json dicts.
-            config (dict): Configuration dict of classifier and parameters includes `function`, \
-                `function_parameters` and `model_parameter`. \
-                It accepts `svm`, `k_neighbors`, `gaussian_process`, `decision_tree`, \
-                `random_forest`, `ada_boost`, `mlp`, `gaussian_naive_bayes`, `quadratic_discriminant_analysis` \
-                as function.
+    def train_model(self, training_path, classifier, classifier_config={}, model_config={}):
 
-        Returns:
-            Object: Model of the classifier.
-        """
         x, y = [], []
-        for obj in featurized_ground_truth:
-            x.append(obj['feature_vector'])
-            y.append(obj['label'])
+        with open(self._get_abs_path(training_path), 'r') as f:
+            for line in f:
+                obj = json.loads(line)
+                x.append(obj['feature_vector'])
+                y.append(obj['label'])
 
         # train
-        function = get_classifier_class(config['function'])
-        if 'function_parameters' not in config:
-            config['function_parameters'] = {}
-        if 'model_parameters' not in config:
-            config['model_parameters'] = {}
-        return function(**config['function_parameters']).fit(x, y, **config['model_parameters'])
+        function = get_classifier_class(classifier)
+        return function(**classifier_config).fit(x, y, **model_config)
+
+    def dump_model(self, model, output_path):
+        with open(self._get_abs_path(output_path), 'w') as f:
+            f.write(pickle.dumps(model))
+
+    def load_model(self, file_path):
+        with open(self._get_abs_path(file_path), 'r') as f:
+            return pickle.loads(f.read())
+
+    def predict(self, model, feature_path, predict_output_path):
+
+        with open(self._get_abs_path(predict_output_path), 'w') as output:
+            with open(self._get_abs_path(feature_path), 'r') as input:
+                for line in input:
+                    obj = json.loads(line)
+                    label = model.predict([obj['feature_vector']])
+                    ret_dict = {
+                        'id': obj['id'],
+                        'label': label[0]
+                    }
+                    output.write(json.dumps(ret_dict))
+                    output.write('\n')
 
     def set_root_path(self, root_path):
         """

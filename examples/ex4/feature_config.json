@@ -1,0 +1,15 @@
+{
+  "missing_value_default": 0,
+  "error_handling": "exception",
+  "logging": {
+    "file_path": "log.log",
+    "level": "info"
+  },
+  "features": [
+    {
+      "function": "levenshtein_similarity",
+      "json_path": ["value", "value"],
+      "_get_first": true
+    }
+  ]
+}
