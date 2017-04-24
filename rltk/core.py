@@ -13,6 +13,7 @@ if __builtin__.rltk['enable_cython']:
 from classifier import *
 from similarity import utils
 from file_iterator import FileIterator
+from indexer import *
 
 class Core(object):
 
@@ -1092,7 +1093,8 @@ class Core(object):
         """
         return nysiis_similarity(s1, s2)
 
-    def q_gram_blocking(self, iter1, output_file_path, iter2=None):
+    #def q_gram_blocking(self, iter1, output_file_path, iter2=None):
+    def q_gram_blocking(self, **kwargs):
         """
         Q-Gram.
 
@@ -1102,7 +1104,7 @@ class Core(object):
             output_file_path (str): Output file string.
 
         """
-        output_file_path = self._get_abs_path(output_file_path)
+        return qgram_indexing(**kwargs)
 
     def canopy_blocking(self, iter1, output_file_path, iter2=None):
         """
