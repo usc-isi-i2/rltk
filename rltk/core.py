@@ -590,6 +590,8 @@ class Core(object):
                 y.append(obj['label'])
 
         # train
+        if len(x) == 0 or len(y) == 0 or len(x) != len(y):
+            raise ValueError('Illegal training file')
         function = get_classifier_class(classifier)
         return function(**classifier_config).fit(x, y, **model_config)
 

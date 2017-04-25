@@ -94,7 +94,6 @@ class FileIterator(object):
 
     def __del__(self):
         try:
-            pass
-            # self._file_handler.close()
+            self._file_handler.close()
         except:
             pass
