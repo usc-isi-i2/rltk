@@ -1,5 +1,6 @@
 name: rltk_env
 dependencies:
+- cython=0.25.2=py27_0
 - ipython=5.3.0=py27_0
 - ipython-notebook=4.0.4=py27_0
 - jinja2=2.7.3=py27_1
