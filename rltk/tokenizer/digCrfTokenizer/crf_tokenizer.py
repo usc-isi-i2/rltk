@@ -361,35 +361,38 @@ class ngramTokenizer(CrfTokenizer):
     def __init__(self):
         CrfTokenizer.__init__(self)
         self.token_string = ""
-        self.ngrams = set()
+        #self.ngrams = set()
 
     def transform(self, token_list):
         self.token_string = ngramTokenizer.place_holder.join(token_list)
 
     def basic(self, input_string, q):
+        ngrams = set()
         token_list = CrfTokenizer.tokenize(self,input_string)
         self.transform(token_list)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
-            self.ngrams.add(self.token_string[i:i+q])
-        return self.ngrams
+            ngrams.add(self.token_string[i:i+q])
+        return ngrams
 
     def positional(self, input_string, q):
+        ngrams = set()
         token_list = CrfTokenizer.tokenize(self,input_string)
         self.transform(token_list)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
-            self.ngrams.add(self.token_string[i:i+q] + str(i))
-        return self.ngrams
+            ngrams.add(self.token_string[i:i+q] + str(i))
+        return ngrams
 
     def padded(self, input_string, q):
+        ngrams = set()
         token_list = CrfTokenizer.tokenize(self,input_string)
         self.transform(token_list)
         self.token_string = ngramTokenizer.place_holder * (q - 1) + self.token_string + ngramTokenizer.place_holder * (q - 1)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
-            self.ngrams.add(self.token_string[i:i+q])
-        return self.ngrams
+            ngrams.add(self.token_string[i:i+q])
+        return ngrams
 
 
 
