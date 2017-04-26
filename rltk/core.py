@@ -26,8 +26,18 @@ class Core(object):
     # absolute root path for all relative paths in configurations
     _root_path = ''
 
+    # logger and logger settings
+    _logger = None
+    _logger_config = {
+        'name': None,
+        'file_path': 'log.log',
+        'level': 'info',
+        'format': '%(asctime)s %(levelname)s %(message)s'
+    }
+
     def __init__(self):
         self.set_root_path('.')
+        self.update_logging_settings()
         self._crf_tokenizer = CrfTokenizer()
 
     def _has_resource(self, name, type):
@@ -37,6 +47,33 @@ class Core(object):
     def _check_valid_resource(self, name, type):
         if name in self._rs_dict and type != self._rs_dict[name]['type']:
             raise ValueError('Invalid name for resource, it is used by another type')
+
+    def update_logging_settings(self, file_path=None, level=None, format=None):
+        """
+        Update global logging. If None is set to the arguments, it will keep the previous setting.
+
+        Args:
+            file_path (str): It is Initialized to 'log.log'.
+            level (str): It can be 'error', 'warning' or 'info'. It is Initialized to 'error'.
+            format (str): It is Initialized to '%(asctime)s %(levelname)s %(message)s'.
+        """
+
+        LOGGING_STRING_MAP = {'info': logging.INFO, 'warning': logging.WARNING, 'error': logging.ERROR}
+        if file_path is not None:
+            self._logger_config['file_path'] = self._get_abs_path(file_path)
+        if level is not None:
+            self._logger_config['level'] = level
+        if format is not None:
+            self._logger_config['format'] = format
+
+        logger_name = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
+        self._logger_config['name'] = logger_name
+        logger = logging.getLogger(logger_name)
+        log_file = logging.FileHandler(self._logger_config['file_path'])
+        logger.addHandler(log_file)
+        log_file.setFormatter(logging.Formatter(self._logger_config['format']))
+        logger.setLevel(LOGGING_STRING_MAP[self._logger_config['level']])
+        self._logger = logger
 
     def load_edit_distance_table(self, name, cost_dict):
         """
@@ -249,15 +286,6 @@ class Core(object):
                     "missing_value_default": 0,
                     // ignore or exception.
                     "error_handling": "exception",
-                    // optional, only log to file when it is set.
-                    "logging": {
-                        // log file path.
-                        "file_path": "log1.log",
-                        // optional, log output level.
-                        "level": "error",
-                        // optional, log format. It can be error, warning, info.
-                        "format": "%(asctime)s %(levelname)s %(message)s"
-                    },
                     // feature vectors
                     "features": [
                         {
@@ -282,8 +310,6 @@ class Core(object):
         """
         self._check_valid_resource(name, 'feature_configuration')
 
-        LOGGING_STRING_MAP = {'info': logging.INFO, 'warning': logging.WARNING, 'error': logging.ERROR}
-
         item = {
             'name': name,
             'type': 'feature_configuration',
@@ -302,22 +328,6 @@ class Core(object):
             else:
                 if config['error_handling'] not in ('ignore', 'exception'):
                     raise ValueError('Invalid value of error_handling')
-
-            # logging
-            if 'logging' in config:
-                if 'file_path' not in config['logging']:
-                    raise ValueError('Missing value of error_handling')
-                logger_name = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
-                logger = logging.getLogger(logger_name)
-                log_file = logging.FileHandler(self._get_abs_path(config['logging']['file_path']))
-                logger.addHandler(log_file)
-                log_format = config['logging']['format'] if 'format' in config['logging'] \
-                        else '%(asctime)s %(levelname)s %(message)s'
-                log_file.setFormatter(logging.Formatter(log_format))
-                log_level = config['logging']['level'] if 'level' in config['logging'] else 'error'
-                log_level = LOGGING_STRING_MAP[log_level] # str to logging enum
-                logger.setLevel(log_level)
-                config['logging'] = logger_name # replace json object to logger name
 
             # features (pre-compiled)
             if 'features' not in config:
@@ -377,7 +387,7 @@ class Core(object):
         self._has_resource(name, 'feature_configuration')
 
         config = self._rs_dict[name]['data']
-        logger = logging.getLogger(config['logging'])
+        logger = self._logger
         vector = []
 
         # process
