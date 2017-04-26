@@ -1093,17 +1093,16 @@ class Core(object):
         """
         return nysiis_similarity(s1, s2)
 
-    #def q_gram_blocking(self, iter1, output_file_path, iter2=None):
-    def q_gram_blocking(self, **kwargs):
+    def q_gram_blocking(self, output_file_path, **kwargs):
         """
         Q-Gram.
 
         Args:
-            iter1 (FileIterator): File iterator 1.
-            iter2 (FileIterator, optional): File iterator 2. Defaults to None.
+            **kwargs: Arbitrary keyword arguments
             output_file_path (str): Output file string.
 
         """
+        kwargs['output_file_path'] = output_file_path
         return qgram_indexing(**kwargs)
 
     def canopy_blocking(self, iter1, output_file_path, iter2=None):
