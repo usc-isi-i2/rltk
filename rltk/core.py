@@ -1102,6 +1102,7 @@ class Core(object):
             output_file_path (str): Output file string.
 
         """
+        output_file_path = self._get_abs_path(output_file_path)
         kwargs['output_file_path'] = output_file_path
         return qgram_indexing(**kwargs)
 
