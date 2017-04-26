@@ -5,7 +5,7 @@ branches:
     - stable
 language: python
 python:
-    - '2.7'
+  - '2.7'
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
