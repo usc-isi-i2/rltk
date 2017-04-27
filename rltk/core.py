@@ -3,17 +3,19 @@ import json
 import os
 import logging
 import collections
+import pickle
 
 from jsonpath_rw import parse
-from digCrfTokenizer.crf_tokenizer import CrfTokenizer
+from tokenizer.digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
 from similarity import *
 if __builtin__.rltk['enable_cython']:
     from similarity.cython import *
 from classifier import *
-from similarity import utils
+from similarity import utils as sim_utils
 from file_iterator import FileIterator
 from indexer import *
+
 
 class Core(object):
 
@@ -24,8 +26,18 @@ class Core(object):
     # absolute root path for all relative paths in configurations
     _root_path = ''
 
+    # logger and logger settings
+    _logger = None
+    _logger_config = {
+        'name': None,
+        'file_path': 'log.log',
+        'level': 'info',
+        'format': '%(asctime)s %(levelname)s %(message)s'
+    }
+
     def __init__(self):
         self.set_root_path('.')
+        self.update_logging_settings()
         self._crf_tokenizer = CrfTokenizer()
 
     def _has_resource(self, name, type):
@@ -35,6 +47,33 @@ class Core(object):
     def _check_valid_resource(self, name, type):
         if name in self._rs_dict and type != self._rs_dict[name]['type']:
             raise ValueError('Invalid name for resource, it is used by another type')
+
+    def update_logging_settings(self, file_path=None, level=None, format=None):
+        """
+        Update global logging. If None is set to the arguments, it will keep the previous setting.
+
+        Args:
+            file_path (str): It is Initialized to 'log.log'.
+            level (str): It can be 'error', 'warning' or 'info'. It is Initialized to 'error'.
+            format (str): It is Initialized to '%(asctime)s %(levelname)s %(message)s'.
+        """
+
+        LOGGING_STRING_MAP = {'info': logging.INFO, 'warning': logging.WARNING, 'error': logging.ERROR}
+        if file_path is not None:
+            self._logger_config['file_path'] = self._get_abs_path(file_path)
+        if level is not None:
+            self._logger_config['level'] = level
+        if format is not None:
+            self._logger_config['format'] = format
+
+        logger_name = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
+        self._logger_config['name'] = logger_name
+        logger = logging.getLogger(logger_name)
+        log_file = logging.FileHandler(self._logger_config['file_path'])
+        logger.addHandler(log_file)
+        log_file.setFormatter(logging.Formatter(self._logger_config['format']))
+        logger.setLevel(LOGGING_STRING_MAP[self._logger_config['level']])
+        self._logger = logger
 
     def load_edit_distance_table(self, name, cost_dict):
         """
@@ -247,15 +286,6 @@ class Core(object):
                     "missing_value_default": 0,
                     // ignore or exception.
                     "error_handling": "exception",
-                    // optional, only log to file when it is set.
-                    "logging": {
-                        // log file path.
-                        "file_path": "log1.log",
-                        // optional, log output level.
-                        "level": "error",
-                        // optional, log format. It can be error, warning, info.
-                        "format": "%(asctime)s %(levelname)s %(message)s"
-                    },
                     // feature vectors
                     "features": [
                         {
@@ -280,8 +310,6 @@ class Core(object):
         """
         self._check_valid_resource(name, 'feature_configuration')
 
-        LOGGING_STRING_MAP = {'info': logging.INFO, 'warning': logging.WARNING, 'error': logging.ERROR}
-
         item = {
             'name': name,
             'type': 'feature_configuration',
@@ -300,22 +328,6 @@ class Core(object):
             else:
                 if config['error_handling'] not in ('ignore', 'exception'):
                     raise ValueError('Invalid value of error_handling')
-
-            # logging
-            if 'logging' in config:
-                if 'file_path' not in config['logging']:
-                    raise ValueError('Missing value of error_handling')
-                logger_name = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
-                logger = logging.getLogger(logger_name)
-                log_file = logging.FileHandler(self._get_abs_path(config['logging']['file_path']))
-                logger.addHandler(log_file)
-                log_format = config['logging']['format'] if 'format' in config['logging'] \
-                        else '%(asctime)s %(levelname)s %(message)s'
-                log_file.setFormatter(logging.Formatter(log_format))
-                log_level = config['logging']['level'] if 'level' in config['logging'] else 'error'
-                log_level = LOGGING_STRING_MAP[log_level] # str to logging enum
-                logger.setLevel(log_level)
-                config['logging'] = logger_name # replace json object to logger name
 
             # features (pre-compiled)
             if 'features' not in config:
@@ -375,7 +387,7 @@ class Core(object):
         self._has_resource(name, 'feature_configuration')
 
         config = self._rs_dict[name]['data']
-        logger = logging.getLogger(config['logging'])
+        logger = self._logger
         vector = []
 
         # process
@@ -429,7 +441,7 @@ class Core(object):
         # return vector
         return vector
 
-    def compute_labeled_features(self, iter1, label_file_path, feature_config_name, feature_output_path, iter2=None):
+    def compute_labeled_features(self, iter1, label_path, feature_config_name, feature_output_path, iter2=None):
         """
         Args:
             iter1 (FileIterator): File iterator 1.
@@ -438,7 +450,7 @@ class Core(object):
         self._has_resource(feature_config_name, 'feature_configuration')
 
         labels = {}
-        with open(self._get_abs_path(label_file_path), 'r') as f:
+        with open(self._get_abs_path(label_path), 'r') as f:
             for line in f:
                 j = json.loads(line)
                 id1, id2 = j['id'][0], j['id'][1]
@@ -476,7 +488,7 @@ class Core(object):
             with open(self._get_abs_path(blocking_path), 'r') as f:
                 for line in f:
                     j = json.loads(line)
-                    for k, v in j:
+                    for k, v in j.iteritems():
                         blocking[k] = set(v)
 
         # if there's no blocking, compare all the possible pairs, O(n^2)
@@ -551,33 +563,70 @@ class Core(object):
     #                         out.write(json.dumps(data))
     #                         out.write('\n')
 
-    def train_classifier(self, featurized_ground_truth, config):
-        """
-        Using featurized ground truth to train classifier.
+    # def train_classifier(self, featurized_ground_truth, config):
+    #     """
+    #     Using featurized ground truth to train classifier.
+    #
+    #     Args:
+    #         featurized_ground_truth (dict): Array of featurized ground truth json dicts.
+    #         config (dict): Configuration dict of classifier and parameters includes `function`, \
+    #             `function_parameters` and `model_parameter`. \
+    #             It accepts `svm`, `k_neighbors`, `gaussian_process`, `decision_tree`, \
+    #             `random_forest`, `ada_boost`, `mlp`, `gaussian_naive_bayes`, `quadratic_discriminant_analysis` \
+    #             as function.
+    #
+    #     Returns:
+    #         Object: Model of the classifier.
+    #     """
+    #     x, y = [], []
+    #     for obj in featurized_ground_truth:
+    #         x.append(obj['feature_vector'])
+    #         y.append(obj['label'])
+    #
+    #     # train
+    #     function = get_classifier_class(config['function'])
+    #     if 'function_parameters' not in config:
+    #         config['function_parameters'] = {}
+    #     if 'model_parameters' not in config:
+    #         config['model_parameters'] = {}
+    #     return function(**config['function_parameters']).fit(x, y, **config['model_parameters'])
 
-        Args:
-            featurized_ground_truth (dict): Array of featurized ground truth json dicts.
-            config (dict): Configuration dict of classifier and parameters includes `function`, \
-                `function_parameters` and `model_parameter`. \
-                It accepts `svm`, `k_neighbors`, `gaussian_process`, `decision_tree`, \
-                `random_forest`, `ada_boost`, `mlp`, `gaussian_naive_bayes`, `quadratic_discriminant_analysis` \
-                as function.
+    def train_model(self, training_path, classifier, classifier_config={}, model_config={}):
 
-        Returns:
-            Object: Model of the classifier.
-        """
         x, y = [], []
-        for obj in featurized_ground_truth:
-            x.append(obj['feature_vector'])
-            y.append(obj['label'])
+        with open(self._get_abs_path(training_path), 'r') as f:
+            for line in f:
+                obj = json.loads(line)
+                x.append(obj['feature_vector'])
+                y.append(obj['label'])
 
         # train
-        function = get_classifier_class(config['function'])
-        if 'function_parameters' not in config:
-            config['function_parameters'] = {}
-        if 'model_parameters' not in config:
-            config['model_parameters'] = {}
-        return function(**config['function_parameters']).fit(x, y, **config['model_parameters'])
+        if len(x) == 0 or len(y) == 0 or len(x) != len(y):
+            raise ValueError('Illegal training file')
+        function = get_classifier_class(classifier)
+        return function(**classifier_config).fit(x, y, **model_config)
+
+    def dump_model(self, model, output_path):
+        with open(self._get_abs_path(output_path), 'w') as f:
+            f.write(pickle.dumps(model))
+
+    def load_model(self, file_path):
+        with open(self._get_abs_path(file_path), 'r') as f:
+            return pickle.loads(f.read())
+
+    def predict(self, model, feature_path, predict_output_path):
+
+        with open(self._get_abs_path(predict_output_path), 'w') as output:
+            with open(self._get_abs_path(feature_path), 'r') as input:
+                for line in input:
+                    obj = json.loads(line)
+                    label = model.predict([obj['feature_vector']])
+                    ret_dict = {
+                        'id': obj['id'],
+                        'label': label[0]
+                    }
+                    output.write(json.dumps(ret_dict))
+                    output.write('\n')
 
     def set_root_path(self, root_path):
         """
@@ -877,7 +926,7 @@ class Core(object):
             0.5
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
         return dice_similarity(set1, set2)
 
     def jaccard_index_similarity(self, set1, set2):
@@ -898,7 +947,7 @@ class Core(object):
             0.0
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
         return jaccard_index_similarity(set1, set2)
 
     def jaccard_index_distance(self, set1, set2):
@@ -913,7 +962,7 @@ class Core(object):
             int: Jaccard Index Distance.
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
         return jaccard_index_distance(set1, set2)
 
     def hybrid_jaccard_similarity(self, set1, set2, threshold=0.5, function=None, parameters={}):
@@ -943,7 +992,7 @@ class Core(object):
         if not function:
             function = self.jaro_winkler_similarity
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
         return hybrid_jaccard_similarity(set1, set2, threshold, function, parameters)
 
     def monge_elkan_similarity(self, bag1, bag2, function=None, parameters={}):
@@ -992,7 +1041,7 @@ class Core(object):
             0.916341933823
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
         return cosine_similarity(set1, set2)
 
     def tf_idf_similarity(self, bag1, bag2, name, math_log=False):

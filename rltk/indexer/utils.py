@@ -13,12 +13,14 @@ from jsonpath_rw.jsonpath import Fields
     dict: key value pair
 
 """
+
+
 def extract(data, keys, parse_dict=None):
-  if parse_dict is None:
-    parse_dict = {}
+    if parse_dict is None:
+        parse_dict = {}
+        for k in keys:
+            parse_dict[k] = parse(k)
+    extracted_values = {}
     for k in keys:
-      parse_dict[k] = parse(k)
-  extracted_values = {}
-  for k in keys:
-    extracted_values[k] = [match.value for match in parse_dict[k].find(data)]
-  return extracted_values
+        extracted_values[k] = [match.value for match in parse_dict[k].find(data)]
+    return extracted_values
