@@ -8,12 +8,14 @@ import pickle
 from jsonpath_rw import parse
 from tokenizer.digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
+from configuration import Configuration
+from file_iterator import FileIterator
 from similarity import *
 if __builtin__.rltk['enable_cython']:
+    # override non-cython version
     from similarity.cython import *
 from classifier import *
 from similarity import utils as sim_utils
-from file_iterator import FileIterator
 from indexer import *
 
 
@@ -29,7 +31,6 @@ class Core(object):
     # logger and logger settings
     _logger = None
     _logger_config = {
-        'name': None,
         'file_path': 'log.log',
         'level': 'info',
         'format': '%(asctime)s %(levelname)s %(message)s'
@@ -66,9 +67,7 @@ class Core(object):
         if format is not None:
             self._logger_config['format'] = format
 
-        logger_name = '{0}.{1}'.format(self.__module__, self.__class__.__name__)
-        self._logger_config['name'] = logger_name
-        logger = logging.getLogger(logger_name)
+        logger = logging.getLogger(Configuration.LOGGER_NAME)
         log_file = logging.FileHandler(self._logger_config['file_path'])
         logger.addHandler(log_file)
         log_file.setFormatter(logging.Formatter(self._logger_config['format']))
@@ -1157,7 +1156,7 @@ class Core(object):
 
     def canopy_blocking(self, iter1, output_file_path, iter2=None):
         """
-        Q-Gram.
+        Canopy blocking.
 
         Args:
             iter1 (FileIterator): File iterator 1.
@@ -1169,7 +1168,7 @@ class Core(object):
 
     def lsh_blocking(self, iter1, output_file_path, iter2=None):
         """
-        Q-Gram.
+        LSH Blocking.
 
         Args:
             iter1 (FileIterator): File iterator 1.
