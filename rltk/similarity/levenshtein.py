@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-import utils
+from .. import utils
 
 
 def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},

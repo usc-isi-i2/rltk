@@ -1,6 +1,4 @@
-import munkres
-
-import utils
+from .. import utils
 from jaro import jaro_winkler_similarity
 
 MIN_FLOAT = float('-inf')

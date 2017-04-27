@@ -5,7 +5,7 @@ from jsonpath_rw import parse
 from ..tokenizer.digCrfTokenizer.crf_tokenizer import ngramTokenizer
 from ..similarity.jaccard import jaccard_index_distance as jd
 from ..file_iterator import FileIterator
-from utils import extract
+from ..utils import extract
 
 """
   Base Class to build Q gram indexer for a single database. This class has methods to

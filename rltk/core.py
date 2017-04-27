@@ -8,6 +8,7 @@ import pickle
 from jsonpath_rw import parse
 from tokenizer.digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
+import utils
 from configuration import Configuration
 from file_iterator import FileIterator
 from similarity import *
@@ -15,7 +16,6 @@ if __builtin__.rltk['enable_cython']:
     # override non-cython version
     from similarity.cython import *
 from classifier import *
-from similarity import utils as sim_utils
 from indexer import *
 
 
@@ -925,7 +925,7 @@ class Core(object):
             0.5
         """
 
-        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return dice_similarity(set1, set2)
 
     def jaccard_index_similarity(self, set1, set2):
@@ -946,7 +946,7 @@ class Core(object):
             0.0
         """
 
-        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return jaccard_index_similarity(set1, set2)
 
     def jaccard_index_distance(self, set1, set2):
@@ -961,7 +961,7 @@ class Core(object):
             int: Jaccard Index Distance.
         """
 
-        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return jaccard_index_distance(set1, set2)
 
     def hybrid_jaccard_similarity(self, set1, set2, threshold=0.5, function=None, parameters={}):
@@ -991,7 +991,7 @@ class Core(object):
         if not function:
             function = self.jaro_winkler_similarity
 
-        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return hybrid_jaccard_similarity(set1, set2, threshold, function, parameters)
 
     def monge_elkan_similarity(self, bag1, bag2, function=None, parameters={}):
@@ -1040,7 +1040,7 @@ class Core(object):
             0.916341933823
         """
 
-        set1, set2 = sim_utils.convert_list_to_set(set1), sim_utils.convert_list_to_set(set2)
+        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
         return cosine_similarity(set1, set2)
 
     def tf_idf_similarity(self, bag1, bag2, name, math_log=False):

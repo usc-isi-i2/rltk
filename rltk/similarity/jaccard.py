@@ -1,4 +1,4 @@
-import utils
+from .. import utils
 
 def _jaccard_index(set1, set2):
     utils.check_for_none(set1, set2)

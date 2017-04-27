@@ -1,5 +1,5 @@
 import math
-import utils
+from .. import utils
 
 
 def _jaro_winkler(s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):

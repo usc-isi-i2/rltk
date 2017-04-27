@@ -1,4 +1,5 @@
-import utils
+from .. import utils
+
 
 def dice_similarity(set1, set2):
 

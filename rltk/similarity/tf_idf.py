@@ -1,7 +1,7 @@
 import collections
 import math
 
-import utils
+from .. import utils
 
 def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
     """

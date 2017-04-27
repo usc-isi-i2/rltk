@@ -1,5 +1,5 @@
 import math
-import utils
+from .. import utils
 
 
 def cosine_similarity(vec1, vec2):

@@ -1,4 +1,4 @@
-import utils
+from .. import utils
 
 
 def hamming_distance(s1, s2):
