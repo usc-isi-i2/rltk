@@ -3,9 +3,8 @@ import logging
 from collections import defaultdict
 from jsonpath_rw import parse
 
-from ..tokenizer.digCrfTokenizer.crf_tokenizer import ngramTokenizer
-from ..utils import extract
-from ..configuration import Configuration
+from rltk.tokenizer.digCrfTokenizer.crf_tokenizer import ngramTokenizer
+from rltk.configuration import Configuration
 
 
 class QgramRecordDeduplication(object):
@@ -34,7 +33,7 @@ class QgramRecordDeduplication(object):
         self.output_file_path = self._kwargs['output_file_path']
         self.value_path = self._kwargs['value_path1']
         self._discarded_indexes = set()
-        self._file_iter = self._kwargs['file_iter1']
+        self._file_iter = self._kwargs['iter1']
 
         if 'threshold' in self._kwargs:
             self._threshold = int(self._kwargs['threshold'])
@@ -85,9 +84,9 @@ class QgramRecordDeduplication(object):
         if 'value_path1' not in kwargs:
             error_flag = True
             msg = 'Missing blocking value path argument- value_path'
-        if 'file_iter1' not in kwargs:
+        if 'iter1' not in kwargs:
             error_flag = True
-            msg = 'Missing file iterator argument - file_iter'
+            msg = 'Missing file iterator argument - iter1'
 
         if error_flag:
             raise ValueError(msg)
@@ -275,9 +274,9 @@ class QgramRecordLinkage(object):
         self._check_args(kwargs)
         self._kwargs = kwargs
         self._first_db_kwargs = {'q1': kwargs['q1'], 'value_path1': kwargs['value_path1'],
-                                 'file_iter1': kwargs['file_iter1']}
+                                 'iter1': kwargs['iter1']}
         self._second_db_kwargs = {'q1': kwargs['q2'], 'value_path1': kwargs['value_path2'],
-                                  'file_iter1': kwargs['file_iter2']}
+                                  'iter1': kwargs['iter2']}
         self.output_file_path = self._kwargs['output_file_path']
         filename, file_extension = os.path.splitext(self.output_file_path)
 
@@ -317,12 +316,12 @@ class QgramRecordLinkage(object):
         if 'value_path2' not in kwargs:
             error_flag = True
             msg = 'Missing blocking value path argument- value_path2'
-        if 'file_iter1' not in kwargs:
+        if 'iter1' not in kwargs:
             error_flag = True
-            msg = 'Missing file iterator argument - file_iter1'
-        if 'file_iter2' not in kwargs:
+            msg = 'Missing file iterator argument - iter1'
+        if 'iter2' not in kwargs:
             error_flag = True
-            msg = 'Missing file iterator argument - file_iter2'
+            msg = 'Missing file iterator argument - iter2'
 
         if error_flag:
             raise ValueError(msg)
@@ -411,7 +410,7 @@ def qgram_indexing(**kwargs):
         None
         Has side effect of writing Qgram indexes to file
     """
-    if 'file_iter2' in kwargs:
+    if 'iter2' in kwargs:
         q = QgramRecordLinkage(**kwargs)
         q.build_index()
     else:

@@ -1,5 +1,5 @@
 import math
-from .. import utils
+import rltk.utils as utils
 
 
 def cosine_similarity(vec1, vec2):

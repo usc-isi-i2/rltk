@@ -1,4 +1,4 @@
-from .. import utils
+import rltk.utils as utils
 
 def _get_score(c1, c2, match, mismatch, score_table):
     """

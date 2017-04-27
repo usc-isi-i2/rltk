@@ -1,4 +1,4 @@
-from .. import utils
+import rltk.utils as utils
 
 def _jaccard_index(set1, set2):
     utils.check_for_none(set1, set2)

@@ -1,4 +1,4 @@
-from .. import utils
+import rltk.utils as utils
 
 def _metaphone(s):
     """

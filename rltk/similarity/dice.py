@@ -1,4 +1,4 @@
-from .. import utils
+import rltk.utils as utils
 
 
 def dice_similarity(set1, set2):

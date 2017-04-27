@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from .. import utils
+import rltk.utils as utils
 
 
 def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
