@@ -5,7 +5,7 @@ from jsonpath_rw import parse
 
 from rltk.tokenizer.digCrfTokenizer.crf_tokenizer import ngramTokenizer
 from rltk.configuration import Configuration
-
+import rltk.utils as utils
 
 class QgramRecordDeduplication(object):
     """
@@ -202,7 +202,7 @@ class QgramRecordDeduplication(object):
             parse_dict[k] = parse(k)
         s = time.time()
         for rid, json_data in self._file_iter:
-            extracted_data = extract(json_data, self.value_path, parse_dict)
+            extracted_data = utils.extract(json_data, self.value_path, parse_dict)
             # Reset run_count when we hit BATCH_SIZE
             if run_count >= self._batch_size:
                 self._index_records(records)
