@@ -6,6 +6,8 @@ from ..tokenizer.digCrfTokenizer.crf_tokenizer import ngramTokenizer
 from ..similarity.jaccard import jaccard_index_distance as jd
 from ..file_iterator import FileIterator
 from utils import extract
+import logging 
+from ..configuration import Configuration
 
 """
   Base Class to build Q gram indexer for a single database. This class has methods to
@@ -47,6 +49,7 @@ class QgramRecordDeduplication(object):
 	self.erase_file_content(self.output_file_path)
 	self.output_flag = False
 	self.nt = ngramTokenizer()
+	self._logger = logging.getLogger(Configuration.LOGGER_NAME)
 
   """
 	This erases file contents if the file exists.
@@ -205,7 +208,9 @@ class QgramRecordDeduplication(object):
 	  #Reset run_count when we hit BATCH_SIZE
 	  if run_count >= self._batch_size:
 		self._index_records(records)
-		print("Finished indexing {val} records. Time = {time}".format(val=run_count*run_iteration, time=(time.time() - s)))
+		msg = "Finished indexing {val} records. Time = {time}".format(val=run_count*run_iteration, time=(time.time() - s))
+		self._logger.info('{0} {1}'.format("[qgram-blocking]", msg))
+
 		run_iteration += 1
 		records = []
 		run_count = 0
@@ -277,6 +282,8 @@ class QgramRecordLinkage(object):
 	self.erase_file_content(second_db_output_path)
 	self._first_db_kwargs['output_file_path'] = first_db_output_path
 	self._second_db_kwargs['output_file_path'] = second_db_output_path
+	self._logger = logging.getLogger(Configuration.LOGGER_NAME)
+
 
   """
 	Helper method to check if 
@@ -343,18 +350,21 @@ class QgramRecordLinkage(object):
 	  Has a side effect of writing indexer to output file
   """
   def build_index(self):
-	print("started building index for first database...")
+	self._logger.info('{0} {1}'.format("[qgram-blocking]", "started building index for first database..."))
 	s = time.time()
 	q1 = QgramRecordDeduplication(**self._first_db_kwargs)
 	q1.build_index()
 	e = time.time()
-	print("Finished building indexes for first database. Time taken:", e - s)
+	msg = "Finished building indexes for first database. Time taken: {0} s".format(str(e - s))
+	self._logger.info('{0} {1}'.format("[qgram-blocking]", msg))
+
 
 	q2 = QgramRecordDeduplication(**self._second_db_kwargs)
 	q2.build_index()
 
 	t = time.time()
-	print("Finished building indexes for second database. Time taken:", t - e)
+	msg = "Finished building indexes for second database. Time taken: {0} s".format(str(t - e))
+	self._logger.info('{0} {1}'.format("[qgram-blocking]", msg))
 	q1_inverted_index = q1.get_inverted_index()
 	q2_index = q2.get_index()
 
@@ -379,7 +389,10 @@ class QgramRecordLinkage(object):
 	  self._write_result(self.output_file_path, results)
 	  results = []
 	k = time.time()
-	print("Finished building combined indexes. Time taken", k - t)
+
+	msg = "Finished building combined indexes. Time taken: {0} s".format(str(k - t))
+	self._logger.info('{0} {1}'.format("[qgram-blocking]", msg))
+
 
 """
   Base interface to construct Qgram indexes for databases.
@@ -396,11 +409,8 @@ def qgram_indexing(**kwargs):
 	q = QgramRecordLinkage(**kwargs)
 	q.build_index()
   else:
-	s = time.time()
-	print('Building index')
 	q = QgramRecordDeduplication(**kwargs)
 	q.build_index()
-	print('Finished building index. Time:', time.time() - s)
 
 
 
