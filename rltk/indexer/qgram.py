@@ -29,11 +29,11 @@ class QgramRecordDeduplication(object):
   def __init__(self, **kwargs):
 	self._check_args(kwargs)
 	self._kwargs = kwargs
-	self._q = self._kwargs['q']
+	self._q = self._kwargs['q1']
 	self.output_file_path = self._kwargs['output_file_path']
-	self.value_path = self._kwargs['value_path']
+	self.value_path = self._kwargs['value_path1']
 	self._discarded_indexes = set()
-	self._file_iter = self._kwargs['file_iter']
+	self._file_iter = self._kwargs['file_iter1']
 
 	if 'threshold' in self._kwargs:
 	  self._threshold = int(self._kwargs['threshold'])
@@ -74,16 +74,16 @@ class QgramRecordDeduplication(object):
   """
   def _check_args(self, kwargs):
 	error_flag = False
-	if 'q' not in kwargs:
+	if 'q1' not in kwargs:
 	  error_flag = True
 	  msg = 'Missing q argument- q'
 	if 'output_file_path' not in kwargs:
 	  error_flag = True
 	  msg = 'Missing output file path argument - output_file_path'
-	if 'value_path' not in kwargs:
+	if 'value_path1' not in kwargs:
 	  error_flag = True
 	  msg = 'Missing blocking value path argument- value_path'
-	if 'file_iter' not in kwargs:
+	if 'file_iter1' not in kwargs:
 	  error_flag = True
 	  msg = 'Missing file iterator argument - file_iter'
 
@@ -266,8 +266,8 @@ class QgramRecordLinkage(object):
   def __init__(self, **kwargs):
 	self._check_args(kwargs)
 	self._kwargs = kwargs
-	self._first_db_kwargs = {'q': kwargs['q1'], 'value_path': kwargs['value_path1'], 'file_iter': kwargs['file_iter1']}
-	self._second_db_kwargs = {'q': kwargs['q2'], 'value_path': kwargs['value_path2'], 'file_iter': kwargs['file_iter2']}
+	self._first_db_kwargs = {'q1': kwargs['q1'], 'value_path1': kwargs['value_path1'], 'file_iter1': kwargs['file_iter1']}
+	self._second_db_kwargs = {'q1': kwargs['q2'], 'value_path1': kwargs['value_path2'], 'file_iter1': kwargs['file_iter2']}
 	self.output_file_path = self._kwargs['output_file_path']
 	filename, file_extension = os.path.splitext(self.output_file_path)
 
@@ -380,6 +380,9 @@ class QgramRecordLinkage(object):
 	  results = []
 	k = time.time()
 	print("Finished building combined indexes. Time taken", k - t)
+
+	os.remove(self._first_db_kwargs['output_file_path'])
+	os.remove(self._second_db_kwargs['output_file_path'])
 
 """
   Base interface to construct Qgram indexes for databases.
