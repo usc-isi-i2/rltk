@@ -6,7 +6,7 @@ import collections
 import pickle
 
 from jsonpath_rw import parse
-from digCrfTokenizer.crf_tokenizer import CrfTokenizer
+from tokenizer.digCrfTokenizer.crf_tokenizer import CrfTokenizer
 
 from similarity import *
 if __builtin__.rltk['enable_cython']:
