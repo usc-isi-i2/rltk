@@ -38,8 +38,15 @@ Example 2::
    >>> tk.levenshtein_distance('a', 'abc', name='A1')
    >>> 150
 
+More Examples
+-------------
+
+.. toctree::
+   :maxdepth: 3
+
+
 API Reference
---------------
+-------------
 
 .. toctree::
    :maxdepth: 2
