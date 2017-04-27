@@ -1147,8 +1147,19 @@ class Core(object):
         Q-Gram.
 
         Args:
-            **kwargs: Arbitrary keyword arguments
             output_file_path (str): Output file string.
+
+            **kwargs: Arbitrary keyword arguments
+            file_iter1(object): file iterator object
+            q1(str): qgram size
+            value_path1(str): value path of json 
+
+            Following are optional arguments
+            file_iter2(object, optional): file iterator object
+            q2(str, optional): qgram size
+            value_path2(str, optional): value path of json 
+            batch_size(str, optional): batch size of records to be indexed
+            threshold(str, optional): threshold on block size
 
         """
         output_file_path = self._get_abs_path(output_file_path)
@@ -1166,6 +1177,8 @@ class Core(object):
 
         """
         output_file_path = self._get_abs_path(output_file_path)
+        kwargs['output_file_path'] = output_file_path
+        return canopy_indexing(**kwargs)
 
     def lsh_blocking(self, iter1, output_file_path, iter2=None):
         """
