@@ -10,10 +10,13 @@
 #         skos:exactMatch ?lod_identifier.
 #   }
 # }
+# query data to queryResult.csv
 
 
 import csv, json, random
 
+
+# # generate ulan_puam_exact_match
 # with open('ulan_puam_exact_match.jsonl', 'w') as output:
 #     with open('queryResults.csv', 'r') as f:
 #         csv_reader = csv.DictReader(f, delimiter=',', quotechar='"')
@@ -80,19 +83,26 @@ with open('labeled.jsonl', 'w') as output:
             while not match_finished or not unmatch_finished:
                 s = random.randint(0, 1) if not match_finished and not unmatch_finished \
                     else (0 if match_finished else 1)
+                j_out = {}
                 if s == 1:
                     ss = match.readline()
                     if ss == '' or ss == '\n':
                         match_finished = True
                         continue
                     j = json.loads(ss)
-                    j['label'] = 1.0
+                    j_out = {
+                        'id': [j['ulan_id'], j['puam_id']],
+                        'label': 1.0
+                    }
                 else:
                     ss = unmatch.readline()
                     if ss == '' or ss == '\n':
                         unmatch_finished = True
                         continue
                     j = json.loads(ss)
-                    j['label'] = 0.0
-                output.write(json.dumps(j))
+                    j_out = {
+                        'id': [j['ulan_id'], j['puam_id']],
+                        'label': 0.0
+                    }
+                output.write(json.dumps(j_out))
                 output.write('\n')
