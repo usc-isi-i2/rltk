@@ -1171,15 +1171,23 @@ class Core(object):
 
         """
         output_file_path = self._get_abs_path(output_file_path)
-
-    def lsh_blocking(self, iter1, output_file_path, iter2=None):
+        
+    def lsh_minhash_blocking(self, output_file_path, **kwargs):
         """
-        LSH Blocking.
+        Minhash LSH based indexer. 
 
         Args:
-            iter1 (FileIterator): File iterator 1.
-            iter2 (FileIterator, optional): File iterator 2. Defaults to None.
             output_file_path (str): Output file string.
-
+            iter1 (object): file iterator object
+            value_path1 (str): value path of json
+            iter2 (object, optional): file iterator object
+            value_path2 (str, optional): value path of json
+            batch_size (str, optional): batch size of records to be indexed
+            num_perm (int, optional): The number of permutation functions used by the MinHash to be indexed. Default is 128.
+            threshold (float, optional): The Jaccard similarity threshold between 0.0 and 1.0. The initialized MinHash LSH will be optimized for the threshold by minimizing the false positive and false negative. Default is 0.9.
+            bands_rows (tuple(int,int), optional): The LSH parameters (i.e., number of bands and size of each bands). This is used to bypass the parameter optimization step in the constructor. threshold will be ignored if this is given.
         """
         output_file_path = self._get_abs_path(output_file_path)
+        kwargs['output_file_path'] = output_file_path
+        return minhash_lsh_indexing(**kwargs)
+
