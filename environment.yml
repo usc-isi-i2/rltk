@@ -26,6 +26,7 @@ dependencies:
 - nb_conda=2.0.0=py27_0
 - pip:
   - alabaster>=0.7.9
+  - datasketch>=1.2.1
   - jsonpath-rw>=1.4.0
   - jupyter>=1.0.0
   - munkres==1.0.8
