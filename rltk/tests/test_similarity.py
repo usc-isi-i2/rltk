@@ -152,6 +152,18 @@ def test_cosine_similarity(vec1, vec2, similarity):
         assert pytest.approx(cosine_similarity(vec1, vec2), 0.001) == similarity
 
 
+@pytest.mark.parametrize('bag1, bag2, similarity', [
+    (['a', 'b', 'c'], ['a', 'a', 'c'], 0.775),
+    (['cc', 'dd', 'a'], ['dd', 'a', 'cc'], 1.0)
+])
+def test_string_cosine_similarity(bag1, bag2, similarity):
+    if bag1 is None or bag2 is None:
+        with pytest.raises(TypeError):
+            string_cosine_similarity(bag1, bag2)
+    else:
+        assert pytest.approx(string_cosine_similarity(bag1, bag2), 0.001) == similarity
+
+
 @pytest.mark.parametrize('set1, set2, similarity', [
     (set(['abc', 'bcd', 'cde']), set(['cde', 'efg', 'fgh']), 0.2),
     (set(['abc', 'def']), set(['abc', 'def']), 1.0),

@@ -5,7 +5,7 @@ from levenshtein import levenshtein_distance, levenshtein_similarity, \
 from needleman import needleman_wunsch_score, needleman_wunsch_similarity
 from jaro import jaro_winkler_distance, jaro_winkler_similarity, jaro_distance
 from jaccard import jaccard_index_similarity, jaccard_index_distance
-from cosine import cosine_similarity
+from cosine import cosine_similarity, string_cosine_similarity
 from tf_idf import tf_idf_similarity, compute_idf, compute_tf, tf_idf_similarity_by_dict
 
 from hybrid import hybrid_jaccard_similarity, monge_elkan_similarity, symmetric_monge_elkan_similarity

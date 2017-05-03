@@ -444,7 +444,11 @@ class Core(object):
         """
         Args:
             iter1 (FileIterator): File iterator 1.
-            iter2 (FileIterator): File iterator 2.
+            iter2 (FileIterator, optional): File iterator 2. \
+                Set it to None if it is a de-duplication task. Defaults to None.
+            label_path (str): Path of the label file.
+            feature_config_name (str): Name of resource (feature configuration).
+            feature_output_path (str): Output path of labelled features.
         """
         self._has_resource(feature_config_name, 'feature_configuration')
 
@@ -460,7 +464,7 @@ class Core(object):
             for id1, value1 in iter1:
                 if id1 not in labels:
                     continue
-                curr_iter2 = iter2.copy()
+                curr_iter2 = next(iter1.copy()) if iter2 is None else iter2.copy()
                 for id2, value2 in curr_iter2:
                     if id2 not in labels[id1]:
                         continue
@@ -478,7 +482,12 @@ class Core(object):
         """
         Args:
             iter1 (FileIterator): File iterator 1.
-            iter2 (FileIterator): File iterator 2.
+            iter2 (FileIterator, optional): File iterator 2. \
+                Set it to None if it is a de-duplication task. Defaults to None.
+            feature_config_name (str): Name of resource (feature configuration).
+            feature_output_path (str): Output path of labelled features.
+            blocking_path (str, optional): If it is not provided, features of all possible pairs will be computed. \
+                Defaults to None.
         """
         self._has_resource(feature_config_name, 'feature_configuration')
 
@@ -1024,13 +1033,13 @@ class Core(object):
             function = self.jaro_winkler_similarity
         return symmetric_monge_elkan_similarity(bag1, bag2, function, parameters)
 
-    def cosine_similarity(self, set1, set2):
+    def cosine_similarity(self, vec1, vec2):
         """
-        The similarity between the two strings is the cosine of the angle between these two vectors representation.
+        The cosine similarity between to vectors.
 
         Args:
-            set1 (set): Set 1.
-            set2 (set): Set 2.
+            vec1 (list): Vector 1. List of integer or float.
+            vec2 (list): Vector 2. List of integer or float. It should have the same length to vec1.
 
         Returns:
             float: Cosine similarity.
@@ -1040,8 +1049,21 @@ class Core(object):
             0.916341933823
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
-        return cosine_similarity(set1, set2)
+        return cosine_similarity(vec1, vec2)
+
+    def string_cosine_similarity(self, bag1, bag2):
+        """
+        The similarity between the two strings is the cosine of the angle between these two vectors representation.
+
+        Args:
+            bag1 (list): Bag1, tokenized string sequence.
+            bag2 (list): Bag2, tokenized string sequence.
+
+        Returns:
+            float: Cosine similarity.
+        """
+
+        return string_cosine_similarity(bag1, bag2)
 
     def tf_idf_similarity(self, bag1, bag2, name, math_log=False):
         """
