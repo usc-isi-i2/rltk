@@ -32,7 +32,7 @@ def string_cosine_similarity(bag1, bag2):
 
     intersection = set(d1.keys()) & set(d2.keys())
     v_x_y = sum([d1[x] * d2[x] for x in intersection])
-    v_x_2 = sum([d1[x] ** 2 for x in d1.keys()])
-    v_y_2 = sum([d2[x] ** 2 for x in d2.keys()])
+    v_x_2 = sum([v * v for k, v in d1.iteritems()])
+    v_y_2 = sum([v * v for k, v in d2.iteritems()])
 
     return 0.0 if v_x_y == 0 else float(v_x_y) / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
