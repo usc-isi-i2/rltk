@@ -611,8 +611,8 @@ class Core(object):
         # train
         if len(x) == 0 or len(y) == 0 or len(x) != len(y):
             raise ValueError('Illegal training file')
-        function = get_classifier_class(classifier)
-        return function(**classifier_config).fit(x, y, **model_config)
+        cls = get_classifier_class(classifier)
+        return cls(**classifier_config).fit(x, y, **model_config)
 
     def dump_model(self, model, output_path):
         with open(self._get_abs_path(output_path), 'w') as f:
@@ -1185,6 +1185,17 @@ class Core(object):
             0
         """
         return nysiis_similarity(s1, s2)
+
+    def evaluate_model(self, labeled_feature_path, classifier_name, classifier_config={}, cv=3, method=None):
+        X, y = [], []
+        with open(self._get_abs_path(labeled_feature_path), 'r') as f:
+            for line in f:
+                j = json.loads(line)
+                X.append(j['feature_vector'])
+                y.append(j['label'])
+
+        return cross_validation(classifier_name, X=X, y=y,
+                                classifier_config=classifier_config, cv=cv, method=method)
 
     def q_gram_blocking(self, output_file_path, **kwargs):
         """
