@@ -1,3 +1,4 @@
+from equal import string_equal, number_equal
 from hamming import hamming_distance, hamming_similarity, normalized_hamming_distance
 from dice import dice_similarity
 from levenshtein import levenshtein_distance, levenshtein_similarity, \

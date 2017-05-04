@@ -673,6 +673,29 @@ class Core(object):
         """
         return FileIterator(file_path=self._get_abs_path(file_path), *args, **kwargs)
 
+    def number_equal(self, n1, n2, epsilon=0):
+        """
+        Args:
+            n1 (int / float): Number 1.
+            n2 (int / float): Number 2.
+            epsilon (float, optional): Approximation margin.
+
+        Returns:
+            int: 0 for unequal and 1 for equal.
+        """
+        return number_equal(n1, n2, epsilon)
+
+    def string_equal(self, s1, s2):
+        """
+        Args:
+            n1 (str): String 1.
+            n2 (str): String 2.
+
+        Returns:
+            int: 0 for unequal and 1 for equal.
+        """
+        return string_equal(s1, s2)
+
     def hamming_distance(self, s1, s2):
         """
         Hamming distance used to measure the minimum number of substitutions required to change one sequence into the

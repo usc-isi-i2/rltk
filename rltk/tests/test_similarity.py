@@ -11,6 +11,38 @@ from ..similarity.soundex import _soundex
 from ..similarity.metaphone import _metaphone
 
 
+@pytest.mark.parametrize('n1, n2, epsilon, equal', [
+    (1, 2, 0, 0),
+    (-1, -2, 0, 0),
+    (3.2, 3.0, 0.15, 0),
+    (3.2, 3.0, 0.3, 1)
+])
+def test_number_equal(n1, n2, epsilon, equal):
+    if not isinstance(n1, (int, float)) or not isinstance(n2, (int, float)):
+        with pytest.raises(ValueError):
+            number_equal(n1, n2)
+    else:
+        assert number_equal(n1, n2, epsilon) == equal
+
+
+@pytest.mark.parametrize('s1, s2, equal', [
+    ('abc', 'abc', 1),
+    (u'hello', u'hello', 1),
+    (None, 'ok', None),
+    (1, 2, None),
+    ('bar', 'foo', 0)
+])
+def test_string_equal(s1, s2, equal):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            string_equal(s1, s2)
+    elif not isinstance(s1, basestring) or not isinstance(s2, basestring):
+        with pytest.raises(TypeError):
+            string_equal(s1, s2)
+    else:
+        assert string_equal(s1, s2) == equal
+
+
 @pytest.mark.parametrize('s1, s2, distance', [
     ('abc', 'abc', 0),
     ('acc', 'abcd', None),
@@ -28,6 +60,7 @@ def test_hamming_distance(s1, s2, distance):
             hamming_distance(s1, s2)
     else:
         assert hamming_distance(s1, s2) == distance
+
 
 @pytest.mark.parametrize('set1, set2, similarity', [
     (set(['data', 'science']), set(['data']), 0.667),
