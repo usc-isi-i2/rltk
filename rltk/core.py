@@ -17,6 +17,7 @@ if __builtin__.rltk['enable_cython']:
     from similarity.cython import *
 from classifier import *
 from indexer import *
+from evaluation_metrics import *
 
 
 class Core(object):
@@ -1183,3 +1184,18 @@ class Core(object):
 
         """
         output_file_path = self._get_abs_path(output_file_path)
+
+    def evaluate_indexer(self, linking_type, ground_truth_file, blocking_file, db1_size, db2_size=None):
+        """
+        Evaluate Indexer performance
+
+        Args:
+            linking_type(str): linkage or deduplication
+            ground_truth_file(str): path to ground truth file
+            blocking_file(str): path to blocking result file
+            db1_size(str): total records in database 1
+            db2_size(str): total records in database 2
+
+        """
+        reduction_ratio, pairs_completeness, pairs_quality =  calculate_metrics(linking_type, ground_truth_file, blocking_file, db1_size, db2_size=None)
+        return reduction_ratio, pairs_completeness, pairs_quality

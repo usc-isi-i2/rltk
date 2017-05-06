@@ -1,0 +1,1 @@
+from calculate_indexer_metrics import calculate_metrics
