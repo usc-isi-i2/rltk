@@ -11,7 +11,11 @@ setup(
   name = 'rltk',
   # ext_modules = cythonize(extensions),
     ext_modules = cythonize([
-        'rltk/similarity/cython/tf_idf.pyx'
+        'rltk/similarity/cython/tf_idf.pyx',
+        'rltk/similarity/cython/equal.pyx',
+        'rltk/similarity/cython/hybrid.pyx',
+        'rltk/similarity/cython/jaro.pyx',
+        'rltk/similarity/cython/soundex.pyx'
     ])
 )
 
