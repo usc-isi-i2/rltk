@@ -445,7 +445,11 @@ class Core(object):
         """
         Args:
             iter1 (FileIterator): File iterator 1.
-            iter2 (FileIterator): File iterator 2.
+            iter2 (FileIterator, optional): File iterator 2. \
+                Set it to None if it is a de-duplication task. Defaults to None.
+            label_path (str): Path of the label file.
+            feature_config_name (str): Name of resource (feature configuration).
+            feature_output_path (str): Output path of labelled features.
         """
         self._has_resource(feature_config_name, 'feature_configuration')
 
@@ -461,7 +465,7 @@ class Core(object):
             for id1, value1 in iter1:
                 if id1 not in labels:
                     continue
-                curr_iter2 = iter2.copy()
+                curr_iter2 = next(iter1.copy()) if iter2 is None else iter2.copy()
                 for id2, value2 in curr_iter2:
                     if id2 not in labels[id1]:
                         continue
@@ -479,7 +483,12 @@ class Core(object):
         """
         Args:
             iter1 (FileIterator): File iterator 1.
-            iter2 (FileIterator): File iterator 2.
+            iter2 (FileIterator, optional): File iterator 2. \
+                Set it to None if it is a de-duplication task. Defaults to None.
+            feature_config_name (str): Name of resource (feature configuration).
+            feature_output_path (str): Output path of labelled features.
+            blocking_path (str, optional): If it is not provided, features of all possible pairs will be computed. \
+                Defaults to None.
         """
         self._has_resource(feature_config_name, 'feature_configuration')
 
@@ -1025,13 +1034,13 @@ class Core(object):
             function = self.jaro_winkler_similarity
         return symmetric_monge_elkan_similarity(bag1, bag2, function, parameters)
 
-    def cosine_similarity(self, set1, set2):
+    def cosine_similarity(self, vec1, vec2):
         """
-        The similarity between the two strings is the cosine of the angle between these two vectors representation.
+        The cosine similarity between to vectors.
 
         Args:
-            set1 (set): Set 1.
-            set2 (set): Set 2.
+            vec1 (list): Vector 1. List of integer or float.
+            vec2 (list): Vector 2. List of integer or float. It should have the same length to vec1.
 
         Returns:
             float: Cosine similarity.
@@ -1041,8 +1050,21 @@ class Core(object):
             0.916341933823
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
-        return cosine_similarity(set1, set2)
+        return cosine_similarity(vec1, vec2)
+
+    def string_cosine_similarity(self, bag1, bag2):
+        """
+        The similarity between the two strings is the cosine of the angle between these two vectors representation.
+
+        Args:
+            bag1 (list): Bag1, tokenized string sequence.
+            bag2 (list): Bag2, tokenized string sequence.
+
+        Returns:
+            float: Cosine similarity.
+        """
+
+        return string_cosine_similarity(bag1, bag2)
 
     def tf_idf_similarity(self, bag1, bag2, name, math_log=False):
         """
@@ -1172,18 +1194,25 @@ class Core(object):
 
         """
         output_file_path = self._get_abs_path(output_file_path)
-
-    def lsh_blocking(self, iter1, output_file_path, iter2=None):
+        
+    def lsh_minhash_blocking(self, output_file_path, **kwargs):
         """
-        LSH Blocking.
+        Minhash LSH based indexer. 
 
         Args:
-            iter1 (FileIterator): File iterator 1.
-            iter2 (FileIterator, optional): File iterator 2. Defaults to None.
             output_file_path (str): Output file string.
-
+            iter1 (object): file iterator object
+            value_path1 (str): value path of json
+            iter2 (object, optional): file iterator object
+            value_path2 (str, optional): value path of json
+            batch_size (str, optional): batch size of records to be indexed
+            num_perm (int, optional): The number of permutation functions used by the MinHash to be indexed. Default is 128.
+            threshold (float, optional): The Jaccard similarity threshold between 0.0 and 1.0. The initialized MinHash LSH will be optimized for the threshold by minimizing the false positive and false negative. Default is 0.9.
+            bands_rows (tuple(int,int), optional): The LSH parameters (i.e., number of bands and size of each bands). This is used to bypass the parameter optimization step in the constructor. threshold will be ignored if this is given.
         """
         output_file_path = self._get_abs_path(output_file_path)
+        kwargs['output_file_path'] = output_file_path
+        return minhash_lsh_indexing(**kwargs)
 
     def evaluate_indexer(self, linking_type, ground_truth_file, blocking_file, db1_size, db2_size=None):
         """
