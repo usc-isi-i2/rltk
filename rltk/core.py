@@ -4,6 +4,9 @@ import os
 import logging
 import collections
 import pickle
+import time
+import operator
+import sys
 
 from jsonpath_rw import parse
 from tokenizer.digCrfTokenizer.crf_tokenizer import CrfTokenizer
@@ -376,12 +379,7 @@ class Core(object):
             name (str): Name of resource (feature configuration).
 
         Returns:
-            dict: feature vector.
-
-        Examples:
-            >>> tk.load_feature_configuration('C1', 'feature_config_1.json')
-            >>> print tk.compute_feature_vector(j1, j2, name='C1')
-            {'id': [1, '2'], 'feature_vector': [0.33333333333333337, 1.0]}
+            list: feature vector.
         """
         self._has_resource(name, 'feature_configuration')
 
@@ -464,6 +462,8 @@ class Core(object):
             for id1, value1 in iter1:
                 if id1 not in labels:
                     continue
+                # if iter2 exists, it always iterate from start;
+                # else starts from the next element of iter1
                 curr_iter2 = next(iter1.copy()) if iter2 is None else iter2.copy()
                 for id2, value2 in curr_iter2:
                     if id2 not in labels[id1]:
@@ -500,23 +500,64 @@ class Core(object):
                         blocking[k] = set(v)
 
         # if there's no blocking, compare all the possible pairs, O(n^2)
-        with open(self._get_abs_path(feature_output_path), 'w') as output:
-            for id1, value1 in iter1:
-                if blocking_path is not None and id1 not in blocking:
-                    continue
-                # if iter2 exists, it always iterate from start;
-                # else starts from the next element of iter1
-                curr_iter2 = next(iter1.copy()) if iter2 is None else iter2.copy()
-                for id2, value2 in curr_iter2:
-                    if blocking_path is not None and id2 not in blocking[id1]:
+        if iter2 is not None:
+            count = 0
+            with open(self._get_abs_path(feature_output_path), 'w') as output:
+                for id1, value1 in iter1:
+                    if blocking_path is not None and id1 not in blocking:
                         continue
-                    v = self._compute_feature_vector(value1, value2, feature_config_name)
-                    ret_dict = {
-                        'id': [id1, id2],
-                        'feature_vector': v
-                    }
-                    output.write(json.dumps(ret_dict))
-                    output.write('\n')
+
+                    if count % 1000 == 0:
+                        print 'computed count:', count
+                    count += 1
+
+                    curr_iter2 = iter2.copy()
+                    for id2, value2 in curr_iter2:
+                        if blocking_path is not None and id2 not in blocking[id1]:
+                            continue
+                        v = self._compute_feature_vector(value1, value2, feature_config_name)
+                        ret_dict = {
+                            'id': [id1, id2],
+                            'feature_vector': v
+                        }
+                        output.write(json.dumps(ret_dict))
+                        output.write('\n')
+
+        else: # deduplication
+            count = 0
+            with open(self._get_abs_path(feature_output_path), 'w') as output:
+                if blocking_path is None:
+                    iter2 = iter1.copy()
+                    for id1, value1 in iter1:
+                        curr_iter2 = iter2.copy()
+                        for id2, value2 in curr_iter2:
+                            v = self._compute_feature_vector(value1, value2, feature_config_name)
+                            ret_dict = {
+                                'id': [id1, id2],
+                                'feature_vector': v
+                            }
+                            output.write(json.dumps(ret_dict))
+                            output.write('\n')
+                else:
+                    for _, v in blocking:
+                        blocked_id = set(v)
+                        block = []
+                        curr_iter = iter1.copy()
+                        for id, value in curr_iter:
+                            if id in blocked_id:
+                                block.append((id, value))
+                        for i in xrange(0, len(block)):
+                            for j in xrange(i + 1, len(block)):
+                                id1, id2 = block[i][0], block[j][0]
+                                value1, value2 = block[i][1], block[j][1]
+                                v = self._compute_feature_vector(value1, value2, feature_config_name)
+                                ret_dict = {
+                                    'id': [id1, id2],
+                                    'feature_vector': v
+                                }
+                                output.write(json.dumps(ret_dict))
+                                output.write('\n')
+
 
     # def featurize_ground_truth(self, feature_file_path, ground_truth_file_path, output_file_path=None):
     #     """
@@ -612,6 +653,7 @@ class Core(object):
         if len(x) == 0 or len(y) == 0 or len(x) != len(y):
             raise ValueError('Illegal training file')
         cls = get_classifier_class(classifier)
+        classifier_config['probability'] = True
         return cls(**classifier_config).fit(x, y, **model_config)
 
     def dump_model(self, model, output_path):
@@ -622,19 +664,70 @@ class Core(object):
         with open(self._get_abs_path(file_path), 'r') as f:
             return pickle.loads(f.read())
 
-    def predict(self, model, feature_path, predict_output_path):
+    def predict(self, model, feature_path, predict_output_path, probability_threshold=0.0, top=1):
 
+        count = 0
+        matches_dict = {}
+        with open(self._get_abs_path(feature_path), 'r') as input:
+            for line in input:
+
+                if count % 10000 == 0:
+                    sys.stdout.write('\rpredicted count: %d' % count)
+                    sys.stdout.flush()
+                count += 1
+
+                obj = json.loads(line)
+                label = model.predict([obj['feature_vector']])[0]
+                if label == 0.0:
+                    continue
+                proba = model.predict_proba([obj['feature_vector']])[0][1]
+                if proba < probability_threshold:
+                    continue
+
+                k1, k2, v = obj['id'][0], obj['id'][1], proba
+                matches_dict[k1] = matches_dict.get(k1, {})
+                matches_dict[k1][k2] = v
+
+        # pickout top matches
         with open(self._get_abs_path(predict_output_path), 'w') as output:
-            with open(self._get_abs_path(feature_path), 'r') as input:
-                for line in input:
-                    obj = json.loads(line)
-                    label = model.predict([obj['feature_vector']])
+            for k1, v1 in matches_dict.iteritems():
+                picked = sorted(v1.iteritems(), key=operator.itemgetter(1))[:top]
+                for p in picked:
                     ret_dict = {
-                        'id': obj['id'],
-                        'label': label[0]
+                        'id': [k1, p[0]],
+                        'probability': p[1]
                     }
                     output.write(json.dumps(ret_dict))
                     output.write('\n')
+
+        print '\rdone' # done
+
+    # def predict(self, model, feature_path, predict_output_path, probability_threshold=0.0):
+    #
+    #     count = 0
+    #     with open(self._get_abs_path(predict_output_path), 'w') as output:
+    #         with open(self._get_abs_path(feature_path), 'r') as input:
+    #             for line in input:
+    #
+    #                 if count % 10000 == 0:
+    #                     print count
+    #                 count += 1
+    #
+    #                 obj = json.loads(line)
+    #                 label = model.predict([obj['feature_vector']])[0]
+    #                 if label == 0.0:
+    #                     continue
+    #                 proba = model.predict_proba([obj['feature_vector']])[0][1]
+    #                 if proba < probability_threshold:
+    #                     continue
+    #
+    #                 ret_dict = {
+    #                     'id': obj['id'],
+    #                     'label': label,
+    #                     'probability': proba
+    #                 }
+    #                 output.write(json.dumps(ret_dict))
+    #                 output.write('\n')
 
     def set_root_path(self, root_path):
         """
