@@ -3,8 +3,8 @@ import rltk.utils as utils
 def _soundex(s):
     cdef int i = 0
 
-    utils.check_for_none(s)
-    utils.check_for_type(basestring, s)
+    # utils.check_for_none(s)
+    # utils.check_for_type(basestring, s)
 
     s = utils.unicode_normalize(s)
 

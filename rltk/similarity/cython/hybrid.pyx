@@ -9,8 +9,8 @@ cpdef double hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_
     cdef double score_sum = 0.0
     cdef int matching_count = 0
 
-    utils.check_for_none(set1, set2)
-    utils.check_for_type(set, set1, set2)
+    # utils.check_for_none(set1, set2)
+    # utils.check_for_type(set, set1, set2)
 
     matching_score = []
     for s1 in set1:
