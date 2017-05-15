@@ -1,4 +1,4 @@
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.gaussian_process import GaussianProcessClassifier
@@ -15,6 +15,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score, precision_r
 
 def get_classifier_class(class_name):
     name_table = {
+        'logistic_regression': LogisticRegression,
         'sgd': SGDClassifier,
         'svm': SVC,
         'k_neighbors': KNeighborsClassifier,

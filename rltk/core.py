@@ -664,70 +664,121 @@ class Core(object):
         with open(self._get_abs_path(file_path), 'r') as f:
             return pickle.loads(f.read())
 
-    def predict(self, model, feature_path, predict_output_path, probability_threshold=0.0, top=1):
+    # def predict(self, model, feature_file, predict_output_file, probability_threshold=0.0, top=1):
+    #
+    #     count = 0
+    #     matches_dict = {}
+    #     with open(self._get_abs_path(feature_file), 'r') as input:
+    #         for line in input:
+    #
+    #             if count % 10000 == 0:
+    #                 sys.stdout.write('\rpredicted count: %d' % count)
+    #                 sys.stdout.flush()
+    #             count += 1
+    #
+    #             obj = json.loads(line)
+    #             label = model.predict([obj['feature_vector']])[0]
+    #             if label == 0.0:
+    #                 continue
+    #             proba = model.predict_proba([obj['feature_vector']])[0][1]
+    #             if proba < probability_threshold:
+    #                 continue
+    #
+    #             k1, k2, v = obj['id'][0], obj['id'][1], proba
+    #             matches_dict[k1] = matches_dict.get(k1, {})
+    #             matches_dict[k1][k2] = v
+    #
+    #     # pickout top matches
+    #     with open(self._get_abs_path(predict_output_file), 'w') as output:
+    #         for k1, v1 in matches_dict.iteritems():
+    #             picked = sorted(v1.iteritems(), key=operator.itemgetter(1))[:top]
+    #             for p in picked:
+    #                 ret_dict = {
+    #                     'id': [k1, p[0]],
+    #                     'probability': p[1]
+    #                 }
+    #                 output.write(json.dumps(ret_dict))
+    #                 output.write('\n')
+    #
+    #     print '\rdone' # done
 
-        count = 0
+    def filter(self, predict_file, filter_output_file, probability_threshold=0.0, top=1, unique_id1=True):
+        """
+        Args:
+            predict_file (str): Path of raw predict.
+            filter_output_file (str): Path of output file.
+            probability_threshold (float, optional): The probability below this threshold will be ignored. \
+                Defaults to 1.
+            top (int, optional): How many top probability pairs will be selected out. Defaults to 1.
+            unique_id1 (bool, optional): If it is set to True, id1 will be unique, or id2 will be unique. \
+                Defaults to True.
+        """
+
         matches_dict = {}
-        with open(self._get_abs_path(feature_path), 'r') as input:
+
+        with open(self._get_abs_path(predict_file), 'r') as input:
             for line in input:
-
-                if count % 10000 == 0:
-                    sys.stdout.write('\rpredicted count: %d' % count)
-                    sys.stdout.flush()
-                count += 1
-
                 obj = json.loads(line)
-                label = model.predict([obj['feature_vector']])[0]
-                if label == 0.0:
+                k1, k2 = obj['id'][0], obj['id'][1]
+                if unique_id1 is False:
+                    k1, k2 = k2, k1
+                if obj['predict_label'] == 0.0:
                     continue
-                proba = model.predict_proba([obj['feature_vector']])[0][1]
-                if proba < probability_threshold:
+                if obj['probability'] < probability_threshold:
                     continue
 
-                k1, k2, v = obj['id'][0], obj['id'][1], proba
                 matches_dict[k1] = matches_dict.get(k1, {})
-                matches_dict[k1][k2] = v
+                matches_dict[k1][k2] = obj
 
         # pickout top matches
-        with open(self._get_abs_path(predict_output_path), 'w') as output:
+        with open(self._get_abs_path(filter_output_file), 'w') as output:
             for k1, v1 in matches_dict.iteritems():
-                picked = sorted(v1.iteritems(), key=operator.itemgetter(1))[:top]
+                # sort in group, return is like [(id2, {obj}), ...]
+                picked = sorted(v1.iteritems(), key=lambda x: x[1]['probability'], reverse=True)[:top]
+                if len(picked) > 1:
+                    print k1, picked
                 for p in picked:
+                    output.write(json.dumps(p[1]))
+                    output.write('\n')
+
+    def predict(self, model, feature_file, predict_output_file):
+        """
+        Predict the possible label and probability of featured_file based on the model.
+        
+        Args:
+            model (obj): Scikit model.
+            feature_file (str): Path of featurized file.
+            predict_output_file (str): Path of output file.
+        """
+
+        count = 0
+        with open(self._get_abs_path(predict_output_file), 'w') as output:
+            with open(self._get_abs_path(feature_file), 'r') as input:
+                for line in input:
+
+                    if count % 10000 == 0:
+                        sys.stdout.write('\rpredicted count: %d' % count)
+                        sys.stdout.flush()
+                    count += 1
+
+                    obj = json.loads(line)
+                    predicted_label = model.predict([obj['feature_vector']])[0]
+                    # if predicted_label == 0.0:
+                    #     continue
+                    proba = model.predict_proba([obj['feature_vector']])[0][1]
+
                     ret_dict = {
-                        'id': [k1, p[0]],
-                        'probability': p[1]
+                        'id': obj['id'],
+                        'probability': proba,
+                        'predicted_label': predicted_label
                     }
+                    # keep the original label if it exists
+                    if 'label' in obj:
+                        ret_dict['label'] = obj['label']
                     output.write(json.dumps(ret_dict))
                     output.write('\n')
 
         print '\rdone' # done
-
-    # def predict(self, model, feature_path, predict_output_path, probability_threshold=0.0):
-    #
-    #     count = 0
-    #     with open(self._get_abs_path(predict_output_path), 'w') as output:
-    #         with open(self._get_abs_path(feature_path), 'r') as input:
-    #             for line in input:
-    #
-    #                 if count % 10000 == 0:
-    #                     print count
-    #                 count += 1
-    #
-    #                 obj = json.loads(line)
-    #                 label = model.predict([obj['feature_vector']])[0]
-    #                 if label == 0.0:
-    #                     continue
-    #                 proba = model.predict_proba([obj['feature_vector']])[0][1]
-    #                 if proba < probability_threshold:
-    #                     continue
-    #
-    #                 ret_dict = {
-    #                     'id': obj['id'],
-    #                     'label': label,
-    #                     'probability': proba
-    #                 }
-    #                 output.write(json.dumps(ret_dict))
-    #                 output.write('\n')
 
     def set_root_path(self, root_path):
         """
