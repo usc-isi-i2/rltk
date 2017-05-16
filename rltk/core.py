@@ -478,7 +478,8 @@ class Core(object):
                     output.write(json.dumps(ret_dict))
                     output.write('\n')
 
-    def compute_features(self, iter1, feature_config_name, feature_output_path, iter2=None, blocking_path=None):
+    def compute_features(self, iter1, feature_config_name, feature_output_path, iter2=None,
+                         blocking_path=None, show_progress=False):
         """
         Args:
             iter1 (FileIterator): File iterator 1.
@@ -507,7 +508,7 @@ class Core(object):
                     if blocking_path is not None and id1 not in blocking:
                         continue
 
-                    if count % 1000 == 0:
+                    if show_progress and count % 1000 == 0:
                         print 'computed count:', count
                     count += 1
 
@@ -557,6 +558,9 @@ class Core(object):
                                 }
                                 output.write(json.dumps(ret_dict))
                                 output.write('\n')
+
+        if show_progress:
+            print '\rdone'
 
 
     # def featurize_ground_truth(self, feature_file_path, ground_truth_file_path, output_file_path=None):
@@ -722,7 +726,7 @@ class Core(object):
                 k1, k2 = obj['id'][0], obj['id'][1]
                 if unique_id1 is False:
                     k1, k2 = k2, k1
-                if obj['predict_label'] == 0.0:
+                if obj['predicted_label'] == 0.0:
                     continue
                 if obj['probability'] < probability_threshold:
                     continue
@@ -741,7 +745,7 @@ class Core(object):
                     output.write(json.dumps(p[1]))
                     output.write('\n')
 
-    def predict(self, model, feature_file, predict_output_file):
+    def predict(self, model, feature_file, predict_output_file, show_progress=False):
         """
         Predict the possible label and probability of featured_file based on the model.
         
@@ -756,7 +760,7 @@ class Core(object):
             with open(self._get_abs_path(feature_file), 'r') as input:
                 for line in input:
 
-                    if count % 10000 == 0:
+                    if show_progress and count % 10000 == 0:
                         sys.stdout.write('\rpredicted count: %d' % count)
                         sys.stdout.flush()
                     count += 1
@@ -778,7 +782,8 @@ class Core(object):
                     output.write(json.dumps(ret_dict))
                     output.write('\n')
 
-        print '\rdone' # done
+        if show_progress:
+            print '\rdone' # done
 
     def set_root_path(self, root_path):
         """
@@ -1340,6 +1345,45 @@ class Core(object):
 
         return cross_validation(classifier_name, X=X, y=y,
                                 classifier_config=classifier_config, cv=cv, method=method)
+
+    def _type_converter(self, input, output_type):
+        """
+        convert string to string, int, float, set, list
+        convert list to list, set
+        """
+        if isinstance(input, basestring):
+            if output_type == basestring:
+                return input
+            elif output_type == int:
+                return int(input)
+            elif output_type == float:
+                return float(input)
+            elif output_type == set:
+                return set([input])
+            elif output_type == list:
+                return [input]
+            else:
+                raise ValueError('Invalid output_type')
+        elif isinstance(input, list):
+            if output_type == set:
+                return set(input)
+            elif output_type == list:
+                return input
+            else:
+                raise ValueError('Invalid output_type')
+        else:
+            raise TypeError('Invalid input type')
+
+    def _tokenize(self, input):
+        if isinstance(input, list):
+            ret = []
+            for i in input:
+                ret += self._crf_tokenizer(i)
+            return ret
+        elif isinstance(input, basestring):
+            return self._crf_tokenizer(input)
+        else:
+            raise TypeError('Invalid input type')
 
     def q_gram_blocking(self, output_file_path, **kwargs):
         """
