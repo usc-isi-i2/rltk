@@ -197,7 +197,7 @@ class Core(object):
                     for part in doc_parts:
                         if not isinstance(part, basestring):
                             raise TypeError('json_path must points to an array of strings')
-                        tokens = self._crf_tokenizer.tokenize(part)
+                        tokens = self._tokenize(part)
                         count_for_token(tokens)
 
                     # count for docs (each line is a doc)
@@ -415,8 +415,8 @@ class Core(object):
 
                 # tokenizer
                 if feature['use_tokenizer'] is True:
-                    p1 = self._crf_tokenizer.tokenize(p1)
-                    p2 = self._crf_tokenizer.tokenize(p2)
+                    p1 = self._tokenize(p1)
+                    p2 = self._tokenize(p2)
                     # p1 = filter(None, p1)
                     # p2 = filter(None, p2)
 
@@ -832,6 +832,8 @@ class Core(object):
         Returns:
             int: 0 for unequal and 1 for equal.
         """
+        n1 = self._type_converter(n1, float)
+        n2 = self._type_converter(n2, float)
         return number_equal(n1, n2, epsilon)
 
     def string_equal(self, s1, s2):
@@ -1127,7 +1129,9 @@ class Core(object):
             0.0
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        # set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1 = self._type_converter(set1, set)
+        set2 = self._type_converter(set2, set)
         return jaccard_index_similarity(set1, set2)
 
     def jaccard_index_distance(self, set1, set2):
@@ -1142,7 +1146,8 @@ class Core(object):
             int: Jaccard Index Distance.
         """
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1 = self._type_converter(set1, set)
+        set2 = self._type_converter(set2, set)
         return jaccard_index_distance(set1, set2)
 
     def hybrid_jaccard_similarity(self, set1, set2, threshold=0.5, function=None, parameters={}):
@@ -1172,7 +1177,8 @@ class Core(object):
         if not function:
             function = self.jaro_winkler_similarity
 
-        set1, set2 = utils.convert_list_to_set(set1), utils.convert_list_to_set(set2)
+        set1 = self._type_converter(set1, set)
+        set2 = self._type_converter(set2, set)
         return hybrid_jaccard_similarity(set1, set2, threshold, function, parameters)
 
     def monge_elkan_similarity(self, bag1, bag2, function=None, parameters={}):
@@ -1193,6 +1199,8 @@ class Core(object):
 
         if not function:
             function = self.jaro_winkler_similarity
+        bag1 = self._type_converter(bag1, list)
+        bag1 = self._type_converter(bag1, list)
         return monge_elkan_similarity(bag1, bag2, function, parameters)
 
     def symmetric_monge_elkan_similarity(self, bag1, bag2, function=None, parameters={}):
@@ -1203,6 +1211,8 @@ class Core(object):
 
         if not function:
             function = self.jaro_winkler_similarity
+        bag1 = self._type_converter(bag1, list)
+        bag1 = self._type_converter(bag1, list)
         return symmetric_monge_elkan_similarity(bag1, bag2, function, parameters)
 
     def cosine_similarity(self, vec1, vec2):
@@ -1235,6 +1245,8 @@ class Core(object):
             float: Cosine similarity.
         """
 
+        bag1 = self._type_converter(bag1, list)
+        bag1 = self._type_converter(bag1, list)
         return string_cosine_similarity(bag1, bag2)
 
     def tf_idf_similarity(self, bag1, bag2, name, math_log=False):
@@ -1256,6 +1268,8 @@ class Core(object):
             0.17541160386140586
         """
         self._has_resource(name, 'df_corpus')
+        bag1 = self._type_converter(bag1, list)
+        bag1 = self._type_converter(bag1, list)
         return tf_idf_similarity(bag1, bag2, self._rs_dict[name]['data'], self._rs_dict[name]['docs_size'], math_log)
 
     def prep_df_corpus(self, name, math_log=False):
@@ -1372,16 +1386,17 @@ class Core(object):
             else:
                 raise ValueError('Invalid output_type')
         else:
-            raise TypeError('Invalid input type')
+            # raise TypeError('Invalid input type')
+            pass
 
     def _tokenize(self, input):
         if isinstance(input, list):
             ret = []
             for i in input:
-                ret += self._crf_tokenizer(i)
+                ret += self._crf_tokenizer.tokenize(i)
             return ret
         elif isinstance(input, basestring):
-            return self._crf_tokenizer(input)
+            return self._crf_tokenizer.tokenize(input)
         else:
             raise TypeError('Invalid input type')
 
