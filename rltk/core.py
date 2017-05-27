@@ -478,6 +478,56 @@ class Core(object):
                     output.write(json.dumps(ret_dict))
                     output.write('\n')
 
+
+    def compute_features_mem(self, iter1, feature_config_name, feature_output_path, blocking_path,
+                             iter2=None, show_progress=False, chunk_size=10):
+
+        self._has_resource(feature_config_name, 'feature_configuration')
+
+        with open(self._get_abs_path(blocking_path), 'r') as f:
+            with open(self._get_abs_path(feature_output_path), 'w') as output:
+
+                blocking = {}
+                content1, content2 = {}, {} # read content (in one chunk) into memory
+
+                eof = False
+                while not eof:
+                    # read blocks into one chunk
+                    i = 0
+                    while i < chunk_size:
+                        line = f.readline()
+                        if not line:
+                            eof = True
+                            break
+                        i += 1
+                        j = json.loads(line)
+                        for id1, v in j.iteritems():
+                            blocking[id1] = set(v)
+                            content1[id1] = None
+                            for id2 in blocking[id1]:
+                                content2[id2] = None
+                    # get source content within chunk
+                    iter1_copy = iter1.copy()
+                    for k, v in iter1_copy:
+                        if k in content1:
+                            content1[k] = v
+                    iter2_copy = iter2.copy()
+                    for k, v in iter2_copy:
+                        if k in content2:
+                            content2[k] = v
+                    # compute features within chunk
+                    for id1, v in blocking.iteritems():
+                        for id2 in v:
+                            value1, value2 = content1[id1], content2[id2]
+                            v = self._compute_feature_vector(value1, value2, feature_config_name)
+                            ret_dict = {
+                                'id': [id1, id2],
+                                'feature_vector': v
+                            }
+                            output.write(json.dumps(ret_dict))
+                            output.write('\n')
+
+
     def compute_features(self, iter1, feature_config_name, feature_output_path, iter2=None,
                          blocking_path=None, show_progress=False):
         """
