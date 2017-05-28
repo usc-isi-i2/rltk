@@ -1,21 +1,14 @@
-import sys, os
+import sys, os,time
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
   "../../../rltk")))
 import rltk
 tk = rltk.init()
 
-
-import cProfile
-
-
-import time 
 s = time.time()
 tparams = {'token_type': 'ngram', 'n': [3]}
-
 fu2 = tk.get_file_iterator('../../datasets/ulan.json', type='json_line', id_path='uri[*].value')
 fi1 = tk.get_file_iterator('../../datasets/npg.json', type='json_line', id_path='uri[*].value')
 fi2 = fi1.copy()
-
 
 print("Starting Canopy deduplication on NPG museum dataset")
 tk.canopy_blocking(iter1=fi1, t1=0.8, value_path1=['name[*].value'],
