@@ -1182,18 +1182,26 @@ class Core(object):
         kwargs['output_file_path'] = output_file_path
         return qgram_indexing(**kwargs)
 
-    def canopy_blocking(self, iter1, output_file_path, iter2=None):
+    def canopy_blocking(self, output_file_path, **kwargs):
         """
         Canopy blocking.
 
         Args:
             iter1 (FileIterator): File iterator 1.
             iter2 (FileIterator, optional): File iterator 2. Defaults to None.
+            value_path1 (str): value path of json
+            value_path2 (str, optional): value path of json
+            t1 (float): Loose threshold value
+            t2 (float): Tight threshold value
+            similarity (str): Distance measure - default jaccard
+            token_params (dict): dictonary specifying token type Ex: {'token_type': 'ngram', 'n': [3]}
             output_file_path (str): Output file string.
 
         """
         output_file_path = self._get_abs_path(output_file_path)
-        
+        kwargs['output_file_path'] = output_file_path
+        return canopy_indexing(**kwargs)
+
     def lsh_minhash_blocking(self, output_file_path, **kwargs):
         """
         Minhash LSH based indexer. 
