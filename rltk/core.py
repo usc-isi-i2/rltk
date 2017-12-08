@@ -1228,15 +1228,71 @@ class Core(object):
         return metric_longest_common_subsequence(s1, s2)
 
     def ngram_distance(self, s1, s2, n=2):
+        """
+        N-Gram Distance as defined by Kondrak, "N-Gram Similarity and Distance" String Processing and Information Retrieval, Lecture Notes in Computer Science Volume 3772, 2005, pp 115-126.
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: NGram Distance.
+
+        Examples:
+            >>> rltk.ngram_distance('ABCD', 'ABTUIO')
+            0.5833
+        """
         return ngram_distance(s1, s2, n)
 
     def ngram_similarity(self, s1, s2, n=2):
+        """
+        N-Gram Similarity as defined by Kondrak, "N-Gram Similarity and Distance" String Processing and Information Retrieval, Lecture Notes in Computer Science Volume 3772, 2005, pp 115-126.
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: NGram Similarity.
+
+        Examples:
+            >>> rltk.ngram_similarity('ABCD', 'ABTUIO')
+            0.4166666666666667
+        """
         return ngram_similarity(s1, s2, n)
 
     def qgram_distance(self, s1, s2, n=2):
+        """
+        QGram Distance is the number of distinct q-grams (n-grams) between 2 strings
+        
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: QGram Distance.
+
+        Examples:
+            >>> rltk.qgram_distance('abcde','abdcde')
+            3
+        """
         return qgram_distance(s1, s2, n)
 
     def qgram_similarity(self, s1, s2, n=2):
+        """
+        QGram Similarity is the number of common q-grams (n-grams) between 2 strings
+        
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: QGram Similarity.
+
+        Examples:
+            >>> rltk.qgram_similarity('abcde','abdcde')
+            3
+        """
         return qgram_similarity(s1, s2, n)    
 
     def q_gram_blocking(self, output_file_path, **kwargs):

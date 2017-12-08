@@ -89,11 +89,11 @@ def ngram_similarity(s0, s1, n=2):
         s2 (str): Sequence 2.
 
     Returns:
-        float: NGram Distance.
+        float: NGram Similarity.
 
     Examples:
-        >>> rltk.ngram_distance('ABCD', 'ABTUIO')
-        0.5833
+        >>> rltk.ngram_similarity('ABCD', 'ABTUIO')
+        0.4166666666666667
     """
 
     utils.check_for_none(s0, s1)
