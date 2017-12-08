@@ -3,7 +3,12 @@ from collections import defaultdict
 import rltk.utils as utils
 
 def get_ngrams(s,n):
-	return set([s[i:i+n] for i in range(len(s)-1)])
+	all_ngrams = list()
+	for i in range(len(s)-1):
+		if i+n<=len(s):
+			all_ngrams.append(s[i:i+n])
+
+	return set(all_ngrams)
 
 def qgram_distance(s0, s1, n=2):
 	"""
@@ -20,6 +25,8 @@ def qgram_distance(s0, s1, n=2):
         >>> rltk.qgram_distance('abcde','abdcde')
         3
 	"""
+	if n>max(len(s0), len(s1)):
+		return 1
 
 	s0_ngrams = get_ngrams(s0, n)
 	s1_ngrams = get_ngrams(s1, n)
@@ -46,10 +53,13 @@ def qgram_similarity(s0, s1, n=2):
         3
     """
 
+	if n>max(len(s0), len(s1)):
+		return 0
+
 	s0_ngrams = get_ngrams(s0, n)
 	s1_ngrams = get_ngrams(s1, n)
 	all_ngrams = list(s0_ngrams | s1_ngrams)
-
+	
 	v0 = [1 if all_ngrams[i] in s0 else 0 for i in range(len(all_ngrams))]
 	v1 = [1 if all_ngrams[i] in s1 else 0 for i in range(len(all_ngrams))]
 
