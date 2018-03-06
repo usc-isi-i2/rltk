@@ -11,7 +11,11 @@ from tokenizer.digCrfTokenizer.crf_tokenizer import CrfTokenizer
 import utils
 from configuration import Configuration
 from file_iterator import FileIterator
+from docIterator import DocIterator
+from feature_vector import FeatureVector
+
 from similarity import *
+
 if __builtin__.rltk['enable_cython']:
     # override non-cython version
     from similarity.cython import *
@@ -20,7 +24,6 @@ from indexer import *
 
 
 class Core(object):
-
     # resource dict
     # each item should have at least has 2 keys: type, data
     _rs_dict = dict()
@@ -123,7 +126,6 @@ class Core(object):
             'data': score_dict
         }
 
-
     def load_df_corpus(self, name, file_path, file_type='text', mode='append', json_path=None):
         """
         Load document frequency corpus resource.
@@ -143,6 +145,7 @@ class Core(object):
             >>> tk.load_df_corpus('B1', 'df_corpus_1.txt', file_type='text', mode='replace')
             >>> tk.load_df_corpus('B2', 'jl_file_1.jsonl', file_type='json_lines', json_path='desc[*]')
         """
+
         def count_for_token(tokens_):
             for t in tokens_:
                 item['data'][t] = item['data'].get(t, 0) + 1
@@ -218,7 +221,7 @@ class Core(object):
             item = {
                 'type': 'df_corpus',
                 'data': dict(),
-                'docs': dict(), #
+                'docs': dict(),  #
                 'docs_size': 0,
                 'idf': dict(),
                 # once new doc added, fresh should be false,
@@ -235,8 +238,8 @@ class Core(object):
         df_corpus = self._get_df_corpus(corpus_name)
 
         doc_item = {
-            'tf': dict(), # term frequency
-            'tf_idf': dict(), # precomputed tfidf score
+            'tf': dict(),  # term frequency
+            'tf_idf': dict(),  # precomputed tfidf score
         }
 
         if len(tokens) != 0:
@@ -362,9 +365,124 @@ class Core(object):
                     # for hybrid measures, convert inner function string to reference
                     feature['other_parameters']['function'] = getattr(self, feature['other_parameters']['function'])
 
-
             item['data'] = config
             self._rs_dict[name] = item
+
+    def _compute_feature_vector_direct(self, obj1, obj2, name):
+        """
+        Compute feature vector for two objects.
+
+        Args:
+            obj1 (dict): Object1, json dict.
+            obj2 (dict): Object2, json dict.
+            name (str): Name of resource (feature configuration).
+
+        Returns:
+            dict: feature vector.
+
+        Examples:
+            >>> tk.load_feature_configuration('C1', 'feature_config_1.json')
+            >>> print tk.compute_feature_vector(j1, j2, name='C1')
+            {'id': [1, '2'], 'feature_vector': [0.33333333333333337, 1.0]}
+        """
+
+        self._has_resource(name, 'feature_configuration')
+
+        config = self._rs_dict[name]['data']
+        logger = self._logger
+        vector = []
+
+        # process
+        for idx, feature in enumerate(config['features']):
+            try:
+                self._compute_feature_vector_direct_in(obj1, obj2, idx, feature, vector)
+            except Exception as e:
+                logger.error('[{0}-{1}] {2}'.format(name, idx, e.message))
+                if config['error_handling'] == 'exception':
+                    raise e
+                else:  # ignore
+                    pass
+                vector.append(config['missing_value_default'])
+        # return vector
+        return vector
+
+    def _compute_feature_vector_direct_in(self, obj1, obj2, idx, feature, vector):
+
+        # function pointer
+        feature_function = feature['function']
+
+        # json path
+        matches1 = feature['json_path'][0].find(obj1)
+        p1 = [match.value for match in matches1]
+        matches2 = None
+        if len(feature['json_path']) > 1:
+            matches2 = feature['json_path'][1].find(obj2)
+        else:
+            matches2 = feature['json_path'][0].find(obj2)
+        p2 = [match.value for match in matches2]
+
+        # get first
+        if feature['get_first'] is True:
+            if len(p1) == 0:
+                raise ValueError('Missing value in Object1 by json_path \'{0}\''
+                                 .format(feature['json_path'][0]))
+            if len(p2) == 0:
+                raise ValueError('Missing value in Object2 by json_path \'{0}\''
+                                 .format(feature['json_path'][1]))
+            p1, p2 = p1[0], p2[0]
+
+        # tokenizer
+        if feature['use_tokenizer'] is True:
+            p1 = self._crf_tokenizer.tokenize(p1)
+            p2 = self._crf_tokenizer.tokenize(p2)
+            # p1 = filter(None, p1)
+            # p2 = filter(None, p2)
+
+        # other parameters
+        other_parameters = feature['other_parameters']
+
+        # run
+        ret = feature_function(p1, p2, **other_parameters)
+
+        vector.append(ret)
+
+    def _compute_feature_vector_direct_in_2(self, vector, obj1, obj2, idx, feature_function, json_path, get_first=False,
+                                            use_tokenizer=False, other_parameters=None):
+        # json path
+        matches1 = json_path[0].find(obj1)
+        p1 = [match.value for match in matches1]
+        matches2 = None
+
+        if len(json_path) > 1:
+            matches2 = json_path[1].find(obj2)
+        else:
+            matches2 = json_path[0].find(obj2)
+        p2 = [match.value for match in matches2]
+
+        # get first
+        if get_first is True:
+            if len(p1) == 0:
+                raise ValueError('Missing value in Object1 by json_path \'{0}\''
+                                 .format(json_path[0]))
+            if len(p2) == 0:
+                raise ValueError('Missing value in Object2 by json_path \'{0}\''
+                                 .format(json_path[1]))
+            p1, p2 = p1[0], p2[0]
+
+        # tokenizer
+        if use_tokenizer is True:
+            p1 = self._crf_tokenizer.tokenize(p1)
+            p2 = self._crf_tokenizer.tokenize(p2)
+            # p1 = filter(None, p1)
+            # p2 = filter(None, p2)
+
+        # other parameters
+        other_parameters = other_parameters
+
+        # run
+        ret = feature_function(p1, p2, **other_parameters)
+
+        vector.append(ret)
 
     def _compute_feature_vector(self, obj1, obj2, name):
         """
@@ -433,7 +551,7 @@ class Core(object):
                 logger.error('[{0}-{1}] {2}'.format(name, idx, e.message))
                 if config['error_handling'] == 'exception':
                     raise e
-                else: # ignore
+                else:  # ignore
                     pass
                 vector.append(config['missing_value_default'])
 
@@ -749,7 +867,7 @@ class Core(object):
             delete_default = self._rs_dict[name]['data']['delete_default']
             substitute_default = self._rs_dict[name]['data']['substitute_default']
             return levenshtein_similarity(s1, s2, insert, delete, substitute,
-                               insert_default, delete_default, substitute_default)
+                                          insert_default, delete_default, substitute_default)
 
     def levenshtein_distance(self, s1, s2, name=None):
         """
@@ -782,7 +900,7 @@ class Core(object):
             delete_default = self._rs_dict[name]['data']['delete_default']
             substitute_default = self._rs_dict[name]['data']['substitute_default']
             return levenshtein_distance(s1, s2, insert, delete, substitute,
-                               insert_default, delete_default, substitute_default)
+                                        insert_default, delete_default, substitute_default)
 
     def normalized_levenshtein_distance(self, s1, s2, name=None):
         """
@@ -809,7 +927,7 @@ class Core(object):
             delete_default = self._rs_dict[name]['data']['delete_default']
             substitute_default = self._rs_dict[name]['data']['substitute_default']
             return normalized_levenshtein_distance(s1, s2, insert, delete, substitute,
-                               insert_default, delete_default, substitute_default)
+                                                   insert_default, delete_default, substitute_default)
 
     def damerau_levenshtein_distance(self, s1, s2):
         """
@@ -1193,7 +1311,7 @@ class Core(object):
 
         """
         output_file_path = self._get_abs_path(output_file_path)
-        
+
     def lsh_minhash_blocking(self, output_file_path, **kwargs):
         """
         Minhash LSH based indexer. 
@@ -1212,4 +1330,14 @@ class Core(object):
         output_file_path = self._get_abs_path(output_file_path)
         kwargs['output_file_path'] = output_file_path
         return minhash_lsh_indexing(**kwargs)
+
+
+    similarity_result = []
+
+    def read_file(self, file_path, *args, **kwargs):
+        return DocIterator(file_path=self._get_abs_path(file_path), *args, **kwargs)
+        # return FileIterator(file_path=self._get_abs_path(file_path), *args, **kwargs)
+
+    def buildVector(self, data1, data2):
+        return FeatureVector(data1, data2)
 
