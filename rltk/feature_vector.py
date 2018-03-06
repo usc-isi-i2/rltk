@@ -11,7 +11,7 @@ class FeatureVector:
         self._similarity_result = []
         self.value = 0
 
-    def add_similiairy(self, feature_function, **kwargs):
+    def add_similarity_batch(self, feature_function, **kwargs):
         value_list = []
         for key in self._data_1[1]:
             if key == 'id':
@@ -23,7 +23,7 @@ class FeatureVector:
 
         return value_list
 
-    def add_similiairy_byid(self, col_1, col_2, feature_function, **kwargs):
+    def add_similarity_by_attribute(self, col_1, col_2, feature_function, **kwargs):
         self.value = feature_function(self._data_1[1][col_1], self._data_2[1][col_2], kwargs)
         self.add(self.value)
         return self.value
