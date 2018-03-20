@@ -1,5 +1,0 @@
-from equal import number_equal, string_equal
-from jaro import jaro_winkler_distance, jaro_winkler_similarity, jaro_distance
-from tf_idf import tf_idf_similarity_by_dict
-from hybrid import hybrid_jaccard_similarity, monge_elkan_similarity
-from soundex import soundex_similarity

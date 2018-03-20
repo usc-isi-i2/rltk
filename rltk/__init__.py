@@ -1,25 +1,7 @@
-import __builtin__
-
-__builtin__.rltk = {
-    'enable_cython': False
-}
-
-import core
-
-
-def enable_cython(enable=False):
-    """
-    Enable cython support. It's a global change.
-    """
-    __builtin__.rltk['enable_cython'] = enable
-    reload(core)
-
-
-def init():
-    """
-    Initialization method.
-
-    Returns:
-        object: RLTK object
-    """
-    return core.Core()
+from evaluation import *
+from indexer import *
+from similarity import *
+from tokenizer import *
+from core import *
+from record import Record
+from record_iterator import RecordIterator
