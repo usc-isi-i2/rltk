@@ -1,7 +1,12 @@
 from rltk.record import Record
-
+from rltk.evaluation.ground_truth import GroundTruth
 
 class Trial(object):
+
+    def __init__(name, groud_truth: GroundTruth):
+        pass
+
+
     def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None) -> None:
         pass
 
@@ -17,7 +22,4 @@ class Trial(object):
         pass
 
     def __repr__(self):
-        pass
-
-    def __init__(name):
         pass

@@ -1,27 +1,28 @@
-from trial import Trial
+from rltk.evaluation.trial import Trial
+from rltk.record import Record
 
 
 class GroundTruth(object):
-    def __init__(filename=None):
+    def __init__(self, filename=None):
         pass
 
-    def false_positives(self, trial):
+    def add_positive(self, record1: Record, record2: Record):
         pass
 
-    def true_positives(self, trial):
+    def add_negative(self, record1: Record, record2: Record):
         pass
 
-    def false_negatives(self, trial):
+    def is_member(self, record1: Record, record2: Record) -> bool:
         pass
 
-    def true_negatives(self, trial):
+    def is_positive(self, record1: Record, record2: Record) -> bool:
         pass
 
-    def precision(self, trial):
+    def is_negative(self, record1: Record, record2: Record) -> bool:
         pass
 
-    def recall(self, trial):
+    def load(self, filename):
         pass
 
-    def f_measure(self, trial):
+    def save(self, filename):
         pass
