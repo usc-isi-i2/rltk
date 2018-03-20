@@ -1,0 +1,3 @@
+
+class RecordIterator(object):
+    pass

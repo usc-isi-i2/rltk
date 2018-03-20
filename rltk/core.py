@@ -1,12 +1,6 @@
-import __builtin__
-import json
-import os
-import logging
-import collections
-import pickle
 
-from jsonpath_rw import parse
-from tokenizer.digCrfTokenizer.crf_tokenizer import CrfTokenizer
+def load_file():
+    pass
 
 import utils
 from configuration import Configuration
@@ -1341,3 +1335,6 @@ class Core(object):
     def buildVector(self, data1, data2):
         return FeatureVector(data1, data2)
 
+
+def iterate():
+    pass

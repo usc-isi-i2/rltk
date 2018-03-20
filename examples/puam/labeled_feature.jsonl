@@ -93,8 +93,3 @@
 {"id": ["http://vocab.getty.edu/ulan/500004073", "http://data.americanartcollaborative.org/puam/constituent/1541"], "feature_vector": [0.8], "label": 1.0}
 {"id": ["http://vocab.getty.edu/ulan/500014027", "http://data.americanartcollaborative.org/puam/constituent/2477"], "feature_vector": [0.6666666666666666], "label": 1.0}
 {"id": ["http://vocab.getty.edu/ulan/500005351", "http://data.americanartcollaborative.org/puam/constituent/1437"], "feature_vector": [0.75], "label": 1.0}
-{"id": ["http://vocab.getty.edu/ulan/500006031", "http://data.americanartcollaborative.org/puam/constituent/1671"], "feature_vector": [0.6666666666666666], "label": 1.0}
-{"id": ["http://vocab.getty.edu/ulan/500030585", "http://data.americanartcollaborative.org/puam/constituent/1707"], "feature_vector": [0.6666666666666666], "label": 1.0}
-{"id": ["http://vocab.getty.edu/ulan/500115749", "http://data.americanartcollaborative.org/puam/constituent/1716"], "feature_vector": [0.5], "label": 1.0}
-{"id": ["http://vocab.getty.edu/ulan/500025892", "http://data.americanartcollaborative.org/puam/constituent/1788"], "feature_vector": [0.6875], "label": 1.0}
-{"id": ["http://vocab.getty.edu/ulan/500014550", "http://data.americanartcollaborative.org/puam/constituent/1809"], "feature_vector": [0.6666666666666666], "label": 1.0}
