@@ -1,0 +1,115 @@
+{
+  "missing_value_default": 0,
+  "error_handling": "exception",
+  "logging": {
+    "file_path": "log.log",
+    "level": "info"
+  },
+  "features": [
+    {
+      "function": "hamming_distance",
+      "json_path": [
+        "value",
+        "value"
+      ],
+      "_get_first": false,
+      "use_tokenizer":true
+    },
+    {
+      "function": "levenshtein_similarity",
+      "json_path": [
+        "value",
+        "value"
+      ],
+      "_get_first": false
+    },
+    {
+      "function": "jaro_winkler_similarity",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "jaro_winkler_distance",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "jaro_distance",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "levenshtein_distance",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "levenshtein_similarity",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "normalized_levenshtein_distance",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "damerau_levenshtein_distance",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "metaphone_similarity",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "needleman_wunsch_similarity",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "nysiis_similarity",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    },
+    {
+      "function": "soundex_similarity",
+      "json_path": [
+        "v2",
+        "v2"
+      ],
+      "_get_first": true
+    }
+  ]
+}
