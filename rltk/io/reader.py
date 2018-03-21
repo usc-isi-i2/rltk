@@ -9,13 +9,8 @@ class Reader(object):
         return self.__next__()
 
     def __next__(self):
+        """return raw content of one record"""
         raise NotImplementedError
 
     def __del__(self):
         pass
-
-    def __copy__(self):
-        raise NotImplementedError
-
-    def copy(self):
-        return self.__copy__()
