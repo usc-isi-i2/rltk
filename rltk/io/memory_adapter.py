@@ -11,3 +11,7 @@ class MemoryAdapter(Adapter):
 
     def set(self, record_id, record: Record):
         self._records[record_id] = record
+
+    def __next__(self):
+        for r in self._records.values():
+            yield r
