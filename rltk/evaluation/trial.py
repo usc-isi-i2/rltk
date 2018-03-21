@@ -3,7 +3,7 @@ from rltk.evaluation.ground_truth import GroundTruth
 
 class Trial(object):
 
-    def __init__(name, groud_truth: GroundTruth):
+    def __init__(name, groud_truth: GroundTruth, min_confidence: int, top_k: int):
         pass
 
 
