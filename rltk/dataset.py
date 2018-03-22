@@ -16,6 +16,8 @@ class Dataset(object):
             raise ValueError('Reader or Record class is not provided.')
         for raw_object in self._reader:
             record_instance = self._record_class(raw_object)
+            if not isinstance(record_instance.id, str):
+                raise ValueError('Id in record should be in string (utf-8 encoded) type.')
             self._adapter.set(record_instance.id, record_instance)
 
     def get_record(self, record_id):
