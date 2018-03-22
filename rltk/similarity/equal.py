@@ -3,7 +3,7 @@ import rltk.utils as utils
 
 def string_equal(str1, str2):
     utils.check_for_none(str1, str2)
-    utils.check_for_type(basestring, str1, str2)
+    utils.check_for_type(str, str1, str2)
     return int(str1 == str2)
 
 
