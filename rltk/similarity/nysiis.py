@@ -26,6 +26,8 @@ def _nysiis(s):
     utils.check_for_none(s)
     utils.check_for_type(str, s)
 
+    s = utils.unicode_normalize(s)
+
     if len(s) == 0:
         raise ValueError('Empty string')
 

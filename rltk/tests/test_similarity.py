@@ -3,12 +3,12 @@
 import pytest
 
 # from ..similarity.tokenizer import q_grams
-from ..similarity import *
+from rltk.similarity import *
 
 # only test hash code for phonetic algorithms
-from ..similarity.nysiis import _nysiis
-from ..similarity.soundex import _soundex
-from ..similarity.metaphone import _metaphone
+from rltk.similarity.nysiis import _nysiis
+from rltk.similarity.soundex import _soundex
+from rltk.similarity.metaphone import _metaphone
 
 
 @pytest.mark.parametrize('n1, n2, epsilon, equal', [
@@ -27,7 +27,7 @@ def test_number_equal(n1, n2, epsilon, equal):
 
 @pytest.mark.parametrize('s1, s2, equal', [
     ('abc', 'abc', 1),
-    (u'hello', u'hello', 1),
+    ('hello', 'hello', 1),
     (None, 'ok', None),
     (1, 2, None),
     ('bar', 'foo', 0)
@@ -36,7 +36,7 @@ def test_string_equal(s1, s2, equal):
     if s1 is None or s2 is None:
         with pytest.raises(ValueError):
             string_equal(s1, s2)
-    elif not isinstance(s1, basestring) or not isinstance(s2, basestring):
+    elif not isinstance(s1, str) or not isinstance(s2, str):
         with pytest.raises(TypeError):
             string_equal(s1, s2)
     else:
@@ -48,8 +48,8 @@ def test_string_equal(s1, s2, equal):
     ('acc', 'abcd', None),
     ('testing', 'test', None),
     ('hello~', 'alloha', 5),
-    ([1,2,3], [3,2,3], 1),
-    ([2,3,1], [3,2,1], 2)
+    ([1, 2, 3], [3, 2, 3], 1),
+    ([2, 3, 1], [3, 2, 1], 2)
 ])
 def test_hamming_distance(s1, s2, distance):
     if s1 is None or s2 is None:
@@ -93,22 +93,22 @@ def test_levenshtein(s1, s2, distance, similarity):
 
 @pytest.mark.parametrize('s1, s2, insert, delete, substitute,'
                          'insert_default, delete_default, substitute_default, distance', [
-    ('', 'abc', {'c':50}, {}, {}, 100, 100, 100, 250),
-    ('a', 'abc', {'c':50}, {}, {}, 100, 100, 100, 150),
-    ('ab', 'abc', {'c':50}, {}, {}, 100, 100, 100, 50),
-    ('abc', 'abc', {'c':50}, {}, {}, 100, 100, 100, 0),
-    ('abcd', 'abc', {}, {'d':50}, {}, 100, 100, 100, 50),
-    ('abd', 'abc', {}, {}, {'d':{'c':50}}, 100, 100, 100, 50),
-])
+                             ('', 'abc', {'c': 50}, {}, {}, 100, 100, 100, 250),
+                             ('a', 'abc', {'c': 50}, {}, {}, 100, 100, 100, 150),
+                             ('ab', 'abc', {'c': 50}, {}, {}, 100, 100, 100, 50),
+                             ('abc', 'abc', {'c': 50}, {}, {}, 100, 100, 100, 0),
+                             ('abcd', 'abc', {}, {'d': 50}, {}, 100, 100, 100, 50),
+                             ('abd', 'abc', {}, {}, {'d': {'c': 50}}, 100, 100, 100, 50),
+                         ])
 def test_weighted_levenshtein(s1, s2, insert, delete, substitute,
-                 insert_default, delete_default, substitute_default, distance):
+                              insert_default, delete_default, substitute_default, distance):
     if s1 is None or s2 is None:
         with pytest.raises(ValueError):
             levenshtein_distance(s1, s2, insert, delete, substitute,
-                 insert_default, delete_default, substitute_default)
+                                 insert_default, delete_default, substitute_default)
     else:
         assert levenshtein_distance(s1, s2, insert, delete, substitute,
-                 insert_default, delete_default, substitute_default) == distance
+                                    insert_default, delete_default, substitute_default) == distance
 
 
 @pytest.mark.parametrize('s1, s2, distance', [
@@ -120,7 +120,7 @@ def test_weighted_levenshtein(s1, s2, insert, delete, substitute,
     ('cape sand recycling', 'edith ann graham', 16),
     ('jellyifhs', 'jellyfish', 2),
     ('ifhs', 'fish', 2),
-    ('Hello, world!', u'Hello,Â world!', 2),
+    ('Hello, world!', 'Hello,Â world!', 2),
 ])
 def test_damerau_levenshtein(s1, s2, distance):
     if s1 is None or s2 is None:
@@ -128,6 +128,7 @@ def test_damerau_levenshtein(s1, s2, distance):
             damerau_levenshtein_distance(s1, s2)
     else:
         assert damerau_levenshtein_distance(s1, s2) == distance
+
 
 @pytest.mark.parametrize('s1, s2, score', [
     ('John Singer Sargent', 'John S. Sargent', 25),
@@ -146,7 +147,7 @@ def test_needleman_wunsch(s1, s2, score):
     ('dixon', 'dicksonx', 0.767),
     ('martha', 'marhta', 0.944),
     ('dwayne', 'duane', 0.822),
-    (u'0ð00', u'0ð00', 1)
+    ('0ð00', '0ð00', 1)
 ])
 def test_jaro_distance(s1, s2, distance):
     if s1 is None or s2 is None:
@@ -217,11 +218,11 @@ def test_jaccard_index_similarity(set1, set2, similarity):
     # (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], False, 0.0),
     # (['a', 'b', 'a'], ['a'], [['x', 'y'], ['w'], ['q']], True, 0.0),
     # (['a', 'b', 'a'], ['a'], None, False, 0.7071)
-    (['a', 'b', 'a'], ['a', 'c'],{'a':3, 'b':1, 'c':1}, 3, False, 0.1754),
-    (['a', 'b', 'a'], ['a', 'c'], {'a':3, 'b':2, 'c':1}, 4, True, 0.1297),
-    (['a', 'b', 'a'], ['a'], {'a':3, 'b':1, 'c':1}, 3, False, 0.5547),
-    (['a', 'b', 'a'], ['a'], {'x':1, 'y':1, 'w':1, 'q':1}, 3, False, 0.0),
-    (['a', 'b', 'a'], ['a'], {'x':1, 'y':1, 'w':1, 'q':1}, 3, True, 0.0),
+    (['a', 'b', 'a'], ['a', 'c'], {'a': 3, 'b': 1, 'c': 1}, 3, False, 0.1754),
+    (['a', 'b', 'a'], ['a', 'c'], {'a': 3, 'b': 2, 'c': 1}, 4, True, 0.1297),
+    (['a', 'b', 'a'], ['a'], {'a': 3, 'b': 1, 'c': 1}, 3, False, 0.5547),
+    (['a', 'b', 'a'], ['a'], {'x': 1, 'y': 1, 'w': 1, 'q': 1}, 3, False, 0.0),
+    (['a', 'b', 'a'], ['a'], {'x': 1, 'y': 1, 'w': 1, 'q': 1}, 3, True, 0.0),
     (['a', 'b', 'a'], ['a'], None, 0, False, 0.7071)
 ])
 def test_tf_idf(bag1, bag2, df_corpus, doc_size, math_log, score):
@@ -248,7 +249,7 @@ def test_hybrid_jaccard_similarity():
         if m == 'c' and n == 'q':
             return 0.1
 
-    assert pytest.approx(hybrid_jaccard_similarity(set(['a','b','c']), set(['p', 'q']), function=test_function),
+    assert pytest.approx(hybrid_jaccard_similarity(set(['a', 'b', 'c']), set(['p', 'q']), function=test_function),
                          0.001) == 0.5333
 
 
@@ -265,36 +266,36 @@ def test_monge_elkan_similarity(bag1, bag2, similarity):
 
 
 @pytest.mark.parametrize('s, code', [
-    ('Soundex','S532'),
+    ('Soundex', 'S532'),
     ('Example', 'E251'),
     ('Sownteks', 'S532'),
-    ('Ekzampul','E251'),
+    ('Ekzampul', 'E251'),
     ('Euler', 'E460'),
     ('Gauss', 'G200'),
-    ('Hilbert','H416'),
+    ('Hilbert', 'H416'),
     ('Knuth', 'K530'),
     ('Lloyd', 'L300'),
     ('Lukasiewicz', 'L222'),
     ('Ellery', 'E460'),
     ('Ghosh', 'G200'),
     ('Heilbronn', 'H416'),
-    ('Kant','K530'),
+    ('Kant', 'K530'),
     ('Ladd', 'L300'),
     ('Lissajous', 'L222'),
-    ('Wheaton','W350'),
+    ('Wheaton', 'W350'),
     ('Burroughs', 'B620'),
-    ('Burrows','B620'),
+    ('Burrows', 'B620'),
     ('O\'Hara', 'O600'),
     ('Washington', 'W252'),
     ('Lee', 'L000'),
     ('Gutierrez', 'G362'),
     ('Pfister', 'P236'),
-    ('Jackson','J250'),
+    ('Jackson', 'J250'),
     ('Tymczak', 'T522'),
     ('VanDeusen', 'V532'),
-    ('Ashcraft','A261'),
+    ('Ashcraft', 'A261'),
     ('Gutierrez', 'G362'),
-    (u'Çáŕẗéř', 'C636'),
+    ('Çáŕẗéř', 'C636'),
 ])
 def test_soundex(s, code):
     if s is None:
@@ -308,34 +309,34 @@ def test_soundex(s, code):
 
 
 @pytest.mark.parametrize('s, code', [
-    ('DGIB','JB'),
-    ('metaphone','MTFN'),
-    ('wHErE','WR'),
-    ('shell','XL'),
-    ('this is a difficult string','0S IS A TFKLT STRNK'),
-    ('aeromancy','ERMNS'),
-    ('Antidisestablishmentarianism','ANTTSSTBLXMNTRNSM'),
-    ('sunlight labs','SNLT LBS'),
-    ('sonlite laabz','SNLT LBS'),
-    (u'Çáŕẗéř','KRTR'),
-    ('kentucky','KNTK'),
-    ('KENTUCKY','KNTK'),
-    ('NXNXNX','NKSNKSNKS'),
-    ('Aapti','PT'),
-    ('Aarti','RT'),
-    ('CIAB','XB'),
-    ('NQ','NK'),
-    ('sian','XN'),
-    ('gek','JK'),
-    ('Hb','HB'),
-    ('Bho','BH'),
-    ('Tiavyi','XFY'),
-    ('Xhot','XHT'),
-    ('Xnot','SNT'),
-    ('g','K'),
-    ('8 queens','KNS'),
-    ('Utah','UT'),
-    ('WH','W')
+    ('DGIB', 'JB'),
+    ('metaphone', 'MTFN'),
+    ('wHErE', 'WR'),
+    ('shell', 'XL'),
+    ('this is a difficult string', '0S IS A TFKLT STRNK'),
+    ('aeromancy', 'ERMNS'),
+    ('Antidisestablishmentarianism', 'ANTTSSTBLXMNTRNSM'),
+    ('sunlight labs', 'SNLT LBS'),
+    ('sonlite laabz', 'SNLT LBS'),
+    ('Çáŕẗéř', 'KRTR'),
+    ('kentucky', 'KNTK'),
+    ('KENTUCKY', 'KNTK'),
+    ('NXNXNX', 'NKSNKSNKS'),
+    ('Aapti', 'PT'),
+    ('Aarti', 'RT'),
+    ('CIAB', 'XB'),
+    ('NQ', 'NK'),
+    ('sian', 'XN'),
+    ('gek', 'JK'),
+    ('Hb', 'HB'),
+    ('Bho', 'BH'),
+    ('Tiavyi', 'XFY'),
+    ('Xhot', 'XHT'),
+    ('Xnot', 'SNT'),
+    ('g', 'K'),
+    ('8 queens', 'KNS'),
+    ('Utah', 'UT'),
+    ('WH', 'W')
 ])
 def test_metaphone(s, code):
     if s is None:
@@ -349,38 +350,38 @@ def test_metaphone(s, code):
 
 
 @pytest.mark.parametrize('s, code', [
-    ('Worthy','WARTY'),
-    ('Ogata','OGAT'),
-    ('montgomery','MANTGANARY'),
-    ('Costales','CASTAL'),
-    ('Tu','T'),
-    ('martincevic','MARTANCAFAC'),
-    ('Catherine','CATARAN'),
-    ('Katherine','CATARAN'),
-    ('Katerina','CATARAN'),
-    ('Johnathan','JANATAN'),
-    ('Jonathan','JANATAN'),
-    ('John','JAN'),
-    ('Teresa','TARAS'),
-    ('Theresa','TARAS'),
-    ('Jessica','JASAC'),
-    ('Joshua','JAS'),
-    ('Bosch','BAS'),
-    ('Lapher','LAFAR'),
-    ('wiyh','WY'),
-    ('MacArthur','MCARTAR'),
-    ('Pheenard','FANAD'),
-    ('Schmittie','SNATY'),
-    ('Knaqze','NAGS'),
-    ('Knokno','NAN'),
-    ('Knoko','NAC'),
-    ('Macaw','MC'),
-    ('T','T'),
-    ('S','S'),
-    ('P','P'),
-    ('K','C'),
-    ('M','M'),
-    ('E','E')
+    ('Worthy', 'WARTY'),
+    ('Ogata', 'OGAT'),
+    ('montgomery', 'MANTGANARY'),
+    ('Costales', 'CASTAL'),
+    ('Tu', 'T'),
+    ('martincevic', 'MARTANCAFAC'),
+    ('Catherine', 'CATARAN'),
+    ('Katherine', 'CATARAN'),
+    ('Katerina', 'CATARAN'),
+    ('Johnathan', 'JANATAN'),
+    ('Jonathan', 'JANATAN'),
+    ('John', 'JAN'),
+    ('Teresa', 'TARAS'),
+    ('Theresa', 'TARAS'),
+    ('Jessica', 'JASAC'),
+    ('Joshua', 'JAS'),
+    ('Bosch', 'BAS'),
+    ('Lapher', 'LAFAR'),
+    ('wiyh', 'WY'),
+    ('MacArthur', 'MCARTAR'),
+    ('Pheenard', 'FANAD'),
+    ('Schmittie', 'SNATY'),
+    ('Knaqze', 'NAGS'),
+    ('Knokno', 'NAN'),
+    ('Knoko', 'NAC'),
+    ('Macaw', 'MC'),
+    ('T', 'T'),
+    ('S', 'S'),
+    ('P', 'P'),
+    ('K', 'C'),
+    ('M', 'M'),
+    ('E', 'E')
 ])
 def test_nysiis(s, code):
     if s is None:

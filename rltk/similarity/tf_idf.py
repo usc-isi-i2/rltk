@@ -33,8 +33,8 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
 
     # term frequency for input strings
     t_x, t_y = collections.Counter(bag1), collections.Counter(bag2)
-    tf_x = {k: float(v) / len(bag1) for k, v in t_x.iteritems()}
-    tf_y = {k: float(v) / len(bag2) for k, v in t_y.iteritems()}
+    tf_x = {k: float(v) / len(bag1) for k, v in t_x.items()}
+    tf_y = {k: float(v) / len(bag2) for k, v in t_y.items()}
 
     # unique element
     total_unique_elements = set()
@@ -66,7 +66,7 @@ def compute_tf(t, bag_len):
     Args:
         t (dict): {term: count,...}
     """
-    return {k: float(v) / bag_len for k, v in t.iteritems()}
+    return {k: float(v) / bag_len for k, v in t.items()}
 
 
 # # plus 1
