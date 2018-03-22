@@ -1,16 +1,19 @@
-from equal import string_equal, number_equal
-from hamming import hamming_distance, hamming_similarity, normalized_hamming_distance
-from dice import dice_similarity
-from levenshtein import levenshtein_distance, levenshtein_similarity, \
-    normalized_levenshtein_distance, damerau_levenshtein_distance
-from needleman import needleman_wunsch_score, needleman_wunsch_similarity
-from jaro import jaro_winkler_distance, jaro_winkler_similarity, jaro_distance
-from jaccard import jaccard_index_similarity, jaccard_index_distance
-from cosine import cosine_similarity, string_cosine_similarity
-from tf_idf import tf_idf_similarity, compute_idf, compute_tf, tf_idf_similarity_by_dict
-
-from hybrid import hybrid_jaccard_similarity, monge_elkan_similarity, symmetric_monge_elkan_similarity
-
-from soundex import soundex_similarity
-from metaphone import metaphone_similarity
-from nysiis import nysiis_similarity
+# normal
+from rltk.similarity.equal import string_equal, number_equal
+from rltk.similarity.hamming import hamming_distance, hamming_similarity, normalized_hamming_distance
+from rltk.similarity.dice import dice_similarity
+# from rltk.similarity.levenshtein import levenshtein_distance, levenshtein_similarity, \
+#     normalized_levenshtein_distance, damerau_levenshtein_distance
+# from rltk.similarity.needleman import needleman_wunsch_score, needleman_wunsch_similarity
+# from rltk.similarity.jaro import jaro_winkler_distance, jaro_winkler_similarity, jaro_distance
+# from rltk.similarity.jaccard import jaccard_index_similarity, jaccard_index_distance
+# from rltk.similarity.cosine import cosine_similarity, string_cosine_similarity
+# from rltk.similarity.tf_idf import tf_idf_similarity, compute_idf, compute_tf, tf_idf_similarity_by_dict
+#
+# # hybrid
+# from rltk.similarity.hybrid import hybrid_jaccard_similarity, monge_elkan_similarity, symmetric_monge_elkan_similarity
+#
+# # phonetic
+# from rltk.similarity.soundex import soundex_similarity
+# from rltk.similarity.metaphone import metaphone_similarity
+# from rltk.similarity.nysiis import nysiis_similarity

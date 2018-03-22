@@ -19,7 +19,7 @@ class Record2(rltk.Record):
     @property
     def value(self):
         v = self.raw_object.get('values', list())
-        return v[0] if len(v) > 0 else ''
+        return v[0] if len(v) > 0 else 'empty'
 
 
 ds1 = rltk.Dataset(reader=rltk.CSVReader(filename='ds1.csv'),
@@ -61,10 +61,10 @@ ds2.build_index()
 
 
 
-print('without block...')
-pairs = rltk.get_record_pairs(ds1, ds2)
-for r1, r2 in pairs:
-    print(r1.id, r1.value, '\t', r2.id, r2.value)
+# print('without block...')
+# pairs = rltk.get_record_pairs(ds1, ds2)
+# for r1, r2 in pairs:
+#     print(r1.id, r1.value, '\t', r2.id, r2.value)
 
 print('with block...')
 # blocks_raw = [
@@ -76,6 +76,7 @@ blocks = rltk.BlockReader(rltk.JsonLinesReader('block.jl'))
 pairs = rltk.get_record_pairs(ds1, ds2, blocks)
 for r1, r2 in pairs:
     print(r1.id, r1.value, '\t', r2.id, r2.value)
-    # v1 = rltk.levenshtein_similarity(r1.value.lower(), r2.value.lower())
-    # print(v1)
+    print('string equal:', rltk.string_equal(r1.value.lower(), r2.value.lower()))
+    print('hamming', rltk.hamming_similarity(r1.value.lower()[:2], r2.value.lower()[:2]))
+    print('dice', rltk.dice_similarity(set([c for c in r1.value]), set([c for c in r2.value.lower()])))
 
