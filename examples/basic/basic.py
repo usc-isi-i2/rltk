@@ -1,7 +1,6 @@
 import os
 import rltk
 
-
 class Record1(rltk.Record):
     @property
     def id(self):
@@ -23,9 +22,13 @@ class Record2(rltk.Record):
         return v[0] if len(v) > 0 else ''
 
 
-ds1 = rltk.Dataset(reader=rltk.CSVReader(filename='ds1.csv'), record_class=Record1, adapter=rltk.MemoryAdapter())
+ds1 = rltk.Dataset(reader=rltk.CSVReader(filename='ds1.csv'),
+                   record_class=Record1, adapter=rltk.MemoryAdapter())
 ds1.build_index()
-ds2 = rltk.Dataset(reader=rltk.JsonLinesReader(filename='ds2.jl'), record_class=Record2, adapter=rltk.MemoryAdapter())
+# ds2 = rltk.Dataset(reader=rltk.JsonLinesReader(filename='ds2.jl'),
+#                    record_class=Record2, adapter=rltk.MemoryAdapter())
+ds2 = rltk.Dataset(reader=rltk.JsonLinesReader(filename='ds2.jl'),
+                   record_class=Record2, adapter=rltk.DBMAdapter('file_index'))
 ds2.build_index()
 
 # for r in ds1:
@@ -55,11 +58,24 @@ ds2.build_index()
 #
 #         output_filename='/path/to/blocks')
 #
-feature_vector = []
-pairs = rltk.get_record_pairs(ds1, ds2)  # same to without blocks
-# pairs = rltk.iterate_on_datasets(ds1, ds2, '/path/to/blocks', batch_size=1000000)
+
+
+
+print('without block...')
+pairs = rltk.get_record_pairs(ds1, ds2)
 for r1, r2 in pairs:
-    print(r1.id, r2.id)
+    print(r1.id, r1.value, '\t', r2.id, r2.value)
+
+print('with block...')
+# blocks_raw = [
+#     {'1': 'b'},
+#     {'2': ['c', 'd']}
+# ]
+# blocks = rltk.BlockReader(blocks_raw)
+blocks = rltk.BlockReader(rltk.JsonLinesReader('block.jl'))
+pairs = rltk.get_record_pairs(ds1, ds2, blocks)
+for r1, r2 in pairs:
+    print(r1.id, r1.value, '\t', r2.id, r2.value)
     # v1 = rltk.levenshtein_similarity(r1.value.lower(), r2.value.lower())
     # print(v1)
 

@@ -5,7 +5,7 @@ from rltk.io.adapter import Adapter
 from rltk.record import Record
 
 
-class FileAdapter(Adapter):
+class DBMAdapter(Adapter):
     def __init__(self, filename, dbm_class=dbm.ndbm):
         """
         :dbm_class dbm, dbm.gnu, dbm.ndbm, dbm.dumb (same as dbm)
