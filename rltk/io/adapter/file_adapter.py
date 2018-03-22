@@ -13,7 +13,8 @@ class FileAdapter(Adapter):
         self._db = dbm_class.open(filename, 'c')
 
         # not all dbm supports iterator, simulate an iterator by getting a key set
-        self._ids = set([k for k in self._db.keys()])
+        # key will be in byte form once read out from dbm, needs to be converted to string
+        self._ids = set([k.decode('utf-8') for k in self._db.keys()])
 
     def get(self, record_id):
         return pickle.loads(self._db.get(record_id))

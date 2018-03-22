@@ -5,4 +5,5 @@ class Record(object):
 
     @property
     def id(self):
+        """return has to be utf-8 string"""
         raise NotImplementedError
