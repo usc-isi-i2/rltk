@@ -1,5 +1,6 @@
 import rltk.utils as utils
 
+
 def _metaphone(s):
     """
     Metaphone fundamentally improves on the Soundex algorithm by using information about variations and inconsistencies in English spelling and pronunciation to produce a more accurate encoding, which does a better job of matching words and names which sound similar. As with Soundex, similar-sounding words should share the same keys. Metaphone is available as a built-in operator in a number of systems.
@@ -22,9 +23,7 @@ def _metaphone(s):
     # All rights reserved.
 
     utils.check_for_none(s)
-    utils.check_for_type(basestring, s)
-
-    s = utils.unicode_normalize(s)
+    utils.check_for_type(str, s)
 
     if len(s) == 0:
         raise ValueError('Empty string')
@@ -40,8 +39,8 @@ def _metaphone(s):
 
     while i < len(s):
         c = s[i]
-        next = s[i+1] if i < len(s)-1 else '*****'
-        nextnext = s[i+2] if i < len(s)-2 else '*****'
+        next = s[i + 1] if i < len(s) - 1 else '*****'
+        nextnext = s[i + 2] if i < len(s) - 2 else '*****'
 
         # skip doubles except for cc
         if c == next and c != 'c':
@@ -49,10 +48,10 @@ def _metaphone(s):
             continue
 
         if c in 'aeiou':
-            if i == 0 or s[i-1] == ' ':
+            if i == 0 or s[i - 1] == ' ':
                 result.append(c)
         elif c == 'b':
-            if (not (i != 0 and s[i-1] == 'm')) or next:
+            if (not (i != 0 and s[i - 1] == 'm')) or next:
                 result.append('b')
         elif c == 'c':
             if next == 'i' and nextnext == 'a' or next == 'h':
@@ -79,10 +78,10 @@ def _metaphone(s):
             elif next == 'h' and nextnext and nextnext not in 'aeiou':
                 i += 1
         elif c == 'h':
-            if i == 0 or next in 'aeiou' or s[i-1] not in 'aeiou':
+            if i == 0 or next in 'aeiou' or s[i - 1] not in 'aeiou':
                 result.append('h')
         elif c == 'k':
-            if i == 0 or s[i-1] != 'c':
+            if i == 0 or s[i - 1] != 'c':
                 result.append('k')
         elif c == 'p':
             if next == 'h':
@@ -137,6 +136,7 @@ def _metaphone(s):
         i += 1
 
     return ''.join(result).upper()
+
 
 def metaphone_similarity(s1, s2):
     return 1 if _metaphone(s1) == _metaphone(s2) else 0

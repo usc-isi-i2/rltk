@@ -3,6 +3,7 @@ import math
 
 import rltk.utils as utils
 
+
 def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
     """
     Computes TF/IDF measure. This measure employs the notion of TF/IDF score commonly used in information retrieval (IR) to find documents that are relevant to keyword queries. The intuition underlying the TF/IDF measure is that two strings are similar if they share distinguishing terms.
@@ -77,7 +78,7 @@ def compute_tf(t, bag_len):
 
 def compute_idf(df, doc_size, math_log=False):
     return {k: doc_size * 1.0 / v if math_log is False \
-            else math.log(doc_size * 1.0 / v) \
+        else math.log(doc_size * 1.0 / v) \
             for k, v in df.iteritems()}
 
 
