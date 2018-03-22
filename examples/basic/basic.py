@@ -24,12 +24,10 @@ class Record2(rltk.Record):
 
 ds1 = rltk.Dataset(reader=rltk.CSVReader(filename='ds1.csv'),
                    record_class=Record1, adapter=rltk.MemoryAdapter())
-ds1.build_index()
 # ds2 = rltk.Dataset(reader=rltk.JsonLinesReader(filename='ds2.jl'),
 #                    record_class=Record2, adapter=rltk.MemoryAdapter())
 ds2 = rltk.Dataset(reader=rltk.JsonLinesReader(filename='ds2.jl'),
                    record_class=Record2, adapter=rltk.DBMAdapter('file_index'))
-ds2.build_index()
 
 # for r in ds1:
 #     print(r.id)

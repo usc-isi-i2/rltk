@@ -1,17 +1,25 @@
 from rltk.io.reader import Reader, BlockReader
-from rltk.io.adapter import Adapter
+from rltk.io.adapter import Adapter, MemoryAdapter
 from rltk.record import Record
 
 
 class Dataset(object):
-    def __init__(self, reader: Reader, record_class: Record, adapter: Adapter):
-        self._reader = reader
-        self._record_class = record_class
-        if not adapter:
-            raise ValueError('Adapter is not specified.')
-        self._adapter = adapter
+    def __init__(self, reader: Reader, record_class: Record, adapter: Adapter = MemoryAdapter()):
+        # build index
+        if reader and record_class and adapter:
+            self._reader = reader
+            self._record_class = record_class
+            self._adapter = adapter
 
-    def build_index(self):
+            self._build_index()
+        # load from adapter
+        elif adapter:
+            pass
+        # error
+        else:
+            raise ValueError('Adapter is not specified.')
+
+    def _build_index(self):
         if not self._reader or not self._record_class:
             raise ValueError('Reader or Record class is not provided.')
         for raw_object in self._reader:
