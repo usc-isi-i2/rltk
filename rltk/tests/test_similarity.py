@@ -120,7 +120,7 @@ def test_weighted_levenshtein(s1, s2, insert, delete, substitute,
     ('cape sand recycling', 'edith ann graham', 16),
     ('jellyifhs', 'jellyfish', 2),
     ('ifhs', 'fish', 2),
-    ('Hello, world!', 'Hello,Â world!', 2),
+    ('Hello, world!', 'Hello,Â world!', 1),
 ])
 def test_damerau_levenshtein(s1, s2, distance):
     if s1 is None or s2 is None:

@@ -32,8 +32,8 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     utils.check_for_none(s1, s2)
     utils.check_for_type(str, s1, s2)
 
-    s1 = utils.unicode_normalize(s1)
-    s2 = utils.unicode_normalize(s2)
+    # s1 = utils.unicode_normalize(s1)
+    # s2 = utils.unicode_normalize(s2)
 
     n1, n2 = len(s1), len(s2)
     if n1 == 0 and n2 == 0:
@@ -127,8 +127,8 @@ def damerau_levenshtein_distance(s1, s2):
     utils.check_for_none(s1, s2)
     utils.check_for_type(str, s1, s2)
 
-    s1 = utils.unicode_normalize(s1)
-    s2 = utils.unicode_normalize(s2)
+    # s1 = utils.unicode_normalize(s1)
+    # s2 = utils.unicode_normalize(s2)
 
     n1, n2 = len(s1), len(s2)
     infinite = n1 + n2
