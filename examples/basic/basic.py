@@ -22,9 +22,9 @@ class Record2(rltk.Record):
         return v[0] if len(v) > 0 else 'empty'
 
 
-ds1 = rltk.Dataset(reader=rltk.CSVReader(filename='ds1.csv'),
+ds1 = rltk.Dataset(reader=rltk.CSVReader(open('ds1.csv')),
                    record_class=Record1, adapter=rltk.MemoryAdapter())
-ds2 = rltk.Dataset(reader=rltk.JsonLinesReader(filename='ds2.jl'),
+ds2 = rltk.Dataset(reader=rltk.JsonLinesReader(open('ds2.jl')),
                    record_class=Record2, adapter=rltk.DBMAdapter('file_index'))
 
 pairs = rltk.get_record_pairs(ds1, ds2)

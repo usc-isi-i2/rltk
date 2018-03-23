@@ -1,13 +1,12 @@
 import csv
-import codecs
 
 from rltk.io.reader import Reader
 
 
 class CSVReader(Reader):
 
-    def __init__(self, filename, **kwargs):
-        self._file_handler = codecs.open(filename)
+    def __init__(self, file_handler, **kwargs):
+        self._file_handler = file_handler
         self._csv_reader = csv.DictReader(self._file_handler, **kwargs)
 
     def __next__(self):
