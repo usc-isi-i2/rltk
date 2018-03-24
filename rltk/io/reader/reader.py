@@ -1,3 +1,5 @@
+import io
+
 class Reader(object):
     def __init__(self):
         pass
@@ -11,3 +13,10 @@ class Reader(object):
 
     def __del__(self):
         pass
+
+    @staticmethod
+    def get_file_handler(f):
+        if isinstance(f, io.IOBase):
+            return f
+
+        return open(f)
