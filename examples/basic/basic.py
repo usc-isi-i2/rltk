@@ -2,21 +2,21 @@ import rltk
 
 
 class Record1(rltk.Record):
-    @property
+    @rltk.cached_property
     def id(self):
         return self.raw_object['doc_id']
 
-    @property
+    @rltk.cached_property
     def value(self):
         return self.raw_object['doc_value']
 
 
 class Record2(rltk.Record):
-    @property
+    @rltk.cached_property
     def id(self):
         return self.raw_object['ident']
 
-    @property
+    @rltk.cached_property
     def value(self):
         v = self.raw_object.get('values', list())
         return v[0] if len(v) > 0 else 'empty'
