@@ -1,6 +1,6 @@
 from rltk.io.reader import Reader, BlockReader
 from rltk.io.adapter import Adapter, MemoryAdapter
-from rltk.record import Record, generate_record_property_cache
+from rltk.record import Record, generate_record_property_cache, validate_record
 
 
 class Dataset(object):
@@ -10,7 +10,7 @@ class Dataset(object):
         self._adapter = adapter
 
         # build index
-        if reader and record_class and adapter:
+        if reader and record_class:
             self._reader = reader
             self._record_class = record_class
 
@@ -22,8 +22,6 @@ class Dataset(object):
         for raw_object in self._reader:
             record_instance = self._record_class(raw_object)
             generate_record_property_cache(record_instance)
-            if not isinstance(record_instance.id, str):
-                raise ValueError('Id in record should be in string (utf-8 encoded) type.')
             self._adapter.set(record_instance.id, record_instance)
 
     def get_record(self, record_id):
