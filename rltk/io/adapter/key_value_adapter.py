@@ -1,7 +1,7 @@
 from rltk.record import Record
 
 
-class Adapter(object):
+class KeyValueAdapter(object):
     def __init__(self):
         pass
 

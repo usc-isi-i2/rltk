@@ -1,12 +1,11 @@
 import dbm
-import pickle
 
-from rltk.io.adapter import Adapter
+from rltk.io.adapter import KeyValueAdapter
 from rltk.io.serializer import Serializer, PickleSerializer
 from rltk.record import Record
 
 
-class DBMAdapter(Adapter):
+class DBMAdapter(KeyValueAdapter):
     def __init__(self, filename, dbm_class=dbm.ndbm, serializer:Serializer=PickleSerializer()):
         """
         :dbm_class dbm, dbm.gnu, dbm.ndbm, dbm.dumb (same as dbm)

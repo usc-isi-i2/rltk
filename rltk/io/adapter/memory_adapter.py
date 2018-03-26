@@ -1,8 +1,8 @@
-from rltk.io.adapter import Adapter
+from rltk.io.adapter import KeyValueAdapter
 from rltk.record import Record
 
 
-class MemoryAdapter(Adapter):
+class MemoryAdapter(KeyValueAdapter):
     def __init__(self):
         self._records = dict()
 
