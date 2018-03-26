@@ -1,5 +1,3 @@
-import json
-
 from rltk.io.writer import BlockWriter
 
 

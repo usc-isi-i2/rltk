@@ -1,10 +1,10 @@
 from rltk.io.reader import Reader, BlockReader
-from rltk.io.adapter import Adapter, MemoryAdapter
-from rltk.record import Record, generate_record_property_cache, validate_record
+from rltk.io.adapter import KeyValueAdapter, MemoryAdapter
+from rltk.record import Record, generate_record_property_cache
 
 
 class Dataset(object):
-    def __init__(self, reader: Reader = None, record_class: Record = None, adapter: Adapter = MemoryAdapter()):
+    def __init__(self, reader: Reader = None, record_class: Record = None, adapter: KeyValueAdapter = MemoryAdapter()):
         if not adapter:
             raise ValueError('Error in given arguments.')
         self._adapter = adapter
