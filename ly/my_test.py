@@ -12,9 +12,9 @@ for i1 in it1:
         v = fv.add_similarity_batch(levenshtein_distance)
         v = fv.add_similarity_by_attribute('v2', 'v2', levenshtein_distance)
         if fv.compute_prob() > 0.9:
-            print i1, i2
+            print(i1, i2)
         fv.add(0.5)
 
         if fv.compute_prob() > 0.9:
-            print i1, i2
+            print(i1, i2)
 
