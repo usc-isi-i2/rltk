@@ -84,9 +84,7 @@ def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
             r2.data = r2_d
 
             func_info = similarity_function + '("' + r1_d + '","' + r2_d + '")'
-            # print(func_info)
             c = eval(func_info)
-            # c = similarity_function(r1_d, r2_d)
             p = (c >= min_confidence)
             trial.add_result(r1, r2, p, c)
 
