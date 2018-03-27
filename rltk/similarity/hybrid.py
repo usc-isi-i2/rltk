@@ -1,11 +1,11 @@
 import munkres
 import rltk.utils as utils
-from jaro import jaro_winkler_similarity
+from rltk.similarity.jaro import jaro_winkler_similarity
 
 MIN_FLOAT = float('-inf')
 
-def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_similarity, parameters={}):
 
+def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_similarity, parameters={}):
     utils.check_for_none(set1, set2)
     utils.check_for_type(set, set1, set2)
 
@@ -16,7 +16,7 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
             score = function(s1, s2, **parameters)
             if score < threshold:
                 score = 0.0
-            inner.append(1.0 - score) # munkres finds out the smallest element
+            inner.append(1.0 - score)  # munkres finds out the smallest element
         matching_score.append(inner)
 
     indexes = munkres.Munkres().compute(matching_score)
@@ -32,7 +32,6 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
 
 
 def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters={}):
-
     utils.check_for_none(bag1, bag2)
     utils.check_for_type(list, bag1, bag2)
 
