@@ -1,13 +1,12 @@
 import json
-import codecs
 
 from rltk.io.reader import Reader
 
 
 class JsonLinesReader(Reader):
 
-    def __init__(self, filename, ignore_blank_line=True):
-        self._file_handler = codecs.open(filename)
+    def __init__(self, file_handler, ignore_blank_line=True):
+        self._file_handler = Reader.get_file_handler(file_handler)
         self._ignore_blank_line = ignore_blank_line
 
     def __next__(self):

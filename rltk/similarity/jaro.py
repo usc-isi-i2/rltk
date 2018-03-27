@@ -5,7 +5,7 @@ import rltk.utils as utils
 def _jaro_winkler(s1, s2, threshold=0.7, scaling_factor=0.1, prefix_len=4):
     jaro = _jaro_distance(s1, s2)
     if jaro > threshold:
-        l = min(len(_get_prefix(s1, s2)), prefix_len) # max len of common prefix is 4
+        l = min(len(_get_prefix(s1, s2)), prefix_len)  # max len of common prefix is 4
         jaro += (scaling_factor * l * (1.0 - jaro))
     return jaro
 
@@ -71,15 +71,16 @@ def jaro_distance(s1, s2):
     """
     return _jaro_distance(s1, s2)
 
+
 def _jaro_distance(s1, s2):
     # code from https://github.com/nap/jaro-winkler-distance
     # Copyright Jean-Bernard Ratte
 
     utils.check_for_none(s1, s2)
-    utils.check_for_type(basestring, s1, s2)
+    utils.check_for_type(str, s1, s2)
 
-    s1 = utils.unicode_normalize(s1)
-    s2 = utils.unicode_normalize(s2)
+    # s1 = utils.unicode_normalize(s1)
+    # s2 = utils.unicode_normalize(s2)
 
     shorter, longer = s1.lower(), s2.lower()
 
@@ -96,6 +97,7 @@ def _jaro_distance(s1, s2):
             float(len(m2)) / len(longer) +
             float(len(m1) - _transpositions(m1, m2)) / len(m1)) / 3.0
 
+
 def _get_diff_index(first, second):
     if first == second:
         return -1
@@ -110,6 +112,7 @@ def _get_diff_index(first, second):
 
     return max_len
 
+
 def _get_prefix(first, second):
     if not first or not second:
         return ''
@@ -122,6 +125,7 @@ def _get_prefix(first, second):
     else:
         return first[0:index]
 
+
 def _get_matching_characters(first, second):
     common = []
     limit = math.floor(min(len(first), len(second)) / 2)
@@ -133,6 +137,7 @@ def _get_matching_characters(first, second):
             second = second[0:second.index(l)] + '*' + second[second.index(l) + 1:]
 
     return ''.join(common)
+
 
 def _transpositions(first, second):
     return math.floor(len([(f, s) for f, s in zip(first, second) if not f == s]) / 2.0)

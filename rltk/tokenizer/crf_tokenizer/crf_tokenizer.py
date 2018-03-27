@@ -1,6 +1,7 @@
 import string
 import sys
 
+
 class CrfTokenizer:
     """The tokenization rules take into account embedded HTML tags and
 entities. HTML tags begin with "<" and end with ">". The contents of a
@@ -85,27 +86,27 @@ result = t.tokenize(value).join(" ")
     START_HTML_ENTITY_CHAR = "&"
     END_HTML_ENTITY_CHAR = ";"
 
-    def __init__ (self, recognize_linebreaks=False, skipHtmlTags=False, skipHtmlEntities=False,
-                  recognizePunctuation=True, recognizeHtmlTags=False, recognizeHtmlEntities=False,
-                  groupPunctuation=False, create_structured_tokens=False):
+    def __init__(self, recognize_linebreaks=False, skipHtmlTags=False, skipHtmlEntities=False,
+                 recognizePunctuation=True, recognizeHtmlTags=False, recognizeHtmlEntities=False,
+                 groupPunctuation=False, create_structured_tokens=False):
         self.groupPunctuation = groupPunctuation
         self.recognizeHtmlEntities = recognizeHtmlEntities
         self.recognizeHtmlTags = recognizeHtmlTags
-        self.recognizePunctuation = recognizePunctuation # Notice
+        self.recognizePunctuation = recognizePunctuation  # Notice
         self.skipHtmlEntities = skipHtmlEntities
         self.skipHtmlTags = skipHtmlTags
         self.tokenPrefix = None
         self.recognize_linebreaks = recognize_linebreaks
         self.create_structured_tokens = create_structured_tokens
 
-    def setGroupPunctuation (self, groupPunctuation):
+    def setGroupPunctuation(self, groupPunctuation):
         """When True and self.recognizePunctuation is True, group adjacent punctuation
         characters into a token.
 
         """
         self.groupPunctuation = groupPunctuation
 
-    def setRecognizeHtmlEntities (self, recognizeHtmlEntities):
+    def setRecognizeHtmlEntities(self, recognizeHtmlEntities):
         """When True, assume that the text being parsed is HTML.  Recognize HTML
         entities, such as "&gt;", and parse them into single tokens (e.g.,
         "&gt;" instead of ["&", "gt", ";"]).
@@ -113,7 +114,7 @@ result = t.tokenize(value).join(" ")
         """
         self.recognizeHtmlEntities = recognizeHtmlEntities
 
-    def setRecognizeHtmlTags (self, recognizeHtmlTags):
+    def setRecognizeHtmlTags(self, recognizeHtmlTags):
         """When True, assume that the text being parsed is HTML.  Recognize HTML tags,
         such as "<bold>", and parse them into single tokens (e.g., "<bold>"
         instead of ["<", "bold", ">"]).
@@ -121,26 +122,26 @@ result = t.tokenize(value).join(" ")
         """
         self.recognizeHtmlTags = recognizeHtmlTags
 
-    def setRecognizePunctuation (self, recognizePunctuation):
+    def setRecognizePunctuation(self, recognizePunctuation):
         """When True, treat punctuation characters as separate tokens.
 
         """
         self.recognizePunctuation = recognizePunctuation
 
-    def setSkipHtmlEntities (self, skipHtmlEntities):
+    def setSkipHtmlEntities(self, skipHtmlEntities):
         """When True and when self.recognizeHtmlEntities is True, skip HTML entities instead of storing them as tokens.
 
         """
         self.skipHtmlEntities = skipHtmlEntities
 
-    def setSkipHtmlTags (self, skipHtmlTags):
+    def setSkipHtmlTags(self, skipHtmlTags):
         """When True and when self.recognizeHtmlTags is True, skip HTML tags instead
         of storing them as tokens.
 
         """
         self.skipHtmlTags = skipHtmlTags
 
-    def setTokenPrefix (self, tokenPrefix):
+    def setTokenPrefix(self, tokenPrefix):
         """When non None, a string that should be prepended to each token. This may be
         useful when tokens are being generated from different sources, and it
         is desired to be able to distinguish the source of a token.
@@ -155,7 +156,7 @@ result = t.tokenize(value).join(" ")
         """
         self.recognize_linebreaks = recognize_linebreaks
 
-    def tokenize (self, value):
+    def tokenize(self, value):
         """Take a string and break it into tokens. Return the tokens as a list of
         strings.
 
@@ -180,8 +181,8 @@ result = t.tokenize(value).join(" ")
         # "state" and "token" have array values to allow their
         # contents to be modified within finishToken().
         state = [STATE.NORMAL]
-        token = [""] # The current token being assembled.
-        tokens = [] # The tokens extracted from the input.
+        token = [""]  # The current token being assembled.
+        tokens = []  # The tokens extracted from the input.
         index = -1
 
         def clearToken():
@@ -195,7 +196,8 @@ result = t.tokenize(value).join(" ")
                 # add character end and start
                 char_start, char_end = index, index + len(token[0])
                 if self.create_structured_tokens:
-                    new_token = {'value': token[0], 'type': state_names[state[0]], 'char_start': char_start, 'char_end': char_end}
+                    new_token = {'value': token[0], 'type': state_names[state[0]], 'char_start': char_start,
+                                 'char_end': char_end}
                     tokens.append(new_token)
                 else:
                     tokens.append(token[0])
@@ -233,15 +235,15 @@ result = t.tokenize(value).join(" ")
             emitToken()
             if len(saveToken) > 1:
                 token[0] = saveToken[1:]
-            # The caller should continue processing with the current
-            # character.
+                # The caller should continue processing with the current
+                # character.
 
         # Process each character in the input string:
         for c in value:
             index += 1
             if state[0] == STATE.PROCESS_HTML_TAG:
                 if c in CrfTokenizer.whitespaceSet:
-                    continue # Suppress for safety. CRF++ doesn't like spaces in tokens, for example.
+                    continue  # Suppress for safety. CRF++ doesn't like spaces in tokens, for example.
                 token[0] += c
                 if c == CrfTokenizer.END_HTML_TAG_CHAR:
                     if self.skipHtmlTags:
@@ -271,9 +273,9 @@ result = t.tokenize(value).join(" ")
                             token[0] = token[0] + c
                             state[0] = STATE.GROUP_PUNCTUATION
                         else:
-                            emitToken() # Emit the "&" as a seperate token.
+                            emitToken()  # Emit the "&" as a seperate token.
                             token[0] = token[0] + c
-                            emitToken() # Emit the ";' as a seperate token.
+                            emitToken()  # Emit the ";' as a seperate token.
                         continue
                     token[0] = token[0] + c
                     if self.skipHtmlEntities:
@@ -361,95 +363,94 @@ class ngramTokenizer(CrfTokenizer):
     def __init__(self):
         CrfTokenizer.__init__(self)
         self.token_string = ""
-        #self.ngrams = set()
+        # self.ngrams = set()
 
     def transform(self, token_list):
         self.token_string = ngramTokenizer.place_holder.join(token_list)
 
     def basic(self, input_string, q):
         ngrams = set()
-        token_list = CrfTokenizer.tokenize(self,input_string)
+        token_list = CrfTokenizer.tokenize(self, input_string)
         self.transform(token_list)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
-            ngrams.add(self.token_string[i:i+q])
+            ngrams.add(self.token_string[i:i + q])
         return ngrams
 
     def positional(self, input_string, q):
         ngrams = set()
-        token_list = CrfTokenizer.tokenize(self,input_string)
+        token_list = CrfTokenizer.tokenize(self, input_string)
         self.transform(token_list)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
-            ngrams.add(self.token_string[i:i+q] + str(i))
+            ngrams.add(self.token_string[i:i + q] + str(i))
         return ngrams
 
     def padded(self, input_string, q):
         ngrams = set()
-        token_list = CrfTokenizer.tokenize(self,input_string)
+        token_list = CrfTokenizer.tokenize(self, input_string)
         self.transform(token_list)
-        self.token_string = ngramTokenizer.place_holder * (q - 1) + self.token_string + ngramTokenizer.place_holder * (q - 1)
+        self.token_string = ngramTokenizer.place_holder * (q - 1) + self.token_string + ngramTokenizer.place_holder * (
+        q - 1)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
-            ngrams.add(self.token_string[i:i+q])
+            ngrams.add(self.token_string[i:i + q])
         return ngrams
-
-
 
 
 def main(argv=None):
     '''this is called if run from command line'''
-    
+
     t = CrfTokenizer()
-    print t.tokenize("This is a sentence.")
-    print t.tokenize("Buy???This...Now!!!")
-    print t.tokenize("The <bold>only</bold> source.")
-    print t.tokenize("The<bold>only</bold>source.")
-    print t.tokenize("Big&gt;little.")
-    print t.tokenize("Big & little.")
-    print t.tokenize("blond&curly.")
-    print t.tokenize("&brokenHtml")
+    print(t.tokenize("This is a sentence."))
+    print(t.tokenize("Buy???This...Now!!!"))
+    print(t.tokenize("The <bold>only</bold> source."))
+    print(t.tokenize("The<bold>only</bold>source."))
+    print(t.tokenize("Big&gt;little."))
+    print(t.tokenize("Big & little."))
+    print(t.tokenize("blond&curly."))
+    print(t.tokenize("&brokenHtml"))
     t.setGroupPunctuation(True)
     t.setRecognizeHtmlTags(True)
     t.setRecognizeHtmlEntities(True)
-    print t.tokenize("Buy???This...Now!!!")
-    print t.tokenize("The <bold>only</bold> source.")
-    print t.tokenize("The<bold>only</bold>source.")
-    print t.tokenize("Big&gt;little.")
-    print t.tokenize("Big & little.")
-    print t.tokenize("blond&curly.")
-    print t.tokenize("&brokenHtml")
+    print(t.tokenize("Buy???This...Now!!!"))
+    print(t.tokenize("The <bold>only</bold> source."))
+    print(t.tokenize("The<bold>only</bold>source."))
+    print(t.tokenize("Big&gt;little."))
+    print(t.tokenize("Big & little."))
+    print(t.tokenize("blond&curly."))
+    print(t.tokenize("&brokenHtml"))
     t.setSkipHtmlTags(True)
     t.setSkipHtmlEntities(True)
-    print t.tokenize("Buy???This...Now!!!")
-    print t.tokenize("The <bold>only</bold> source.")
-    print t.tokenize("The<bold>only</bold>source.")
-    print t.tokenize("Big&gt;little.")
-    print t.tokenize("Big & little.")
-    print t.tokenize("blond&curly.")
-    print t.tokenize("&brokenHtml")
+    print(t.tokenize("Buy???This...Now!!!"))
+    print(t.tokenize("The <bold>only</bold> source."))
+    print(t.tokenize("The<bold>only</bold>source."))
+    print(t.tokenize("Big&gt;little."))
+    print(t.tokenize("Big & little."))
+    print(t.tokenize("blond&curly."))
+    print(t.tokenize("&brokenHtml"))
     t.setTokenPrefix("X:")
-    print t.tokenize("Tokenize with prefixes.")
+    print(t.tokenize("Tokenize with prefixes."))
     t.setTokenPrefix(None)
-    print t.tokenize("No more  prefixes.")
+    print(t.tokenize("No more  prefixes."))
     t.setRecognizePunctuation(False)
-    print t.tokenize("This is a sentence.")
-    print t.tokenize("Buy???This...Now!!!")
-    print t.tokenize("The <bold>only</bold> source.")
-    print t.tokenize("The<bold>only</bold>source.")
-    print t.tokenize("Big&gt;little.")
-    print t.tokenize("Big & little.")
-    print t.tokenize("blond&curly.")
-    print t.tokenize("&brokenHtml")
-    print t.tokenize("A line break goes here\n\t \rand a new line starts")
+    print(t.tokenize("This is a sentence."))
+    print(t.tokenize("Buy???This...Now!!!"))
+    print(t.tokenize("The <bold>only</bold> source."))
+    print(t.tokenize("The<bold>only</bold>source."))
+    print(t.tokenize("Big&gt;little."))
+    print(t.tokenize("Big & little."))
+    print(t.tokenize("blond&curly."))
+    print(t.tokenize("&brokenHtml"))
+    print(t.tokenize("A line break goes here\n\t \rand a new line starts"))
     t.setRecognizeLinebreaks(True)
-    print t.tokenize("A line break goes here\n\r \rand a new line starts")
-    
+    print(t.tokenize("A line break goes here\n\r \rand a new line starts"))
+
     nt = ngramTokenizer()
     print('\nNGRAM tokeniser\n')
-    print nt.basic("Pablo Picasso Jr.", 2)
-    print nt.positional("Pablo Picasso Jr.", 2)
-    print nt.padded("Pablo Picasso Jr.", 2)
+    print(nt.basic("Pablo Picasso Jr.", 2))
+    print(nt.positional("Pablo Picasso Jr.", 2))
+    print(nt.padded("Pablo Picasso Jr.", 2))
 
 
 # call main() if this is run as standalone

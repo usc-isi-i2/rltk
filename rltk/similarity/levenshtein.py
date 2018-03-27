@@ -4,7 +4,7 @@ import rltk.utils as utils
 
 
 def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
-                 insert_default=1, delete_default=1, substitute_default=1):
+                         insert_default=1, delete_default=1, substitute_default=1):
     """
     The Levenshtein distance between two words is the minimum number of single-character edits (insertions, deletions or substitutions) required to change one word into the other.
 
@@ -30,10 +30,10 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     """
 
     utils.check_for_none(s1, s2)
-    utils.check_for_type(basestring, s1, s2)
+    utils.check_for_type(str, s1, s2)
 
-    s1 = utils.unicode_normalize(s1)
-    s2 = utils.unicode_normalize(s2)
+    # s1 = utils.unicode_normalize(s1)
+    # s2 = utils.unicode_normalize(s2)
 
     n1, n2 = len(s1), len(s2)
     if n1 == 0 and n2 == 0:
@@ -43,48 +43,49 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     #     return max(n1, n2)
 
     dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
-    for i in xrange(n1 + 1):
-        for j in xrange(n2 + 1):
-            if i == 0 and j == 0: # [0,0]
+    for i in range(n1 + 1):
+        for j in range(n2 + 1):
+            if i == 0 and j == 0:  # [0,0]
                 continue
-            elif i == 0: # most top row
-                c = s2[j-1]
+            elif i == 0:  # most top row
+                c = s2[j - 1]
                 dp[i][j] = insert[c] if c in insert else insert_default
-                dp[i][j] += dp[i][j-1]
-            elif j == 0: # most left column
-                c = s1[i-1]
+                dp[i][j] += dp[i][j - 1]
+            elif j == 0:  # most left column
+                c = s1[i - 1]
                 dp[i][j] = delete[c] if c in delete else delete_default
-                dp[i][j] += dp[i-1][j]
+                dp[i][j] += dp[i - 1][j]
             else:
-                c1, c2 = s1[i-1], s2[j-1]
+                c1, c2 = s1[i - 1], s2[j - 1]
                 insert_cost = insert[c2] if c2 in insert else insert_default
                 delete_cost = delete[c1] if c1 in delete else delete_default
                 substitute_cost = substitute[c1][c2] \
                     if c1 in substitute and c2 in substitute[c1] else substitute_default
 
                 if c1 == c2:
-                    dp[i][j] = dp[i-1][j-1]
+                    dp[i][j] = dp[i - 1][j - 1]
                 else:
-                    dp[i][j] = min(dp[i][j-1] + insert_cost,
-                                   dp[i-1][j] + delete_cost,
-                                   dp[i-1][j-1] + substitute_cost)
+                    dp[i][j] = min(dp[i][j - 1] + insert_cost,
+                                   dp[i - 1][j] + delete_cost,
+                                   dp[i - 1][j - 1] + substitute_cost)
     return dp[n1][n2]
 
 
 def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
-                 insert_default=1, delete_default=1, substitute_default=1):
+                           insert_default=1, delete_default=1, substitute_default=1):
     """
     Computed as 1 - normalized_levenshtein_distance.
     """
     return 1.0 - normalized_levenshtein_distance(s1, s2, insert, delete, substitute,
-                 insert_default, delete_default, substitute_default)
+                                                 insert_default, delete_default, substitute_default)
 
 
 def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
-                 insert_default=1, delete_default=1, substitute_default=1):
+                                    insert_default=1, delete_default=1, substitute_default=1):
     """
     Computed as levenshtein - max-insert-cost(s1,s2)
     """
+
     def compute_insert_cost(s):
         cost = 0
         for c in s:
@@ -92,7 +93,7 @@ def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
         return cost
 
     lev = levenshtein_distance(s1, s2, insert, delete, substitute,
-                 insert_default, delete_default, substitute_default)
+                               insert_default, delete_default, substitute_default)
 
     max_cost = max(compute_insert_cost(s1), compute_insert_cost(s2))
 
@@ -103,6 +104,7 @@ def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
         return 0
 
     return float(lev) / max_cost
+
 
 def damerau_levenshtein_distance(s1, s2):
     """
@@ -123,28 +125,28 @@ def damerau_levenshtein_distance(s1, s2):
     """
 
     utils.check_for_none(s1, s2)
-    utils.check_for_type(basestring, s1, s2)
+    utils.check_for_type(str, s1, s2)
 
-    s1 = utils.unicode_normalize(s1)
-    s2 = utils.unicode_normalize(s2)
+    # s1 = utils.unicode_normalize(s1)
+    # s2 = utils.unicode_normalize(s2)
 
     n1, n2 = len(s1), len(s2)
     infinite = n1 + n2
 
     char_arr = defaultdict(int)
-    dp = [[0] * (n2 + 2) for _ in xrange(n1 + 2)]
+    dp = [[0] * (n2 + 2) for _ in range(n1 + 2)]
 
     dp[0][0] = infinite
-    for i in xrange(0, n1 + 1):
+    for i in range(0, n1 + 1):
         dp[i + 1][0] = infinite
         dp[i + 1][1] = i
-    for i in xrange(0, n2 + 1):
+    for i in range(0, n2 + 1):
         dp[0][i + 1] = infinite
         dp[1][i + 1] = i
 
-    for i in xrange(1, n1 + 1):
+    for i in range(1, n1 + 1):
         db = 0
-        for j in xrange(1, n2 + 1):
+        for j in range(1, n2 + 1):
             i1 = char_arr[s2[j - 1]]
             j1 = db
             cost = 1

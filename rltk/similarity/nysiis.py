@@ -1,5 +1,6 @@
 import rltk.utils as utils
 
+
 def _nysiis(s):
     """
     New York State Immunization Information System (NYSIIS) Phonetic Code is a phonetic algorithm created by `The New York State Department of Health's (NYSDOH) Bureau of Immunization
@@ -23,7 +24,7 @@ def _nysiis(s):
     # All rights reserved.
 
     utils.check_for_none(s)
-    utils.check_for_type(basestring, s)
+    utils.check_for_type(str, s)
 
     s = utils.unicode_normalize(s)
 
@@ -59,7 +60,7 @@ def _nysiis(s):
     len_s = len(s)
     while i < len_s:
         ch = s[i]
-        if ch == 'E' and i+1 < len_s and s[i+1] == 'V':
+        if ch == 'E' and i + 1 < len_s and s[i + 1] == 'V':
             ch = 'AF'
             i += 1
         elif ch in 'AEIOU':
@@ -71,23 +72,23 @@ def _nysiis(s):
         elif ch == 'M':
             ch = 'N'
         elif ch == 'K':
-            if i+1 < len(s) and s[i+1] == 'N':
+            if i + 1 < len(s) and s[i + 1] == 'N':
                 ch = 'N'
             else:
                 ch = 'C'
-        elif ch == 'S' and s[i+1:i+3] == 'CH':
+        elif ch == 'S' and s[i + 1:i + 3] == 'CH':
             ch = 'SS'
             i += 2
-        elif ch == 'P' and i+1 < len(s) and s[i+1] == 'H':
+        elif ch == 'P' and i + 1 < len(s) and s[i + 1] == 'H':
             ch = 'F'
             i += 1
-        elif ch == 'H' and (s[i-1] not in 'AEIOU' or (i+1 < len(s) and s[i+1] not in 'AEIOU')):
-            if s[i-1] in 'AEIOU':
+        elif ch == 'H' and (s[i - 1] not in 'AEIOU' or (i + 1 < len(s) and s[i + 1] not in 'AEIOU')):
+            if s[i - 1] in 'AEIOU':
                 ch = 'A'
             else:
-                ch = s[i-1]
-        elif ch == 'W' and s[i-1] in 'AEIOU':
-            ch = s[i-1]
+                ch = s[i - 1]
+        elif ch == 'W' and s[i - 1] in 'AEIOU':
+            ch = s[i - 1]
 
         if ch[-1] != key[-1][-1]:
             key.append(ch)
@@ -111,6 +112,7 @@ def _nysiis(s):
     # step 8 was already done
 
     return key
+
 
 def nysiis_similarity(s1, s2):
     return 1 if _nysiis(s1) == _nysiis(s2) else 0
