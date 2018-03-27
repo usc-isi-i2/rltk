@@ -44,10 +44,12 @@ ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
 #     print(r.id, r.first_name, r.last_name)
 
 block_writer = rltk.BlockFileWriter('blocks.jl')
-# block_writer = rltk.BlockArrayWriter(list())
-block_writer.write('1', ['a'])
-block_writer.write('2', ['b', 'd'])
-block_writer.close() # close() must be called in order to read later
+# block_writer = rltk.BlockArrayWriter()
+block_writer.write('1', 'a')
+block_writer.write('2', 'b')
+block_writer.write('2', 'd')
+block_writer.write('1', 'a')
+block_writer.flush() # flush / close must be called in order to read later
 
 block_reader = rltk.BlockFileReader('blocks.jl')
 # block_reader = rltk.BlockArrayReader(block_writer.get_handler())
