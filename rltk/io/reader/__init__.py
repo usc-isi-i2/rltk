@@ -5,3 +5,4 @@ from rltk.io.reader.jsonlines_reader import JsonLinesReader
 from rltk.io.reader.block_reader import BlockReader
 from rltk.io.reader.block_file_reader import BlockFileReader
 from rltk.io.reader.block_array_reader import BlockArrayReader
+from rltk.io.reader.ground_truth_reader import GroundTruthReader
