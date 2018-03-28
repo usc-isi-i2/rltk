@@ -10,3 +10,7 @@ class BlockWriter(Writer):
 
     def flush(self):
         raise NotImplementedError
+
+    def close(self):
+        self.flush()
+        super().close()

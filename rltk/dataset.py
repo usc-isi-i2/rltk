@@ -4,9 +4,9 @@ from rltk.record import Record, generate_record_property_cache
 
 
 class Dataset(object):
-    def __init__(self, reader: Reader = None, record_class: Record = None, adapter: KeyValueAdapter = MemoryAdapter()):
+    def __init__(self, reader: Reader = None, record_class: Record = None, adapter: KeyValueAdapter = None):
         if not adapter:
-            raise ValueError('Error in given arguments.')
+            adapter = MemoryAdapter()
         self._adapter = adapter
 
         # build index
