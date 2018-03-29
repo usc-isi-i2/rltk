@@ -11,6 +11,8 @@ class InvertedIndexBlockGenerator(BlockGenerator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._tokenizer = self._kwargs.get('tokenizer')
+        self._tokenizer1 = self._kwargs.get('tokenizer1', self._tokenizer)
+        self._tokenizer2 = self._kwargs.get('tokenizer2', self._tokenizer)
         self._buffer_size = self._kwargs.get('buffer_size') or 10000
 
     def _generate_blocks(self):
@@ -22,7 +24,7 @@ class InvertedIndexBlockGenerator(BlockGenerator):
         # normal indices (id: tokens)
         ds1_temp_writer = BlockFileWriter(ds1_temp_filename, buffer_size=self._buffer_size)
         for r1 in self._dataset1:
-            tokens = self._tokenizer(r1)
+            tokens = self._tokenizer1(r1)
             for t in tokens:
                 ds1_temp_writer.write(r1.id, t)
         ds1_temp_writer.close()
@@ -30,7 +32,7 @@ class InvertedIndexBlockGenerator(BlockGenerator):
         # inverted indices (token: ids)
         ds2_temp_writer = BlockFileWriter(ds2_temp_filename, buffer_size=self._buffer_size)
         for r2 in self._dataset2:
-            tokens = self._tokenizer(r2)
+            tokens = self._tokenizer2(r2)
             for t in tokens:
                 ds2_temp_writer.write(t, r2.id)
         ds2_temp_writer.close()
