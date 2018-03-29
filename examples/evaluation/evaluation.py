@@ -1,8 +1,4 @@
 import rltk
-from rltk.evaluation.evaluation import Evaluation
-from rltk.evaluation.ground_truth import GroundTruth
-from rltk.evaluation.trial import Trial
-from rltk.similarity import *
 
 
 class EvaluationRecord(rltk.Record):
@@ -17,47 +13,72 @@ class EvaluationRecord(rltk.Record):
         return self.raw_object['data']
 
 
-gt = GroundTruth()
+class GroundTruthRecord(rltk.Record):
+    remove_raw_object = True
 
-ground_truth_list = [('0', '', '10', 'abc', False), ('1', 'abc', '11', 'abc', True), ('2', 'abcd', '12', 'abc', False),
-                     ('3', 'abd', '13', 'abc', False)]
+    @rltk.cached_property
+    def id(self):
+        return self.raw_object['id']
 
-for r1_id, r1_d, r2_id, r2_d, p in ground_truth_list:
-    raw_object = {'id': r1_id, 'data': r1_d}
+    @rltk.cached_property
+    def id1(self):
+        return self.raw_object['id1']
+
+    @rltk.cached_property
+    def id2(self):
+        return self.raw_object['id2']
+
+    @rltk.cached_property
+    def data1(self):
+        return self.raw_object['data1']
+
+    @rltk.cached_property
+    def data2(self):
+        return self.raw_object['data2']
+
+    @rltk.cached_property
+    def label(self):
+        return self.raw_object['label']
+
+
+gt = rltk.GroundTruth()
+
+grond_truth_file_name = 'ground_truth.csv'
+
+ds1 = rltk.Dataset(reader=rltk.CSVReader(grond_truth_file_name),
+                   record_class=GroundTruthRecord)
+
+for record in ds1:
+    raw_object = {'id': record.id1, 'data': record.data1}
     r1 = EvaluationRecord(raw_object)
-    raw_object = {'id': r2_id, 'data': r2_d}
+    raw_object = {'id': record.id2, 'data': record.data2}
     r2 = EvaluationRecord(raw_object)
-    gt.add_ground_truth(r1, r2, p)
+    gt.add_ground_truth(r1, r2, record.label)
 
-file_name = 'ground_truth.csv'
+saved_ground_truth_file_name = 'saved_ground_truth.csv'
 
-gt.save(file_name)
+gt.save(saved_ground_truth_file_name)
 
-gt1 = GroundTruth()
-gt1.load(file_name)
+gt1 = rltk.GroundTruth()
+gt1.load(saved_ground_truth_file_name)
 
-similarity_info = [('0', '', '10', 'abc'), ('1', 'abc', '11', 'abc'), ('2', 'abcd', '12', 'abc'),
-                   ('3', 'abd', '13', 'abc')]
-
-min_c = 0
-top_k = 0
 min_confidence = 0.5
 similarity_function = 'levenshtein_similarity'
 
-trial = Trial(gt, min_c, top_k)
+trial = rltk.Trial(gt, min_confidence=0.5, top_k=0)
 
-for r1_id, r1_d, r2_id, r2_d in similarity_info:
-    raw_object = {'id': r1_id, 'data': r1_d}
+for record in ds1:
+    raw_object = {'id': record.id1, 'data': record.data1}
     r1 = EvaluationRecord(raw_object)
-    raw_object = {'id': r2_id, 'data': r2_d}
+    raw_object = {'id': record.id2, 'data': record.data2}
     r2 = EvaluationRecord(raw_object)
 
-    func_info = similarity_function + '("' + r1_d + '","' + r2_d + '")'
+    func_info = "rltk." + similarity_function + '("' + record.data1 + '","' + record.data2 + '")'
     c = eval(func_info)
     p = (c >= min_confidence)
     trial.add_result(r1, r2, p, c)
 
-eva = Evaluation()
+eva = rltk.Evaluation()
 eva.add_trial(trial)
 
 print('true positive is: ' + str(eva.true_positives()))

@@ -7,11 +7,6 @@ from rltk.evaluation.ground_truth import GroundTruth
 
 class Trial(object):
     class TrialResult:
-        record1 = None
-        record2 = None
-        is_positive = None
-        confidence = 0
-
         def __init__(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None):
             self.record1 = record1
             self.record2 = record2
