@@ -1,3 +1,7 @@
+import os
+import time
+import tempfile
+
 from rltk.blocking import BlockGenerator
 from rltk.io.reader import BlockFileReader
 from rltk.io.writer import BlockFileWriter
@@ -11,9 +15,9 @@ class InvertedIndexBlockGenerator(BlockGenerator):
 
     def _generate_blocks(self):
 
-        blocks_filename = self._writer.get_handler()
-        ds1_temp_filename = blocks_filename + '.ds1.temp'
-        ds2_temp_filename = blocks_filename + '.ds2.temp'
+        temp_file_prefix = os.path.join(tempfile.gettempdir(), str(time.time()))
+        ds1_temp_filename = temp_file_prefix + '.ds1.temp'
+        ds2_temp_filename = temp_file_prefix + '.ds2.temp'
 
         # normal indices (id: tokens)
         ds1_temp_writer = BlockFileWriter(ds1_temp_filename, buffer_size=self._buffer_size)
