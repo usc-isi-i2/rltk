@@ -35,7 +35,6 @@ class cached_property(property):
 
 
 def remove_raw_object(cls):
-    print(cls, type(cls))
     cls.remove_raw_object = True
     return cls
 
