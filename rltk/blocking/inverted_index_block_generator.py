@@ -62,3 +62,6 @@ class InvertedIndexBlockGenerator(BlockGenerator):
                 if t in ds2_indices:
                     for id2 in ds2_indices[t]:
                         self._writer.write(id1, id2)
+
+        os.remove(ds1_temp_filename)
+        os.remove(ds2_temp_filename)
