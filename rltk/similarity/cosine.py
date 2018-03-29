@@ -5,7 +5,18 @@ import rltk.utils as utils
 
 def cosine_similarity(vec1, vec2):
     """
-    vec1 & vec2 should have same length and the type of element in vector should be int / float.
+    The cosine similarity between to vectors.
+
+    Args:
+        vec1 (list): Vector 1. List of integer or float.
+        vec2 (list): Vector 2. List of integer or float. It should have the same length to vec1.
+
+    Returns:
+        float: Cosine similarity.
+
+    Examples:
+        >>> rltk.cosine_similarity([1, 2, 1, 3], [2, 5, 2, 3])
+        0.91634193
     """
 
     utils.check_for_none(vec1, vec2)
@@ -23,6 +34,17 @@ def cosine_similarity(vec1, vec2):
 
 
 def string_cosine_similarity(bag1, bag2):
+    """
+    The similarity between the two strings is the cosine of the angle between these two vectors representation.
+
+    Args:
+        bag1 (list): Bag1, tokenized string sequence.
+        bag2 (list): Bag2, tokenized string sequence.
+
+    Returns:
+        float: Cosine similarity.
+    """
+
     utils.check_for_none(bag1, bag2)
     utils.check_for_type(list, bag1, bag2)
 

@@ -41,8 +41,24 @@ def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={
 
 
 def needleman_wunsch_similarity(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
+    """
+    This Needleman Wunsch Similarity is computed as needlman_wunsch_score over maximum score of s1 and s2.
+
+    Args:
+        s1 (str): Sequence 1.
+        s2 (str): Sequence 2.
+        match (int, optional): Score of match.
+        mismatch (int, optional): Score of mismatch.
+        gap (int, optional): Gap penalty.
+        score_dict (dict): Alignment score matrix. Default to None.
+
+    Returns:
+        float: Needleman Wunsch Similarity.
+    """
+
     nm = needleman_wunsch_score(s1, s2, match, mismatch, gap, score_table)
 
+    # score_table = {'a': {'c': 3}, 'e': {'f': 9, 'k': 1}}
     score_s1 = sum([_get_score(c1, c1, match, mismatch, score_table) for c1 in s1])
     score_s2 = sum([_get_score(c2, c2, match, mismatch, score_table) for c2 in s2])
 
