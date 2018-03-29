@@ -11,17 +11,17 @@ class Evaluation():
     def add_trial(self, trial: Trial):
         self.tp, self.tn, self.fp, self.fn = self.__statistics_trial(trial)
 
-    def precision(self, trial: Trial) -> float:
+    def precision(self) -> float:
         if self.tp + self.fp == 0:
             return 0
         return self.tp / (self.tp + self.fp)
 
-    def recall(self, trial: Trial) -> float:
+    def recall(self) -> float:
         if self.tp + self.fn == 0:
             return 0
         return self.tp / (self.tp + self.fn)
 
-    def f_measure(self, trial: Trial) -> float:
+    def f_measure(self) -> float:
         base = 2 * self.tp + self.fp + self.fn
         if base == 0:
             return 0
@@ -55,7 +55,7 @@ class Evaluation():
         ground_truth = trial.get_ground_truth()
 
         for trial_result in trial.get_all_data():
-            gt_val = ground_truth.is_positive(trial_result.record1, trial_result.record2)
+            gt_val = ground_truth.is_positive(trial_result.record1.id, trial_result.record2.id)
             cal_val = trial_result.is_positive
 
             if cal_val and gt_val:

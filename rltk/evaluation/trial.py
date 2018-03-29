@@ -27,7 +27,7 @@ class Trial(object):
         self.__data = []
 
     def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None) -> None:
-        if confidence >= self.__min_confidence and self.__ground_truth.is_member(record1, record2):
+        if confidence >= self.__min_confidence and self.__ground_truth.is_member(record1.id, record2.id):
             if self.__top_k == 0 or len(self.__data) < self.__top_k:
                 cur = self.TrialResult(record1, record2, is_positive, confidence)
                 heapq.heappush(self.__data, cur)

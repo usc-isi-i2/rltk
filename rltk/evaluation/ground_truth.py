@@ -1,6 +1,5 @@
 import json
 
-from rltk.record import Record
 from rltk.io.reader import GroundTruthReader
 from rltk.io.writer import GroundTruthWriter
 
@@ -14,31 +13,31 @@ class GroundTruth(object):
         self.__ground_trurh_data = {}
         pass
 
-    def add_positive(self, record1: Record, record2: Record):
-        self.add_ground_truth(record1, record2, True)
+    def add_positive(self, id1: str, id2: str):
+        self.add_ground_truth(id1, id2, True)
         pass
 
-    def add_negative(self, record1: Record, record2: Record):
-        self.add_ground_truth(record1, record2, False)
+    def add_negative(self, id1: str, id2: str):
+        self.add_ground_truth(id1, id2, False)
         pass
 
-    def add_ground_truth(self, record1: Record, record2: Record, value: bool):
-        key = self.gen_key(record1.id, record2.id)
+    def add_ground_truth(self, id1: str, id2: str, value: bool):
+        key = self.gen_key(id1, id2)
         self.__ground_trurh_data[key] = value
 
-    def is_member(self, record1: Record, record2: Record) -> bool:
-        key = self.gen_key(record1.id, record2.id)
+    def is_member(self, id1: str, id2: str) -> bool:
+        key = self.gen_key(id1, id2)
         return key in self.__ground_trurh_data
 
-    def is_positive(self, record1: Record, record2: Record) -> bool:
-        key = self.gen_key(record1.id, record2.id)
+    def is_positive(self, id1: str, id2: str) -> bool:
+        key = self.gen_key(id1, id2)
         if self.__is_member(key):
             return self.__ground_trurh_data[key]
         else:
             raise Exception("not a member")
 
-    def is_negative(self, record1: Record, record2: Record) -> bool:
-        key = self.gen_key(record1.id, record2.id)
+    def is_negative(self, id1: str, id2: str) -> bool:
+        key = self.gen_key(id1, id2)
         if self.__is_member(key):
             return not self.__ground_trurh_data[key]
         else:

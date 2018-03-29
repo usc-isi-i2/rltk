@@ -13,17 +13,12 @@ class EvaluationRecord(rltk.Record):
         return self.raw_object['data']
 
 
-
 saved_ground_truth_file_name = 'ground_truth.csv'
 gt = rltk.GroundTruth()
 gt.load(saved_ground_truth_file_name)
-gt.save(saved_ground_truth_file_name)
 
-min_confidence = 0.5
-similarity_function = 'levenshtein_similarity'
-
-trial = rltk.Trial(gt, min_confidence=0.5, top_k=0)
-
+gt.add_ground_truth('1', '12', True)
+gt.save('saved_' + saved_ground_truth_file_name)
 
 dataset_1_file_name = 'data_1.csv'
 dataset_2_file_name = 'data_2.csv'
@@ -33,15 +28,18 @@ ds1 = rltk.Dataset(reader=rltk.CSVReader(dataset_1_file_name),
 ds2 = rltk.Dataset(reader=rltk.CSVReader(dataset_2_file_name),
                    record_class=EvaluationRecord)
 
-
+trial = rltk.Trial(gt, min_confidence=0.5, top_k=0)
+min_confidence = 0.5
 pairs = rltk.get_record_pairs(ds1, ds2)
 for r1, r2 in pairs:
-    func_info = "rltk." + similarity_function + '("' + r1.data + '","' + r2.data + '")'
-    c = eval(func_info)
+    c = rltk.levenshtein_similarity(r1.data, r2.data)
     p = (c >= min_confidence)
     trial.add_result(r1, r2, p, c)
 
 eva = rltk.Evaluation()
 eva.add_trial(trial)
 
+
+print('precision is: ' + str(eva.precision()))
 print('true positive is: ' + str(eva.true_positives()))
+print('false negative is: ' + str(eva.false_negatives()))

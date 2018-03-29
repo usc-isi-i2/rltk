@@ -42,7 +42,7 @@ def do_test_trial(ground_truth_list, cal_result_list, min_c, top_k, tp, tn, fp, 
         r1 = TestRecord(raw_object)
         raw_object = {'id': r2_id, 'data': r2_d}
         r2 = TestRecord(raw_object)
-        gt.add_ground_truth(r1, r2, p)
+        gt.add_ground_truth(r1_id, r2_id, p)
 
     trial = Trial(gt, min_c, top_k)
     for r1_id, r1_d, r2_id, r2_d, p, c in cal_result_list:
@@ -77,7 +77,7 @@ def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
         r1 = TestRecord(raw_object)
         raw_object = {'id': r2_id, 'data': r2_d}
         r2 = TestRecord(raw_object)
-        gt.add_ground_truth(r1, r2, p)
+        gt.add_ground_truth(r1_id, r2_id, p)
 
     for similarity_function, min_confidence in similarity_info:
         trial = Trial(gt, min_c, top_k)
