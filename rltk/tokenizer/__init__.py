@@ -1,1 +1,1 @@
-from rltk.tokenizer.crf_tokenizer import CrfTokenizer
+from rltk.tokenizer.crf_tokenizer import CrfTokenizer, NGramTokenizer

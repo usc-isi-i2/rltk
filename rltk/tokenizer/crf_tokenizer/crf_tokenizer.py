@@ -357,7 +357,7 @@ result = t.tokenize(value).join(" ")
         return tokens
 
 
-class ngramTokenizer(CrfTokenizer):
+class NGramTokenizer(CrfTokenizer):
     place_holder = '#'
 
     def __init__(self):
@@ -366,7 +366,7 @@ class ngramTokenizer(CrfTokenizer):
         # self.ngrams = set()
 
     def transform(self, token_list):
-        self.token_string = ngramTokenizer.place_holder.join(token_list)
+        self.token_string = NGramTokenizer.place_holder.join(token_list)
 
     def basic(self, input_string, q):
         ngrams = set()
@@ -390,7 +390,7 @@ class ngramTokenizer(CrfTokenizer):
         ngrams = set()
         token_list = CrfTokenizer.tokenize(self, input_string)
         self.transform(token_list)
-        self.token_string = ngramTokenizer.place_holder * (q - 1) + self.token_string + ngramTokenizer.place_holder * (
+        self.token_string = NGramTokenizer.place_holder * (q - 1) + self.token_string + NGramTokenizer.place_holder * (
         q - 1)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
@@ -446,7 +446,7 @@ def main(argv=None):
     t.setRecognizeLinebreaks(True)
     print(t.tokenize("A line break goes here\n\r \rand a new line starts"))
 
-    nt = ngramTokenizer()
+    nt = NGramTokenizer()
     print('\nNGRAM tokeniser\n')
     print(nt.basic("Pablo Picasso Jr.", 2))
     print(nt.positional("Pablo Picasso Jr.", 2))
