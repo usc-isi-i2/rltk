@@ -4,3 +4,4 @@ from rltk.io import *
 from rltk.similarity import *
 from rltk.blocking import *
 from rltk.tokenizer import *
+from rltk.evaluation import *
