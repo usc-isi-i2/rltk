@@ -1,8 +1,8 @@
 import rltk
 
 
+@rltk.remove_raw_object
 class Record1(rltk.Record):
-    remove_raw_object = True
 
     @rltk.cached_property
     def id(self):
@@ -26,6 +26,7 @@ arr = [
     {'doc_id': '3', 'doc_value': 'c'}
 ]
 ds1 = rltk.Dataset(reader=rltk.ArrayReader(arr), record_class=Record1)
+print(ds1.__class__)
 for r1 in ds1:
     print('------------')
     print('id:', r1.id)

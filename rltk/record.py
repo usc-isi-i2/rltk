@@ -34,6 +34,12 @@ class cached_property(property):
         return value
 
 
+def remove_raw_object(cls):
+    print(cls, type(cls))
+    cls.remove_raw_object = True
+    return cls
+
+
 def generate_record_property_cache(obj):
     """
     run getattr() on cached_property decorated methods to generate cache
