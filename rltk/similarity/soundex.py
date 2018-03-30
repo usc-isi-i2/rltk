@@ -1,7 +1,7 @@
 import rltk.utils as utils
 
 
-def _soundex(s):
+def soundex(s):
     """
     The standard used for this implementation is provided by `U.S. Census Bureau <https://www.archives.gov/research/census/soundex.html>`_.
 
@@ -63,4 +63,14 @@ def _soundex(s):
 
 
 def soundex_similarity(s1, s2):
-    return 1 if _soundex(s1) == _soundex(s2) else 0
+    """
+    soundex(s1) == soundex(s2)
+    
+    Args:
+        s1 (str): Sequence.
+        s2 (str): Sequence.
+
+    Returns:
+        float: if soundex(s1) equals to soundex(s2)
+    """
+    return 1 if soundex(s1) == soundex(s2) else 0
