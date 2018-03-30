@@ -4,7 +4,19 @@ from rltk.record import Record, generate_record_property_cache
 
 
 class Dataset(object):
-    def __init__(self, reader: Reader = None, record_class: Record = None, adapter: KeyValueAdapter = None):
+    """
+    A set of records.
+    
+    Args:
+        reader (Reader, optional): Input reader.
+        record_class (type(Record), optional): Sub class of Record.
+        adapter (KeyValueAdapter, optional): Specify where to store indexed data. Defaults to MemoryAdapter.
+        
+    Note:
+        Set reader, record_class and adapter if new a Dataset needs to be generated.
+        If Dataset is already generated and stored in a permanent adapter, only adapter needs to be provided.
+    """
+    def __init__(self, reader: Reader = None, record_class: type(Record) = None, adapter: KeyValueAdapter = None):
         if not adapter:
             adapter = MemoryAdapter()
         self._adapter = adapter
@@ -25,6 +37,13 @@ class Dataset(object):
             self._adapter.set(record_instance.id, record_instance)
 
     def get_record(self, record_id):
+        """
+        Getter of a record.
+        Args:
+            record_id (str): Record id.
+        Returns:
+            Record: Record object.
+        """
         return self._adapter.get(record_id)
 
     def __iter__(self):
@@ -36,6 +55,13 @@ class Dataset(object):
 
 
 def get_record_pairs(dataset1: Dataset, dataset2: Dataset, block_reader: BlockReader = None):
+    """
+    Generate pairs to compare.
+    
+    Args:
+        dataset1 (Dataset): dataset 1
+        dataset2 (Dataset): dataset 2
+    """
     if not block_reader:
         for r1 in dataset1:
             for r2 in dataset2:
