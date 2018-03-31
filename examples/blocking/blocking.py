@@ -1,8 +1,8 @@
 import rltk
 
 
+@rltk.remove_raw_object
 class Record1(rltk.Record):
-    remove_raw_object = True
 
     @rltk.cached_property
     def id(self):
@@ -17,8 +17,8 @@ class Record1(rltk.Record):
         return self.raw_object['last name']
 
 
+@rltk.remove_raw_object
 class Record2(rltk.Record):
-    remove_raw_object = True
 
     @rltk.cached_property
     def id(self):
