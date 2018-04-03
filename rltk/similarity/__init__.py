@@ -14,6 +14,6 @@ from rltk.similarity.tf_idf import tf_idf_similarity, compute_idf, compute_tf, t
 from rltk.similarity.hybrid import hybrid_jaccard_similarity, monge_elkan_similarity, symmetric_monge_elkan_similarity
 
 # # phonetic
-from rltk.similarity.soundex import soundex_similarity
-from rltk.similarity.metaphone import metaphone_similarity
-from rltk.similarity.nysiis import nysiis_similarity
+from rltk.similarity.soundex import soundex_similarity, soundex
+from rltk.similarity.metaphone import metaphone_similarity, metaphone
+from rltk.similarity.nysiis import nysiis_similarity, nysiis

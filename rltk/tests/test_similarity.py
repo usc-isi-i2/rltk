@@ -5,11 +5,6 @@ import pytest
 # from ..similarity.tokenizer import q_grams
 from rltk.similarity import *
 
-# only test hash code for phonetic algorithms
-from rltk.similarity.nysiis import _nysiis
-from rltk.similarity.soundex import _soundex
-from rltk.similarity.metaphone import _metaphone
-
 
 @pytest.mark.parametrize('n1, n2, epsilon, equal', [
     (1, 2, 0, 0),
@@ -300,12 +295,12 @@ def test_monge_elkan_similarity(bag1, bag2, similarity):
 def test_soundex(s, code):
     if s is None:
         with pytest.raises(ValueError):
-            _soundex(s)
+            soundex(s)
     if isinstance(s, int):
         with pytest.raises(TypeError):
-            _soundex(s)
+            soundex(s)
     else:
-        assert _soundex(s) == code
+        assert soundex(s) == code
 
 
 @pytest.mark.parametrize('s, code', [
@@ -341,12 +336,12 @@ def test_soundex(s, code):
 def test_metaphone(s, code):
     if s is None:
         with pytest.raises(ValueError):
-            _metaphone(s)
+            metaphone(s)
     if isinstance(s, int):
         with pytest.raises(TypeError):
-            _metaphone(s)
+            metaphone(s)
     else:
-        assert _metaphone(s) == code
+        assert metaphone(s) == code
 
 
 @pytest.mark.parametrize('s, code', [
@@ -386,9 +381,9 @@ def test_metaphone(s, code):
 def test_nysiis(s, code):
     if s is None:
         with pytest.raises(ValueError):
-            _nysiis(s)
+            nysiis(s)
     if isinstance(s, int):
         with pytest.raises(TypeError):
-            _nysiis(s)
+            nysiis(s)
     else:
-        assert _nysiis(s) == code
+        assert nysiis(s) == code
