@@ -6,10 +6,12 @@ from rltk.record import Record
 
 
 class DBMAdapter(KeyValueAdapter):
-    def __init__(self, filename, dbm_class=dbm.ndbm, serializer:Serializer=PickleSerializer()):
+    def __init__(self, filename, dbm_class=dbm.ndbm, serializer: Serializer = None):
         """
         :dbm_class dbm, dbm.gnu, dbm.ndbm, dbm.dumb (same as dbm)
         """
+        if not serializer:
+            serializer = PickleSerializer()
         self._db = dbm_class.open(filename, 'c')
         self._serializer = serializer
 

@@ -1,3 +1,9 @@
+import re
+
+
+re_record_id = re.compile(r'^[^*]{1,255}$')
+
+
 class Record(object):
     """
     Record representation. Properties should be defined for further usage.
@@ -80,3 +86,5 @@ def validate_record(obj):
     """
     if not isinstance(obj.id, str):
         raise TypeError('Id in {} should be an utf-8 encoded string.'.format(obj.__class__.__name__))
+    if not re_record_id.match(obj.id):
+        raise ValueError('Id is not valid')
