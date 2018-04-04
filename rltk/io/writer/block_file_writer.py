@@ -10,12 +10,10 @@ class BlockFileWriter(BlockWriter):
         self._temp_filename = filename + '.temp'
         self._buffer_size = buffer_size
         self._dict = dict()
-        self._is_dirty = False
 
     def write(self, id1, id2):
         self._dict[id1] = self._dict.get(id1, set())
-        s = self._dict[id1].add(id2)
-        self._is_dirty = True
+        self._dict[id1].add(id2)
 
         if len(self._dict) >= self._buffer_size:
             self.flush()
@@ -25,7 +23,7 @@ class BlockFileWriter(BlockWriter):
         return self._filename
 
     def flush(self):
-        if not self._is_dirty:
+        if len(self._dict) == 0:
             return
 
         # create empty file if it's not there
@@ -57,7 +55,6 @@ class BlockFileWriter(BlockWriter):
         fp.close()
         temp_fp.close()
         self._dict = dict()
-        self._is_dirty = False
 
         # replace file
         os.remove(self._filename)
