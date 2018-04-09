@@ -5,16 +5,29 @@ from rltk.io.writer import BlockWriter
 
 
 class BlockFileWriter(BlockWriter):
-    def __init__(self, filename, buffer_size=10000):
+    def __init__(self, filename, buffer_size=10000, set_size=1000, index_blacklist:set=None):
         self._filename = filename
         self._temp_filename = filename + '.temp'
         self._buffer_size = buffer_size
         self._dict = dict()
+        self._set_size = set_size
+        self._blacklist = index_blacklist or set()
 
     def write(self, id1, id2):
+        # skip if id1 is in blacklist
+        if id1 in self._blacklist:
+            return
+
+        # add pairs
         self._dict[id1] = self._dict.get(id1, set())
         self._dict[id1].add(id2)
 
+        # update id1 to blacklist when reaching threshold and remove id1 in memory
+        if len(self._dict[id1]) > self._set_size:
+            self._blacklist.add(id1)
+            del self._dict[id1]
+
+        # flush when buffer is full
         if len(self._dict) >= self._buffer_size:
             self.flush()
 
@@ -42,9 +55,20 @@ class BlockFileWriter(BlockWriter):
             id1 = list(old_obj.keys())[0]
             id2s = old_obj[id1]
 
-            if id1 in self._dict.keys():
+            if id1 in self._blacklist:
+                continue
+
+            if id1 in self._dict:
                 id2s = self._dict[id1] | set(id2s)
                 del self._dict[id1]
+
+            if len(id2s) >= self._set_size:
+                self._blacklist.add(id1)
+                # remove from buffer
+                if id1 in self._dict:
+                    del self._dict[id1]
+                # remove from output
+                continue
 
             temp_fp.write(json.dumps({id1: list(id2s)}) + '\n')
 
