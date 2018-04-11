@@ -8,3 +8,4 @@ Sphinx>=1.5
 scipy>=0.19.0
 sphinx-autobuild>=0.6.0
 sphinxcontrib-napoleon>=0.6.0
+redis>=2.0.0
