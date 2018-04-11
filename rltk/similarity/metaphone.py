@@ -1,7 +1,7 @@
 import rltk.utils as utils
 
 
-def _metaphone(s):
+def metaphone(s):
     """
     Metaphone fundamentally improves on the Soundex algorithm by using information about variations and inconsistencies in English spelling and pronunciation to produce a more accurate encoding, which does a better job of matching words and names which sound similar. As with Soundex, similar-sounding words should share the same keys. Metaphone is available as a built-in operator in a number of systems.
 
@@ -141,4 +141,14 @@ def _metaphone(s):
 
 
 def metaphone_similarity(s1, s2):
-    return 1 if _metaphone(s1) == _metaphone(s2) else 0
+    """
+    metaphone(s1) == metaphone(s2)
+
+    Args:
+        s1 (str): Sequence.
+        s2 (str): Sequence.
+
+    Returns:
+        float: if metaphone(s1) equals to metaphone(s2)
+    """
+    return 1 if metaphone(s1) == metaphone(s2) else 0

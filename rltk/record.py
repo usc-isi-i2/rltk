@@ -1,4 +1,17 @@
+import re
+
+
+re_record_id = re.compile(r'^[^*]{1,255}$')
+
+
 class Record(object):
+    """
+    Record representation. Properties should be defined for further usage.
+    
+    Args:
+        raw_object (object): Raw data which will be used to create properties.
+    """
+
     remove_raw_object = False
 
     def __init__(self, raw_object):
@@ -6,11 +19,16 @@ class Record(object):
 
     @property
     def id(self):
-        """return has to be utf-8 string"""
+        """
+        Required property. Type has to be utf-8 string.
+        """
         raise NotImplementedError
 
 
 class cached_property(property):
+    """
+    If a Record property is decorated, the final value of it will be pre-calculated.
+    """
     def __init__(self, func):
         self.func = func
 
@@ -34,9 +52,20 @@ class cached_property(property):
         return value
 
 
+def remove_raw_object(cls):
+    """
+    If a Record class is decorated, raw_object will be removed once all mark properties are cached.
+    """
+    cls.remove_raw_object = True
+    return cls
+
+
 def generate_record_property_cache(obj):
     """
-    run getattr() on cached_property decorated methods to generate cache
+    Generate final value on all cached_property decorated methods.
+    
+    Args:
+        obj (Record): Record instance.
     """
     for prop_name, prop_type in obj.__class__.__dict__.items():
         if isinstance(prop_type, cached_property):
@@ -49,5 +78,13 @@ def generate_record_property_cache(obj):
 
 
 def validate_record(obj):
+    """
+    Property validator of record instance.
+    
+    Args:
+        obj (Record): Record instance.
+    """
     if not isinstance(obj.id, str):
         raise TypeError('Id in {} should be an utf-8 encoded string.'.format(obj.__class__.__name__))
+    if not re_record_id.match(obj.id):
+        raise ValueError('Id is not valid')

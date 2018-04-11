@@ -46,7 +46,7 @@ class GroundTruth(object):
     def load(self, filename):
         # this will overwrite the current self.ground_trurh
         for obj in GroundTruthReader(filename):
-            self.__ground_trurh_data[self.gen_key(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL]
+            self.__ground_trurh_data[self.gen_key(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL] == 'True'
 
     def save(self, filename):
         w = GroundTruthWriter(filename)

@@ -1,22 +1,21 @@
 import rltk.utils as utils
 
 
-def _nysiis(s):
+def nysiis(s):
     """
     New York State Immunization Information System (NYSIIS) Phonetic Code is a phonetic algorithm created by `The New York State Department of Health's (NYSDOH) Bureau of Immunization
     <https://www.health.ny.gov/prevention/immunization/information_system/>`_.
 
     Args:
-        s (str): Sequence.
+        s1 (str): Sequence 1.
+        s2 (str): Sequence 2.
 
     Returns:
-        str: Coded sequence.
+        int: 1 for same NYSIIS code, 0 for different.
 
     Examples:
-        >>> rltk.metaphone('ashcraft')
-        'AXKRFT'
-        >>> rltk.metaphone('pineapple')
-        'PNPL'
+        >>> rltk.nysiis_similarity('ashcraft', 'pineapple')
+        0
     """
     # code from https://github.com/jamesturk/jellyfish
     # Copyright (c) 2015, James Turk
@@ -115,4 +114,14 @@ def _nysiis(s):
 
 
 def nysiis_similarity(s1, s2):
-    return 1 if _nysiis(s1) == _nysiis(s2) else 0
+    """
+    nysiis(s1) == nysiis(s2)
+
+    Args:
+        s1 (str): Sequence.
+        s2 (str): Sequence.
+
+    Returns:
+        float: if nysiis(s1) equals to nysiis(s2)
+    """
+    return 1 if nysiis(s1) == nysiis(s2) else 0

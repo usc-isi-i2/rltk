@@ -17,9 +17,7 @@ class Evaluation():
         return self.tp / (self.tp + self.fp)
 
     def recall(self) -> float:
-        if self.tp + self.fn == 0:
-            return 0
-        return self.tp / (self.tp + self.fn)
+        return self.true_positives()
 
     def f_measure(self) -> float:
         base = 2 * self.tp + self.fp + self.fn
@@ -40,12 +38,17 @@ class Evaluation():
     def false_negatives(self) -> float:
         if (self.tp + self.fn) == 0:
             return 0
-        return self.fp / (self.tp + self.fn)
+        return self.fn / (self.tp + self.fn)
 
     def true_negatives(self) -> float:
         if (self.fp + self.tn) == 0:
             return 0
         return self.tn / (self.fp + self.tn)
+
+    def false_discovery(self):
+        if (self.fp + self.tp) == 0:
+            return 0
+        return self.fp / (self.fp + self.tp)
 
     def __statistics_trial(self, trial: Trial):
         fp = 0
