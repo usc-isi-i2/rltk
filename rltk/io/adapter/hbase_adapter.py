@@ -11,19 +11,17 @@ class HBaseAdapter(KeyValueAdapter):
             serializer = PickleSerializer()
         self._conn = happybase.Connection(host=host, **kwargs)
         self._serializer = serializer
-        self._key_prefix = key_prefix.encode('utf-8')
-        self._family_name = b'rltk'
-        self._col_name = b'obj'
-        self._fam_col_name = '{}:{}'.format(
-            self._family_name.decode('utf-8'), self._col_name.decode('utf-8')).encode('utf-8')
+        self._key_prefix = key_prefix
+        self._family_name = 'rltk'
+        self._col_name = 'obj'
+        self._fam_col_name = '{}:{}'.format(self._family_name, self._col_name).encode('utf-8')
 
         if table.encode('utf-8') not in self._conn.tables():
             self._create_table(table)
         self._table = self._conn.table(table)
 
     def _get_key(self, record_id):
-        return '{prefix}_{record_id}'.format(
-            prefix=self._key_prefix.decode('utf-8'), record_id=record_id).encode('utf-8')
+        return '{prefix}{record_id}'.format(prefix=self._key_prefix, record_id=record_id).encode('utf-8')
 
     def __del__(self):
         try:
@@ -44,5 +42,5 @@ class HBaseAdapter(KeyValueAdapter):
         return self.__next__()
 
     def __next__(self):
-        for key, data in self._table.scan(row_prefix=self._key_prefix):
+        for key, data in self._table.scan(row_prefix=self._key_prefix.encode('utf-8')):
             yield self._serializer.loads(data[self._fam_col_name])
