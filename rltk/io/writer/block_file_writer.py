@@ -1,11 +1,12 @@
 import json
 import os
+import sys
 
 from rltk.io.writer import BlockWriter
 
 
 class BlockFileWriter(BlockWriter):
-    def __init__(self, filename, buffer_size=10000, set_size=float('inf'), index_blacklist:set=None):
+    def __init__(self, filename, buffer_size=10000, set_size=sys.maxsize, index_blacklist:set=None):
         self._filename = filename
         self._temp_filename = filename + '.temp'
         self._buffer_size = buffer_size
