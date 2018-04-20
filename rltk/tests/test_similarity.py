@@ -169,6 +169,41 @@ def test_jaro_winkler(s1, s2, similarity):
         assert pytest.approx(jaro_winkler_similarity(s1, s2), 0.001) == similarity
 
 
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('', '', 0),
+    ('abc', '', 3),
+    ('bc', 'abc', 1),
+    ('fuor', 'four', 2),
+    ('abcd', 'acb', 3),
+    ('jellyifhs', 'jellyfish', 4),
+    ('ifhs', 'fish', 4),
+])
+def test_longest_common_subsequence_distance(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            longest_common_subsequence_distance(s1, s2)
+    else:
+        assert longest_common_subsequence_distance(s1, s2) == distance
+
+
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('', '', 1.0),
+    ("ABCDEFG", "ABCDEFHJKL", 0.4),
+    ('bc', 'abc', 0.33333333333333337),
+    ('fuor', 'four', 0.25),
+    ('abcd', 'acb', 0.5),
+    ('jellyifhs', 'jellyfish', 0.2222222222222222),
+    ('ifhs', 'fish', 0.5),
+    ('Hello, world!', u'Hello,Â world!', 0.0714285714285714),
+])
+def test_metric_longest_common_subsequence(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            metric_longest_common_subsequence(s1, s2)
+    else:
+        assert metric_longest_common_subsequence(s1, s2) == distance
+
+
 @pytest.mark.parametrize('vec1, vec2, similarity', [
     ([1, 2, 1, 3], [2, 5, 2, 3], 0.916),
     ([1, 2], [2, 3], 0.992)

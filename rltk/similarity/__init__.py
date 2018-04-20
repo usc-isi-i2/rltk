@@ -9,6 +9,7 @@ from rltk.similarity.jaro import jaro_winkler_distance, jaro_winkler_similarity,
 from rltk.similarity.jaccard import jaccard_index_similarity, jaccard_index_distance
 from rltk.similarity.cosine import cosine_similarity, string_cosine_similarity
 from rltk.similarity.tf_idf import tf_idf_similarity, compute_idf, compute_tf, tf_idf_similarity_by_dict
+from rltk.similarity.lcs import longest_common_subsequence_distance, metric_longest_common_subsequence
 
 # # hybrid
 from rltk.similarity.hybrid import hybrid_jaccard_similarity, monge_elkan_similarity, symmetric_monge_elkan_similarity
