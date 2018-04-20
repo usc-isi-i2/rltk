@@ -11,16 +11,17 @@ with open('requirements.txt', 'r') as f:
         if re:
             install_requires.append(re)
 
+packages = find_packages()
+
 setup(
     name='rltk',
     version=version,
-    packages=find_packages(),
+    packages=packages,
     url='https://github.com/usc-isi-i2/rltk',
     license='MIT',
     author='USC/ISI',
     author_email='',
     description='Record Linkage ToolKit',
-    package_data={'': ['LICENSE', 'VERSION', 'requirements.txt']},
     include_package_data=True,
     install_requires=install_requires
 )
