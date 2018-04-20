@@ -125,6 +125,23 @@ def test_damerau_levenshtein(s1, s2, distance):
         assert damerau_levenshtein_distance(s1, s2) == distance
 
 
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('', '', 0),
+    ('abc', '', 3),
+    ('bc', 'abc', 1),
+    ('fuor', 'four', 1),
+    ('abcd', 'acb', 2),
+    ('ca', 'abc', 3),
+    ('ifhs', 'fish', 2),
+])
+def test_optimal_string_alignment_distance(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            optimal_string_alignment_distance(s1, s2)
+    else:
+        assert optimal_string_alignment_distance(s1, s2) == distance
+
+
 @pytest.mark.parametrize('s1, s2, score', [
     ('John Singer Sargent', 'John S. Sargent', 25),
     ('John Singer Sargent', 'Jane Klinger Sargent', 28.5),
