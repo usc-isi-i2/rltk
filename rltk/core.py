@@ -830,6 +830,25 @@ class Core(object):
         """
         return damerau_levenshtein_distance(s1, s2)
 
+    def optimal_string_alignment_distance(self, s1, s2):
+        """
+        This is a variation of the Damerau-Levenshtein distance that returns the strings' edit distance taking into account deletion, insertion, substitution, and transposition, under the condition that no substring is edited more than once.
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: Optimal String Alignment Distance.
+
+        Examples:
+            >>> rltk.optimal_string_alignment_distance('abcd', 'acbd')
+            1
+            >>> rltk.optimal_string_alignment_distance('ca', 'abc')
+            3
+        """
+        return optimal_string_alignment_distance(s1, s2)    
+
     def needleman_wunsch_similarity(self, s1, s2, name=None, match=2, mismatch=-1, gap=-0.5):
         """
         This Needleman Wunsch Similarity is computed as needlman_wunsch_score over maximum score of s1 and s2.
@@ -1162,6 +1181,119 @@ class Core(object):
             0
         """
         return nysiis_similarity(s1, s2)
+
+    def longest_common_subsequence_distance(self, s1, s2):
+        """
+        The LCS distance between strings X (of length n) and Y (of length m) is n + m - 2 |LCS(X, Y)| min = 0 max = n + m
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: Longest Common Subsequence Distance.
+
+        Examples:
+            >>> rltk.longest_common_subsequence_distance('abcd', 'acbd')
+            2
+            >>> rltk.longest_common_subsequence_distance('abcdefg', 'acef')
+            3
+        """ 
+        return longest_common_subsequence_distance(s1, s2)
+
+    def metric_longest_common_subsequence(self, s1, s2):
+        """
+        The Metric LCS distance between 2 strings is similar to LCS between 2 string where Metric Longest Common Subsequence is computed as 1 - |LCS(s1, s2)| / max(|s1|, |s2|)
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: Metric Longest Common Subsequence Distance.
+
+        Examples:
+            >>> rltk.longest_common_subsequence('ABCDEFG', 'ABCDEFHJKL')
+            0.4
+            # LCS: ABCDEF => length = 6
+            # longest = s2 => length = 10
+            # => 1 - 6/10 = 0.4
+
+            >>> rltk.metric_longest_common_subsequence('ABDEF', 'ABDIF')
+            4
+            # LCS: ABDF => length = 4
+            # longest = ABDEF => length = 5
+            # => 1 - 4 / 5 = 0.2
+        """
+        return metric_longest_common_subsequence(s1, s2)
+
+    def ngram_distance(self, s1, s2, n=2):
+        """
+        N-Gram Distance as defined by Kondrak, "N-Gram Similarity and Distance" String Processing and Information Retrieval, Lecture Notes in Computer Science Volume 3772, 2005, pp 115-126.
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: NGram Distance.
+
+        Examples:
+            >>> rltk.ngram_distance('ABCD', 'ABTUIO')
+            0.5833
+        """
+        return ngram_distance(s1, s2, n)
+
+    def ngram_similarity(self, s1, s2, n=2):
+        """
+        N-Gram Similarity as defined by Kondrak, "N-Gram Similarity and Distance" String Processing and Information Retrieval, Lecture Notes in Computer Science Volume 3772, 2005, pp 115-126.
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: NGram Similarity.
+
+        Examples:
+            >>> rltk.ngram_similarity('ABCD', 'ABTUIO')
+            0.4166666666666667
+        """
+        return ngram_similarity(s1, s2, n)
+
+    def qgram_distance(self, s1, s2, n=2):
+        """
+        QGram Distance is the number of distinct q-grams (n-grams) between 2 strings
+        
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: QGram Distance.
+
+        Examples:
+            >>> rltk.qgram_distance('abcde','abdcde')
+            3
+        """
+        return qgram_distance(s1, s2, n)
+
+    def qgram_similarity(self, s1, s2, n=2):
+        """
+        QGram Similarity is the number of common q-grams (n-grams) between 2 strings
+        
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: QGram Similarity.
+
+        Examples:
+            >>> rltk.qgram_similarity('abcde','abdcde')
+            3
+        """
+        return qgram_similarity(s1, s2, n)    
 
     def q_gram_blocking(self, output_file_path, **kwargs):
         """

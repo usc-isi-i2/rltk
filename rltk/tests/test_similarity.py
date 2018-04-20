@@ -96,6 +96,22 @@ def test_damerau_levenshtein(s1, s2, distance):
     else:
         assert damerau_levenshtein_distance(s1, s2) == distance
 
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('', '', 0),
+    ('abc', '', 3),
+    ('bc', 'abc', 1),
+    ('fuor', 'four', 1),
+    ('abcd', 'acb', 2),
+    ('ca', 'abc', 3),
+    ('ifhs', 'fish', 2),
+])
+def test_optimal_string_alignment_distance(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            optimal_string_alignment_distance(s1, s2)
+    else:
+        assert optimal_string_alignment_distance(s1, s2) == distance
+
 @pytest.mark.parametrize('s1, s2, score', [
     ('John Singer Sargent', 'John S. Sargent', 25),
     ('John Singer Sargent', 'Jane Klinger Sargent', 28.5),
@@ -358,3 +374,110 @@ def test_nysiis(s, code):
             _nysiis(s)
     else:
         assert _nysiis(s) == code
+
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('', '', 0),
+    ('abc', '', 3),
+    ('bc', 'abc', 1),
+    ('fuor', 'four', 2),
+    ('abcd', 'acb', 3),
+    ('jellyifhs', 'jellyfish', 4),
+    ('ifhs', 'fish', 4),
+])
+def test_longest_common_subsequence_distance(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            longest_common_subsequence(s1, s2)
+    else:
+        assert longest_common_subsequence_distance(s1, s2) == distance
+
+@pytest.mark.parametrize('s1, s2, distance', [
+    ('', '', 1.0),
+    ("ABCDEFG", "ABCDEFHJKL", 0.4),
+    ('bc', 'abc', 0.33333333333333337),
+    ('fuor', 'four', 0.25),
+    ('abcd', 'acb', 0.5),
+    ('jellyifhs', 'jellyfish', 0.2222222222222222),
+    ('ifhs', 'fish', 0.5),
+    ('Hello, world!', u'Hello,Â world!', 0.0714285714285714),
+])
+def test_metric_longest_common_subsequence(s1, s2, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            metric_longest_common_subsequence(s1, s2)
+    else:
+        assert metric_longest_common_subsequence(s1, s2) == distance
+
+@pytest.mark.parametrize('s1, s2, n, distance', [
+    ('', '', 2, 1),
+    ('abcd', 'abcd', 2, 0),
+    ("ABCDEFG", "ABCDEFHJKL", 2, 0.35),
+    ('bc', 'abc', 2, 0.5),
+    ('fuor', 'four', 2, 0.5),
+    ('abcd', 'acb', 2, 0.5),
+    ('jellyifhs', 'jellyfish', 2, 0.3888888888888889),
+    ('ifhs', 'fish', 2, 0.875),
+    ('abcdef', 'abdcef', 3, 0.3333333333333333),
+])
+def test_ngram_distance(s1, s2, n, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            ngram_distance(s1, s2 ,n)
+    else:
+        assert ngram_distance(s1, s2 ,n) == distance
+
+
+@pytest.mark.parametrize('s1, s2, n, similarity', [
+    ('', '', 2, 0),
+    ('abcd', 'abcd', 2, 1),
+    ("ABCDEFG", "ABCDEFHJKL", 2, 0.65),
+    ('bc', 'abc', 2, 0.6666666666666666),
+    ('fuor', 'four', 2, 0.5),
+    ('abcd', 'acb', 2, 0.5),
+    ('jellyifhs', 'jellyfish', 2, 0.7222222222222222),
+    ('ifhs', 'fish', 2, 0.5),
+    ('abcdef', 'abdcef', 3, 0.6666666666666666),
+])
+def test_ngram_similarity(s1, s2, n, similarity):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            ngram_distance(s1, s2, n)
+    else:
+        assert ngram_similarity(s1, s2, n) == similarity
+
+@pytest.mark.parametrize('s1, s2, n, distance', [
+    ('', '', 2, 1),
+    ('abcd', 'abcd', 2, 0),
+    ("ABCDEFG", "ABCDEFHJKL", 2, 5),
+    ('bc', 'abc', 2, 1),
+    ('fuor', 'four', 2, 6),
+    ('abcd', 'acb', 2, 5),
+    ('jellyifhs', 'jellyfish', 2, 8),
+    ('ifhs', 'fish', 2, 6),
+    ('abcdef', 'abdcef', 3, 8),
+])
+def test_qgram_distance(s1, s2, n, distance):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            qgram_distance(s1, s2, n)
+    else:
+        assert qgram_distance(s1, s2, n) == distance
+
+
+@pytest.mark.parametrize('s1, s2, n, similarity', [
+    ('', '', 2, 0),
+    ('abcd', 'abcd', 2, 3),
+    ("ABCDEFG", "ABCDEFHJKL", 2, 5),
+    ('bc', 'abc', 2, 1),
+    ('fuor', 'four', 2, 0),
+    ('abcd', 'acb', 2, 0),
+    ('jellyifhs', 'jellyfish', 2, 4),
+    ('ifhs', 'fish', 2, 0),
+    ('abcdef', 'abdcef', 3, 0),
+])
+def test_qgram_similarity(s1, s2, n, similarity):
+    if s1 is None or s2 is None:
+        with pytest.raises(ValueError):
+            qgram_similarity(s1, s2, n)
+    else:
+        assert qgram_similarity(s1, s2, n) == similarity
