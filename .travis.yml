@@ -1,25 +1,16 @@
-#sudo: true
 language: python
 python:
-  - '3.6'
+- '3.6'
 install:
-#  - sudo apt-get update
-#  # We do this conditionally because it saves us some downloading if the
-#  # version is the same.
-#  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
-#  - bash miniconda.sh -b -p $HOME/miniconda
-#  - export PATH="$HOME/miniconda/bin:$PATH"
-#  - hash -r
-#  - conda config --set always_yes yes --set changeps1 no
-#  - conda update -q conda
-#  # Useful for debugging any issues with conda
-#  - conda info -a
-#  - conda-env create .
-#  - source activate rltk_env
-  - pip install -r requirements.txt
-
+- pip install -r requirements.txt
 script:
-  - pytest -v --color=yes
-
+- pytest -v --color=yes
 notifications:
   email: false
+deploy:
+- provider: pypi
+  user: usc_isi_i2_admin
+  password:
+    secure: "QFW8DmEdeLwifwrlB5+nhJdl5N2q3hZ7+clgfM5QWEdkPrPvpo+bGK0NtCMr2+hv5Bti8pFgjxTmvCUMfGh43z3Olz+KmGryaQkGkasU5VlvexszcyF62suxs6RM0uEJmcgxeMg7RXeP1vFnUBh1seR2gWW1mG8RQManC3vgfbOp88RT7IyJHDUoVHB9sTYMO7NSj7DXGUHiQbhCFI0oks9184UqFGf7ZnZnXicx/li9/zhei43Jhb5QIRiOYEtynLV8twbTcbuGnfCyk+PninyDkVocFll7GZDPSjw8ZB3QthV0BN2ZWjqukDQ9+kxeytePBo+2FOr2ZmqkO0GgBjG0uFfV35m46AQp4mGvrUOhee3x9drSpoZFgmyQtvAqAutN0MQY2gsZC1CN/ZV2Cd/nmE9WsnY194T1S5Z5/8UgakJ3Hl1ysXrzJOcxT2M6m6HHB+GcM5QWP/DQ8UkNyIhTV2M67yghRdo58644Et1wTxJMYYYbLM97z2BWtLTAx8CRptDSkRRn7AERj8Rgq/UH8jKzQUwAGY3pqVJWq9433sEFvAnM5J2mH9gIGnCo1v4nV2BArVXaNV4Zd7bEYQ/YqN4LYhgivauFXeVQrnXgbN+cmIXCN0EKPzh0Jt42kcugLCbmeGz2FfYWMOQfRFAqL5je0NJKG+xI3EGs8aA="
+  on:
+    tags: true
