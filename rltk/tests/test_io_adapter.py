@@ -1,5 +1,6 @@
 import os
 import pytest
+import redis
 
 from rltk.record import Record
 from rltk.io.adapter import *
@@ -42,16 +43,14 @@ def test_dbm_adapter():
 
 
 def test_redis_adapter():
-    adapter = None
-    # skip the test if redis service is not available
     try:
         adapter = RedisAdapter('127.0.0.1', key_format='test_{record_id}')
-    except:
-        return
+        adapter.set(record.id, record)
+        assert adapter.get(record.id).id == record.id
+        assert adapter.get(record.id).value == record.value
+        for r in adapter:
+            assert r.id == record.id
+            break
 
-    adapter.set(record.id, record)
-    assert adapter.get(record.id).id == record.id
-    assert adapter.get(record.id).value == record.value
-    for r in adapter:
-        assert r.id == record.id
-        break
+    except redis.exceptions.ConnectionError:
+        return

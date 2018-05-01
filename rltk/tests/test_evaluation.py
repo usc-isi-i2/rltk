@@ -7,7 +7,7 @@ from rltk.evaluation.evaluation import Evaluation
 from rltk.similarity import *
 
 
-class TestRecord(Record):
+class ConcreteRecord(Record):
     @property
     def id(self):
         return self.raw_object['id']
@@ -39,17 +39,17 @@ def do_test_trial(ground_truth_list, cal_result_list, min_c, top_k, tp, tn, fp, 
 
     for r1_id, r1_d, r2_id, r2_d, p in ground_truth_list:
         raw_object = {'id': r1_id, 'data': r1_d}
-        r1 = TestRecord(raw_object)
+        r1 = ConcreteRecord(raw_object)
         raw_object = {'id': r2_id, 'data': r2_d}
-        r2 = TestRecord(raw_object)
+        r2 = ConcreteRecord(raw_object)
         gt.add_ground_truth(r1_id, r2_id, p)
 
     trial = Trial(gt, min_c, top_k)
     for r1_id, r1_d, r2_id, r2_d, p, c in cal_result_list:
         raw_object = {'id': r1_id, 'data': r1_d}
-        r1 = TestRecord(raw_object)
+        r1 = ConcreteRecord(raw_object)
         raw_object = {'id': r2_id, 'data': r2_d}
-        r2 = TestRecord(raw_object)
+        r2 = ConcreteRecord(raw_object)
         trial.add_result(r1, r2, p, c)
 
     eva = Evaluation()
@@ -74,9 +74,9 @@ def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
 
     for r1_id, r1_d, r2_id, r2_d, p in ground_truth_list:
         raw_object = {'id': r1_id, 'data': r1_d}
-        r1 = TestRecord(raw_object)
+        r1 = ConcreteRecord(raw_object)
         raw_object = {'id': r2_id, 'data': r2_d}
-        r2 = TestRecord(raw_object)
+        r2 = ConcreteRecord(raw_object)
         gt.add_ground_truth(r1_id, r2_id, p)
 
     for similarity_function, min_confidence in similarity_info:
@@ -84,9 +84,9 @@ def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
 
         for r1_id, r1_d, r2_id, r2_d, c in ground_truth_list:
             raw_object = {'id': r1_id, 'data': r1_d}
-            r1 = TestRecord(raw_object)
+            r1 = ConcreteRecord(raw_object)
             raw_object = {'id': r2_id, 'data': r2_d}
-            r2 = TestRecord(raw_object)
+            r2 = ConcreteRecord(raw_object)
 
             func_info = similarity_function + '("' + r1_d + '","' + r2_d + '")'
             c = eval(func_info)

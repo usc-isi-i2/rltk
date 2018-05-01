@@ -161,3 +161,52 @@ def damerau_levenshtein_distance(s1, s2):
         char_arr[s1[i - 1]] = i
 
     return dp[n1 + 1][n2 + 1]
+
+
+def optimal_string_alignment_distance(s1, s2):
+        """
+        This is a variation of the Damerau-Levenshtein distance that returns the strings' edit distance
+        taking into account deletion, insertion, substitution, and transposition, under the condition
+        that no substring is edited more than once.
+
+        Args:
+            s1 (str): Sequence 1.
+            s2 (str): Sequence 2.
+
+        Returns:
+            float: Optimal String Alignment Distance.
+
+        Examples:
+            >>> rltk.optimal_string_alignment_distance('abcd', 'acbd')
+            1
+            >>> rltk.optimal_string_alignment_distance('ca', 'abc')
+            3
+        """
+
+        utils.check_for_none(s1, s2)
+        utils.check_for_type(str, s1, s2)
+
+        # s1 = utils.unicode_normalize(s1)
+        # s2 = utils.unicode_normalize(s2)
+
+        n1, n2 = len(s1), len(s2)
+
+        dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+
+        for i in range(0, n1 + 1):
+            dp[i][0] = i
+        for j in range(0, n2 + 1):
+            dp[0][j] = j
+
+        for i in range(1, n1 + 1):
+            for j in range(1, n2 + 1):
+                cost = 0 if s1[i - 1] == s2[j - 1] else 1
+
+                dp[i][j] = min(dp[i][j - 1] + 1,
+                               dp[i - 1][j] + 1,
+                               dp[i - 1][j - 1] + cost)
+
+                if (i > 1 and j > 1 and s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]):
+                    dp[i][j] = min(dp[i][j], dp[i - 2][j - 2] + cost)
+
+        return dp[n1][n2]

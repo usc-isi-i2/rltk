@@ -1,17 +1,22 @@
 import json
 import os
+import sys
 
 from rltk.io.writer import BlockWriter
 
 
 class BlockFileWriter(BlockWriter):
-    def __init__(self, filename, buffer_size=10000, set_size=1000, index_blacklist:set=None):
+    def __init__(self, filename, buffer_size=10000, set_size=sys.maxsize, index_blacklist:set=None):
         self._filename = filename
         self._temp_filename = filename + '.temp'
         self._buffer_size = buffer_size
-        self._dict = dict()
+        self._data_size_in_buffer = 0
+        self._dict = dict() # buffer
         self._set_size = set_size
         self._blacklist = index_blacklist or set()
+
+        # clean up output file
+        open(self._filename, 'w').close()
 
     def write(self, id1, id2):
         # skip if id1 is in blacklist
@@ -20,15 +25,18 @@ class BlockFileWriter(BlockWriter):
 
         # add pairs
         self._dict[id1] = self._dict.get(id1, set())
-        self._dict[id1].add(id2)
+        if id2 not in self._dict[id1]:
+            self._dict[id1].add(id2)
+            self._data_size_in_buffer += 1
 
         # update id1 to blacklist when reaching threshold and remove id1 in memory
         if len(self._dict[id1]) > self._set_size:
             self._blacklist.add(id1)
+            self._data_size_in_buffer -= len(self._dict[id1])
             del self._dict[id1]
 
         # flush when buffer is full
-        if len(self._dict) >= self._buffer_size:
+        if self._data_size_in_buffer >= self._buffer_size:
             self.flush()
 
     def get_handler(self):
@@ -36,12 +44,8 @@ class BlockFileWriter(BlockWriter):
         return self._filename
 
     def flush(self):
-        if len(self._dict) == 0:
+        if self._data_size_in_buffer == 0:
             return
-
-        # create empty file if it's not there
-        if not os.path.exists(self._filename):
-            open(self._filename, 'w').close()
 
         fp = open(self._filename, 'r')
         temp_fp = open(self._temp_filename, 'w')
@@ -79,6 +83,7 @@ class BlockFileWriter(BlockWriter):
         fp.close()
         temp_fp.close()
         self._dict = dict()
+        self._data_size_in_buffer = 0
 
         # replace file
         os.remove(self._filename)
