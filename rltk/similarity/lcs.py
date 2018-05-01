@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 import rltk.utils as utils
 
+=======
+from collections import defaultdict
+
+import rltk.utils as utils
+>>>>>>> usc-isi-i2/master
 
 def _lcs(s1, s2):
     m, n = len(s1), len(s2)
 
+<<<<<<< HEAD
     dp = [[None] * (n + 1) for i in range(m + 1)]
 
     for i in range(m + 1):
@@ -18,6 +25,21 @@ def _lcs(s1, s2):
     return dp[m][n]
 
 
+=======
+    dp = [[None]*(n+1) for i in xrange(m+1)]
+
+    for i in range(m+1):
+        for j in range(n+1):
+            if i == 0 or j == 0 :
+                dp[i][j] = 0
+            elif s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1]+1
+            else:
+                dp[i][j] = max(dp[i-1][j] , dp[i][j-1])
+
+    return dp[m][n]
+
+>>>>>>> usc-isi-i2/master
 def longest_common_subsequence_distance(s1, s2):
     """
     The LCS distance between strings X (of length n) and Y (of length m) is n + m - 2 |LCS(X, Y)| min = 0 max = n + m
@@ -34,6 +56,7 @@ def longest_common_subsequence_distance(s1, s2):
         2
         >>> rltk.longest_common_subsequence_distance('abcdefg', 'acef')
         3
+<<<<<<< HEAD
     """
     utils.check_for_none(s1, s2)
     utils.check_for_type(str, s1, s2)
@@ -45,6 +68,18 @@ def longest_common_subsequence_distance(s1, s2):
     lcs = _lcs(s1, s2)
     return n + m - 2 * lcs
 
+=======
+    """ 
+    utils.check_for_none(s1, s2)
+    utils.check_for_type(basestring, s1, s2)
+
+    m, n = len(s1), len(s2)
+
+    dp = [[None]*(n+1) for i in xrange(m+1)]
+
+    lcs = _lcs(s1, s2)
+    return n + m - 2*lcs
+>>>>>>> usc-isi-i2/master
 
 def metric_longest_common_subsequence(s1, s2):
     """
@@ -71,7 +106,14 @@ def metric_longest_common_subsequence(s1, s2):
         # => 1 - 4 / 5 = 0.2
     """
     utils.check_for_none(s1, s2)
+<<<<<<< HEAD
     utils.check_for_type(str, s1, s2)
 
     lcs = _lcs(s1, s2)
     return 1 - float(lcs) / max(len(s1), len(s2), 1)
+=======
+    utils.check_for_type(basestring, s1, s2)
+
+    lcs = _lcs(s1, s2)
+    return 1 - float(lcs)/max(len(s1),len(s2),1)
+>>>>>>> usc-isi-i2/master

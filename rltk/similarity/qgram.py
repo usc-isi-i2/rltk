@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import rltk.utils as utils
 
 
@@ -15,6 +16,25 @@ def qgram_distance(s0, s1, n=2):
     QGram Distance is the number of distinct q-grams (n-grams) between 2 strings
 
     Args:
+=======
+from collections import defaultdict
+
+import rltk.utils as utils
+
+def get_ngrams(s,n):
+	all_ngrams = list()
+	for i in range(len(s)-1):
+		if i+n<=len(s):
+			all_ngrams.append(s[i:i+n])
+
+	return set(all_ngrams)
+
+def qgram_distance(s0, s1, n=2):
+	"""
+	QGram Distance is the number of distinct q-grams (n-grams) between 2 strings
+	
+	Args:
+>>>>>>> usc-isi-i2/master
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
 
@@ -24,6 +44,7 @@ def qgram_distance(s0, s1, n=2):
     Examples:
         >>> rltk.qgram_distance('abcde','abdcde')
         3
+<<<<<<< HEAD
     """
     if n > max(len(s0), len(s1)):
         return 1
@@ -43,6 +64,26 @@ def qgram_similarity(s0, s1, n=2):
     QGram Similarity is the number of common q-grams (n-grams) between 2 strings
 
     Args:
+=======
+	"""
+	if n>max(len(s0), len(s1)):
+		return 1
+
+	s0_ngrams = get_ngrams(s0, n)
+	s1_ngrams = get_ngrams(s1, n)
+	all_ngrams = list(s0_ngrams | s1_ngrams)
+
+	v0 = [1 if all_ngrams[i] in s0 else 0 for i in range(len(all_ngrams))]
+	v1 = [1 if all_ngrams[i] in s1 else 0 for i in range(len(all_ngrams))]
+
+	return sum([1 if v0[i]!=v1[i] else 0  for i in range(len(v0))])
+
+def qgram_similarity(s0, s1, n=2):
+	"""
+	QGram Similarity is the number of common q-grams (n-grams) between 2 strings
+	
+	Args:
+>>>>>>> usc-isi-i2/master
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
 
@@ -54,6 +95,7 @@ def qgram_similarity(s0, s1, n=2):
         3
     """
 
+<<<<<<< HEAD
     if n > max(len(s0), len(s1)):
         return 0
 
@@ -65,3 +107,16 @@ def qgram_similarity(s0, s1, n=2):
     v1 = [1 if all_ngrams[i] in s1 else 0 for i in range(len(all_ngrams))]
 
     return sum([1 if v0[i] == v1[i] else 0 for i in range(len(v0))])
+=======
+	if n>max(len(s0), len(s1)):
+		return 0
+
+	s0_ngrams = get_ngrams(s0, n)
+	s1_ngrams = get_ngrams(s1, n)
+	all_ngrams = list(s0_ngrams | s1_ngrams)
+	
+	v0 = [1 if all_ngrams[i] in s0 else 0 for i in range(len(all_ngrams))]
+	v1 = [1 if all_ngrams[i] in s1 else 0 for i in range(len(all_ngrams))]
+
+	return sum([1 if v0[i]==v1[i] else 0  for i in range(len(v0))])	
+>>>>>>> usc-isi-i2/master

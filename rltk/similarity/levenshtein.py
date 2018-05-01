@@ -162,7 +162,10 @@ def damerau_levenshtein_distance(s1, s2):
 
     return dp[n1 + 1][n2 + 1]
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> usc-isi-i2/master
 def optimal_string_alignment_distance(s1, s2):
         """
         This is a variation of the Damerau-Levenshtein distance that returns the strings' edit distance
@@ -184,6 +187,7 @@ def optimal_string_alignment_distance(s1, s2):
         """
 
         utils.check_for_none(s1, s2)
+<<<<<<< HEAD
         utils.check_for_type(str, s1, s2)
 
         # s1 = utils.unicode_normalize(s1)
@@ -210,3 +214,31 @@ def optimal_string_alignment_distance(s1, s2):
                     dp[i][j] = min(dp[i][j], dp[i - 2][j - 2] + cost)
 
         return dp[n1][n2]
+=======
+        utils.check_for_type(basestring, s1, s2)
+
+        s1 = utils.unicode_normalize(s1)
+        s2 = utils.unicode_normalize(s2)
+
+        n1, n2 = len(s1), len(s2)
+
+        dp = [[0] * (n2 + 1) for _ in xrange(n1 + 1)]
+
+        for i in xrange(0, n1 + 1):
+            dp[i][0] = i
+        for j in xrange(0, n2 + 1):
+            dp[0][j] = j
+
+        for i in xrange(1, n1 + 1):
+            for j in xrange(1, n2 + 1):
+                cost = 0 if s1[i-1] == s2[j-1] else 1
+                
+                dp[i][j] = min(dp[i][j-1] + 1,
+                                       dp[i - 1][j] + 1,
+                                       dp[i - 1][j-1] + cost)
+        
+                if(i > 1 and j > 1 and s1[i-1] == s2[j-2] and s1[i-2] == s2[j-1]):
+                    dp[i][j] = min(dp[i][j], dp[i-2][j-2] + cost)            
+
+        return dp[n1][n2]    
+>>>>>>> usc-isi-i2/master
