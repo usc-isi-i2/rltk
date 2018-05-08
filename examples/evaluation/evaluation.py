@@ -42,19 +42,35 @@ ds2 = rltk.Dataset(reader=rltk.CSVReader(dataset_2_file_name),
 
 eva = rltk.Evaluation()
 
+
 for min_confidence_100 in range(0, 100):
-    min_confidence = min_confidence_100 / 100
+    threshold = min_confidence_100 / 100
+
     trial = rltk.Trial(gt, min_confidence=0.5, top_k=0, save_record=True, key_1='data', key_2='data2',
-                       label="min confidence is: " + str(min_confidence), parameter_x=min_confidence)
+                       label="min threshold is: " + str(threshold), threshold=threshold)
     pairs = rltk.get_record_pairs(ds1, ds2)
     for r1, r2 in pairs:
         c = rltk.levenshtein_similarity(r1.data, r2.data2)
-        p = (c >= min_confidence)
+        p = (c >= threshold)
         trial.add_result(r1, r2, p, c)
 
     trial.evaluate()
 
-    print('false positives of ' + str(min_confidence) + '(min_confidence) is: ' + str(trial.false_positives))
+    print('false positives of ' + str(threshold) + '(threshold) is: ' + str(trial.false_positives))
     eva.add_trial(trial)
 
-eva.draw('false_positives')
+coord = [
+    {
+        'x': 'threshold',
+        'y': 'false_positives',
+        'label': '123'
+    },
+
+    {
+        'x': 'threshold',
+        'y': 'true_positives',
+        'label': '456',
+        'linestyle': '--'
+    }
+]
+eva.plot(coord)

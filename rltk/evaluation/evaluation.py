@@ -17,20 +17,32 @@ class Evaluation(object):
             self.trial_list = []
         self.trial_list.append(trial)
 
-    def draw(self, parameter_y):
+    def plot(self, parameter_list):
+
         if self.trial_list == None:
             raise Exception("Empty Trial List, init it Firstly")
-        x = []
-        y = []
-        labels = []
-
-        for trial in self.trial_list:
-            if getattr(trial, parameter_y) == None:
-                raise Exception("Properity not exist")
-            x.append(trial.parameter_x)
-            y.append(getattr(trial, parameter_y))
-            labels.append(trial.label)
 
         plt.figure()
-        plt.plot(x, y)
+        for param in parameter_list:
+
+            x, y = [], []
+
+            x_key, y_key = param['x'], param['y']
+            print(x_key, y_key)
+
+            for trial in self.trial_list:
+                x.append(getattr(trial, x_key))
+                y.append(getattr(trial, y_key))
+
+            other_parameters = {}
+            for k in param.keys():
+                if k in ('x', 'y'):
+                    continue
+                other_parameters[k] = param[k]
+
+            print (other_parameters)
+            plt.plot(x, y, **other_parameters)
+
+        plt.legend(loc='upper right')
         plt.show()
+

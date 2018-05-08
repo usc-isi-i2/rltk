@@ -285,8 +285,8 @@ class Trial(object):
                 return tp, tn, fp, fn, [], [], [], []
         # def get_true_positive_list(self):
 
-    def __init__(self, groud_truth: GroundTruth, label: str, parameter_x: float, min_confidence: float = 0,
-                 top_k: int = 0, save_record: bool = False, key_1: str = None, key_2: str = None):
+    def __init__(self, groud_truth: GroundTruth, label: str, min_confidence: float = 0,
+                 top_k: int = 0, save_record: bool = False, key_1: str = None, key_2: str = None, **kwargs):
         '''
         init data.
 
@@ -301,7 +301,6 @@ class Trial(object):
         self.__ground_truth = groud_truth
         self.__min_confidence = min_confidence
         self.label = label
-        self.parameter_x = parameter_x
         self.__top_k = top_k
 
         self.__data = []
@@ -309,6 +308,7 @@ class Trial(object):
         self.key_1 = key_1
         self.key_2 = key_2
         self.evaluator = None
+        self.self_defined_key_values = kwargs
 
     def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None) -> None:
         '''
@@ -364,6 +364,9 @@ class Trial(object):
     def evaluate(self):
         self.evaluator = self.SelfEvaluation()
         self.evaluator.evaluate(self.__ground_truth, self.__data)
+
+    def __getattr__(self, key):
+        return self.self_defined_key_values[key]
 
     @cached_property
     def precision(self) -> float:
