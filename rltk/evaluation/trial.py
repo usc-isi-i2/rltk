@@ -1,7 +1,7 @@
 import json
 import heapq
 
-from rltk.record import Record
+from rltk.record import Record, cached_property
 from rltk.evaluation.ground_truth import GroundTruth
 
 
@@ -285,8 +285,8 @@ class Trial(object):
                 return tp, tn, fp, fn, [], [], [], []
         # def get_true_positive_list(self):
 
-    def __init__(self, groud_truth: GroundTruth, min_confidence: float = 0, top_k: int = 0, save_record: bool = False,
-                 key_1: str = None, key_2: str = None):
+    def __init__(self, groud_truth: GroundTruth, label: str, parameter_x: float, min_confidence: float = 0,
+                 top_k: int = 0, save_record: bool = False, key_1: str = None, key_2: str = None):
         '''
         init data.
 
@@ -300,6 +300,8 @@ class Trial(object):
         '''
         self.__ground_truth = groud_truth
         self.__min_confidence = min_confidence
+        self.label = label
+        self.parameter_x = parameter_x
         self.__top_k = top_k
 
         self.__data = []
@@ -359,10 +361,11 @@ class Trial(object):
         '''
         return self.__ground_truth
 
-    def evaluation(self):
+    def evaluate(self):
         self.evaluator = self.SelfEvaluation()
         self.evaluator.evaluate(self.__ground_truth, self.__data)
 
+    @cached_property
     def precision(self) -> float:
         '''
         Based on the mathematical formula:
@@ -375,6 +378,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.precision()
 
+    @cached_property
     def recall(self) -> float:
         '''
         return the true positive ratio
@@ -385,6 +389,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.recall()
 
+    @cached_property
     def f_measure(self) -> float:
         '''
         Based on the mathematical formula:
@@ -397,6 +402,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.f_measure()
 
+    @cached_property
     def false_positives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -409,6 +415,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.false_positives()
 
+    @cached_property
     def true_positives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -421,6 +428,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.true_positives()
 
+    @cached_property
     def false_negatives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -433,6 +441,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.false_negatives()
 
+    @cached_property
     def true_negatives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -445,6 +454,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.true_negatives()
 
+    @cached_property
     def false_discovery(self):
         '''
         Based on the mathematical formula:
