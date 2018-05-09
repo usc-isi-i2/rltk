@@ -3,7 +3,6 @@ import pytest
 from rltk.record import Record
 from rltk.evaluation.ground_truth import GroundTruth
 from rltk.evaluation.trial import Trial
-from rltk.evaluation.evaluation import Evaluation
 from rltk.similarity import *
 
 
@@ -14,7 +13,6 @@ class ConcreteRecord(Record):
 
     @property
     def data(self):
-        print('123', self.raw_object)
         return self.raw_object['data']
 
 
@@ -52,13 +50,12 @@ def do_test_trial(ground_truth_list, cal_result_list, min_c, top_k, tp, tn, fp, 
         r2 = ConcreteRecord(raw_object)
         trial.add_result(r1, r2, p, c)
 
-    eva = Evaluation()
-    eva.add_trial(trial)
+    trial.evaluate()
 
-    assert eva.true_positives() == tp
-    assert eva.true_negatives() == tn
-    assert eva.false_positives() == fp
-    assert eva.false_negatives() == fn
+    assert trial.true_positives == tp
+    assert trial.true_negatives == tn
+    assert trial.false_positives == fp
+    assert trial.false_negatives == fn
 
 
 @pytest.mark.parametrize('ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn', [
@@ -67,7 +64,7 @@ def do_test_trial(ground_truth_list, cal_result_list, min_c, top_k, tp, tn, fp, 
      0, 0, [('levenshtein_similarity', 0.9), ('string_equal', 0.5)], 1.0, 1.0, 0, 0),
     ([('0', '', '10', 'abc', False), ('1', 'abc', '11', 'abc', True), ('2', 'abcd', '12', 'abc', False),
       ('3', 'abd', '13', 'abc', False)],
-     0, 3, [('levenshtein_similarity', 0.9), ('string_equal', 0.5)], 1.0, 1.0, 0, 0)
+     0, 2, [('levenshtein_similarity', 0.9), ('string_equal', 0.5)], 1.0, 1.0, 0, 0)
 ])
 def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
     gt = GroundTruth()
@@ -80,8 +77,9 @@ def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
         gt.add_ground_truth(r1_id, r2_id, p)
 
     for similarity_function, min_confidence in similarity_info:
-        trial = Trial(gt, min_c, top_k)
+        trial = Trial(gt, min_confidence=min_c, top_k=top_k, key_1='id', key_2='id')
 
+        i = 0
         for r1_id, r1_d, r2_id, r2_d, c in ground_truth_list:
             raw_object = {'id': r1_id, 'data': r1_d}
             r1 = ConcreteRecord(raw_object)
@@ -93,10 +91,9 @@ def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
             p = (c >= min_confidence)
             trial.add_result(r1, r2, p, c)
 
-        eva = Evaluation()
-        eva.add_trial(trial)
+        trial.evaluate()
 
-        assert eva.true_positives() == tp
-        assert eva.true_negatives() == tn
-        assert eva.false_positives() == fp
-        assert eva.false_negatives() == fn
+        assert trial.true_positives == tp
+        assert trial.true_negatives == tn
+        assert trial.false_positives == fp
+        assert trial.false_negatives == fn
