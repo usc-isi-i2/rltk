@@ -133,7 +133,7 @@ class Trial(object):
                 precision (float)
             '''
             if self.tp + self.fp == 0:
-                return 0
+                return 0.0
             return self.tp / (self.tp + self.fp)
 
         def recall(self) -> float:
@@ -156,7 +156,7 @@ class Trial(object):
             '''
             base = 2 * self.tp + self.fp + self.fn
             if base == 0:
-                return 0
+                return 0.0
             return 2 * self.tp / base
 
         def false_positives(self) -> float:
@@ -169,7 +169,7 @@ class Trial(object):
                 false positive ratio (float)
             '''
             if (self.fp + self.tn) == 0:
-                return 0
+                return 0.0
             return self.fp / (self.fp + self.tn)
 
         def true_positives(self) -> float:
@@ -182,7 +182,7 @@ class Trial(object):
                 true positive ratio (float)
             '''
             if (self.tp + self.fn) == 0:
-                return 0
+                return 0.0
             return self.tp / (self.tp + self.fn)
 
         def false_negatives(self) -> float:
@@ -195,7 +195,7 @@ class Trial(object):
                 false negative ratio (float)
             '''
             if (self.tp + self.fn) == 0:
-                return 0
+                return 0.0
             return self.fn / (self.tp + self.fn)
 
         def true_negatives(self) -> float:
@@ -208,7 +208,7 @@ class Trial(object):
                 true negative ratio (float)
             '''
             if (self.fp + self.tn) == 0:
-                return 0
+                return 0.0
             return self.tn / (self.fp + self.tn)
 
         def false_discovery(self):
@@ -221,7 +221,7 @@ class Trial(object):
                 false discovery (float)
             '''
             if (self.fp + self.tp) == 0:
-                return 0
+                return 0.0
             return self.fp / (self.fp + self.tp)
 
         def __statistics_trial(self, ground_truth: GroundTruth, data: list):
@@ -285,7 +285,7 @@ class Trial(object):
                 return tp, tn, fp, fn, [], [], [], []
         # def get_true_positive_list(self):
 
-    def __init__(self, groud_truth: GroundTruth, label: str, min_confidence: float = 0,
+    def __init__(self, groud_truth: GroundTruth, label: str = '', min_confidence: float = 0,
                  top_k: int = 0, save_record: bool = False, key_1: str = None, key_2: str = None, **kwargs):
         '''
         init data.
@@ -298,12 +298,12 @@ class Trial(object):
             key_1 (String): the attribute in first record be compared.
             key_2 (String): the attribute in second record be compared.
         '''
-        self.__ground_truth = groud_truth
-        self.__min_confidence = min_confidence
+        self._ground_truth = groud_truth
+        self._min_confidence = min_confidence
         self.label = label
-        self.__top_k = top_k
+        self._top_k = top_k
 
-        self.__data = []
+        self._data = []  # trial results
         self.save_record = save_record
         self.key_1 = key_1
         self.key_2 = key_2
@@ -324,16 +324,16 @@ class Trial(object):
             is_positive (bool): the result of similarity function.
             confidence (float): = how much confidence the similarity function has on the result.
         '''
-        if confidence >= self.__min_confidence and self.__ground_truth.is_member(record1.id, record2.id):
-            if self.__top_k == 0 or len(self.__data) < self.__top_k:
+        if confidence >= self._min_confidence and self._ground_truth.is_member(record1.id, record2.id):
+            if self._top_k == 0 or len(self._data) < self._top_k:
                 cur = self.TrialResult(record1, record2, is_positive, confidence, self.save_record, self.key_1,
                                        self.key_2)
-                heapq.heappush(self.__data, cur)
-            elif confidence > self.__data[0].confidence:
-                heapq.heappop(self.__data)
+                heapq.heappush(self._data, cur)
+            elif confidence > self._data[0].confidence:
+                heapq.heappop(self._data)
                 cur = self.TrialResult(record1, record2, is_positive, confidence, self.save_record, self.key_1,
                                        self.key_2)
-                heapq.heappush(self.__data, cur)
+                heapq.heappush(self._data, cur)
 
     def add_positive(self, kwargs):
         """syntactic sugar"""
@@ -350,7 +350,7 @@ class Trial(object):
         Returns:
             data (list)
         '''
-        return self.__data
+        return self._data
 
     def get_ground_truth(self):
         '''
@@ -359,16 +359,16 @@ class Trial(object):
         Returns:
             ground_truth (GroundTruth)
         '''
-        return self.__ground_truth
+        return self._ground_truth
 
     def evaluate(self):
         self.evaluator = self.SelfEvaluation()
-        self.evaluator.evaluate(self.__ground_truth, self.__data)
+        self.evaluator.evaluate(self._ground_truth, self._data)
 
     def __getattr__(self, key):
         return self.self_defined_key_values[key]
 
-    @cached_property
+    @property
     def precision(self) -> float:
         '''
         Based on the mathematical formula:
@@ -381,7 +381,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.precision()
 
-    @cached_property
+    @property
     def recall(self) -> float:
         '''
         return the true positive ratio
@@ -392,7 +392,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.recall()
 
-    @cached_property
+    @property
     def f_measure(self) -> float:
         '''
         Based on the mathematical formula:
@@ -405,7 +405,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.f_measure()
 
-    @cached_property
+    @property
     def false_positives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -418,7 +418,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.false_positives()
 
-    @cached_property
+    @property
     def true_positives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -431,7 +431,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.true_positives()
 
-    @cached_property
+    @property
     def false_negatives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -444,7 +444,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.false_negatives()
 
-    @cached_property
+    @property
     def true_negatives(self) -> float:
         '''
         Based on the mathematical formula:
@@ -457,7 +457,7 @@ class Trial(object):
         self.checkEvaluatorInit()
         return self.evaluator.true_negatives()
 
-    @cached_property
+    @property
     def false_discovery(self):
         '''
         Based on the mathematical formula:
@@ -475,7 +475,7 @@ class Trial(object):
             raise Exception("Not evaluate, run evaluation function firstly")
 
     def __str__(self):
-        res = json.dump(self.__data)
+        res = json.dump(self._data)
         return res
 
     def __repr__(self):

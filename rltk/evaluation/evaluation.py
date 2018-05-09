@@ -1,11 +1,5 @@
-import json
-import heapq
-
 import matplotlib.pyplot as plt
-import numpy as np
 from rltk.evaluation.trial import Trial
-from rltk.record import Record, cached_property
-from rltk.evaluation.ground_truth import GroundTruth
 
 
 class Evaluation(object):
@@ -28,8 +22,6 @@ class Evaluation(object):
             x, y = [], []
 
             x_key, y_key = param['x'], param['y']
-            print(x_key, y_key)
-
             for trial in self.trial_list:
                 x.append(getattr(trial, x_key))
                 y.append(getattr(trial, y_key))
@@ -40,9 +32,7 @@ class Evaluation(object):
                     continue
                 other_parameters[k] = param[k]
 
-            print (other_parameters)
             plt.plot(x, y, **other_parameters)
 
         plt.legend(loc='upper right')
         plt.show()
-

@@ -46,7 +46,7 @@ eva = rltk.Evaluation()
 for min_confidence_100 in range(0, 100):
     threshold = min_confidence_100 / 100
 
-    trial = rltk.Trial(gt, min_confidence=0.5, top_k=0, save_record=True, key_1='data', key_2='data2',
+    trial = rltk.Trial(gt, min_confidence=0, top_k=0, save_record=True, key_1='data', key_2='data2',
                        label="min threshold is: " + str(threshold), threshold=threshold)
     pairs = rltk.get_record_pairs(ds1, ds2)
     for r1, r2 in pairs:
@@ -70,6 +70,13 @@ coord = [
         'x': 'threshold',
         'y': 'true_positives',
         'label': '456',
+        'linestyle': '--'
+    },
+
+    {
+        'x': 'recall',
+        'y': 'precision',
+        'label': 'pr',
         'linestyle': '--'
     }
 ]
