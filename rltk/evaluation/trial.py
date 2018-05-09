@@ -283,7 +283,7 @@ class Trial(object):
                         fn += 1
 
                 return tp, tn, fp, fn, [], [], [], []
-        # def get_true_positive_list(self):
+                # def get_true_positive_list(self):
 
     def __init__(self, groud_truth: GroundTruth, label: str = '', min_confidence: float = 0,
                  top_k: int = 0, save_record: bool = False, key_1: str = None, key_2: str = None, **kwargs):
@@ -378,7 +378,7 @@ class Trial(object):
         Returns:
             precision (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.precision()
 
     @property
@@ -389,7 +389,7 @@ class Trial(object):
         Returns:
             recall (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.recall()
 
     @property
@@ -402,7 +402,7 @@ class Trial(object):
         Returns:
             f_measure (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.f_measure()
 
     @property
@@ -415,7 +415,7 @@ class Trial(object):
         Returns:
             false positive ratio (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.false_positives()
 
     @property
@@ -428,7 +428,7 @@ class Trial(object):
         Returns:
             true positive ratio (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.true_positives()
 
     @property
@@ -441,7 +441,7 @@ class Trial(object):
         Returns:
             false negative ratio (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.false_negatives()
 
     @property
@@ -454,7 +454,7 @@ class Trial(object):
         Returns:
             true negative ratio (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.true_negatives()
 
     @property
@@ -467,12 +467,12 @@ class Trial(object):
         Returns:
             false discovery (float)
         '''
-        self.checkEvaluatorInit()
+        self.check_evaluator_init()
         return self.evaluator.false_discovery()
 
-    def checkEvaluatorInit(self):
-        if self.evaluator == None:
-            raise Exception("Not evaluate, run evaluation function firstly")
+    def check_evaluator_init(self):
+        if not self.evaluator:
+            raise Exception("Please run evaluate first")
 
     def __str__(self):
         res = json.dump(self._data)
@@ -480,6 +480,3 @@ class Trial(object):
 
     def __repr__(self):
         pass
-
-# print all saved data
-# get_record(tp, dataset_1, ds_@)
