@@ -460,7 +460,6 @@ Turtle Beach
 U-Line
 Ullo
 Ultimate Ears
-Universal Remote Control
 Urban Armor Gear
 Varad
 Vaughan-Bassett
@@ -546,3 +545,4 @@ Flip Video
 Boston Acoustics
 Twenty20
 Elgato
+Directed Electronics
