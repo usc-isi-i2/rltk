@@ -1,6 +1,7 @@
 from rltk.io.reader import Reader, BlockReader
 from rltk.io.adapter import KeyValueAdapter, MemoryAdapter
 from rltk.record import Record, generate_record_property_cache
+from rltk.evaluation import GroundTruth
 
 
 class Dataset(object):
@@ -61,7 +62,9 @@ class Dataset(object):
             yield r
 
 
-def get_record_pairs(dataset1: Dataset, dataset2: Dataset, block_reader: BlockReader = None):
+def get_record_pairs(dataset1: Dataset, dataset2: Dataset,
+                     block_reader: BlockReader = None,
+                     ground_truth: GroundTruth = None):
     """
     Generate pairs to compare.
     
@@ -69,10 +72,13 @@ def get_record_pairs(dataset1: Dataset, dataset2: Dataset, block_reader: BlockRe
         dataset1 (Dataset): dataset 1
         dataset2 (Dataset): dataset 2
     """
-    if not block_reader:
+    if block_reader:
+        for id1, id2 in block_reader:
+            yield dataset1.get_record(id1), dataset2.get_record(id2)
+    elif ground_truth:
+        for id1, id2, label in ground_truth:
+            yield dataset1.get_record(id1), dataset2.get_record(id2)
+    else:
         for r1 in dataset1:
             for r2 in dataset2:
                 yield r1, r2
-    else:
-        for id1, id2 in block_reader:
-            yield dataset1.get_record(id1), dataset2.get_record(id2)
