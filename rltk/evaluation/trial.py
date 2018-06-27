@@ -310,7 +310,7 @@ class Trial(object):
         self.evaluator = None
         self.self_defined_key_values = kwargs
 
-    def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None) -> None:
+    def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = 1) -> None:
         '''
         Add one pair record comparison result.
         If confidence is less than min_confidence, it will skip.

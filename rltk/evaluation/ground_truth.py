@@ -67,6 +67,10 @@ class GroundTruth(object):
         key = self.encode_ids(id1, id2)
         return key in self.__ground_trurh_data
 
+    def get_label(self, id1: str, id2: str) -> bool:
+        key = self.encode_ids(id1, id2)
+        return self.__ground_trurh_data.get(key)
+
     def is_positive(self, id1: str, id2: str) -> bool:
         '''
         if ground truth does not contain the item, raise a exception
