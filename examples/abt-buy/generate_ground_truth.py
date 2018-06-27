@@ -36,9 +36,9 @@ result.sort(key=lambda v: v[1], reverse=True)
 size = len(result)
 for i in range(10):
     min_idx = int(size / 10) * i
-    # max_idx = int(size / 10) * (i + 1) - 1
-    max_idx = min_idx + 20
-    selected = result[min_idx:max_idx]
+    max_idx = int(size / 10) * (i + 1) - 1
+    # max_idx = min_idx + 20
+    selected = random.sample(result[min_idx:max_idx], 20)
     for r in selected:
         id_abt, id_buy = r[0].split(',')
         gt.add_negative(id_abt, id_buy)
