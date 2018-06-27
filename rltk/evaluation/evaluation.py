@@ -12,6 +12,18 @@ class Evaluation(object):
         self.trial_list.append(trial)
 
     def plot(self, parameter_list):
+        """
+        Args:
+            parameter_list (list): list of object
+                ```
+                {
+                    'x': 'name of a property in Trial',
+                    'y': 'name of a property in Trial',
+                    'label': 'label name',
+                    ...
+                }
+                ```
+        """
 
         if len(self.trial_list) == 0:
             raise Exception("Empty trial list")
