@@ -50,7 +50,7 @@ class GroundTruth(object):
             id2 (String): second id
             value (bool): ground truth value
         '''
-        key = self.gen_key(id1, id2)
+        key = self.encode_ids(id1, id2)
         self.__ground_trurh_data[key] = value
 
     def is_member(self, id1: str, id2: str) -> bool:
@@ -64,7 +64,7 @@ class GroundTruth(object):
         Returns:
             is_member (bool)
         '''
-        key = self.gen_key(id1, id2)
+        key = self.encode_ids(id1, id2)
         return key in self.__ground_trurh_data
 
     def is_positive(self, id1: str, id2: str) -> bool:
@@ -79,7 +79,7 @@ class GroundTruth(object):
         Returns:
             is_positive (bool)
         '''
-        key = self.gen_key(id1, id2)
+        key = self.encode_ids(id1, id2)
         if self.__is_member(key):
             return self.__ground_trurh_data[key]
         else:
@@ -97,7 +97,7 @@ class GroundTruth(object):
         Returns:
             is_positive (bool)
         '''
-        key = self.gen_key(id1, id2)
+        key = self.encode_ids(id1, id2)
         if self.__is_member(key):
             return not self.__ground_trurh_data[key]
         else:
@@ -113,7 +113,7 @@ class GroundTruth(object):
         '''
         self.__init__()
         for obj in GroundTruthReader(filename):
-            self.__ground_trurh_data[self.gen_key(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL] == 'True'
+            self.__ground_trurh_data[self.encode_ids(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL] == 'True'
 
     def save(self, filename):
         '''
@@ -128,7 +128,7 @@ class GroundTruth(object):
             w.write(ids[self.ID1], ids[self.ID2], v)
         w.close()
 
-    def gen_key(self, id1: str, id2: str):
+    def encode_ids(self, id1: str, id2: str):
         '''
         combine id1 and id2 and gen the key to save in dict.
 
@@ -142,6 +142,10 @@ class GroundTruth(object):
         key = json.dumps({self.ID1: id1, self.ID2: id2})
         return key
 
+    def decode_ids(self, key: str):
+        obj = json.loads(key)
+        return obj[self.ID1], obj[self.ID2]
+
     def __is_member(self, key: str) -> bool:
         '''
         check whether the key exist in ground truth dict.
@@ -153,3 +157,11 @@ class GroundTruth(object):
             is_member (bool)
         '''
         return key in self.__ground_trurh_data
+
+    def __iter__(self):
+        return self.__next__()
+
+    def __next__(self):
+        for k, v in self.__ground_trurh_data.items():
+            id1, id2 = self.decode_ids(k)
+            yield id1, id2, v
