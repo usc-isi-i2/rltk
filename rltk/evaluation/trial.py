@@ -1,7 +1,7 @@
 import json
 import heapq
 
-from rltk.record import Record, cached_property
+from rltk.record import Record
 from rltk.evaluation.ground_truth import GroundTruth
 
 
@@ -20,8 +20,6 @@ class Trial(object):
         min_confidence (float): if the result has lower confidence than min confidence, it will not be saved. min_confidence = 0 means all result will be saved.
         top_k (int): the max number of result to be saved. top_k = 0 means all result will be saved.
         save_record (bool): whether to save the record data.
-        key_1 (String): the attribute in first record be compared.
-        key_2 (String): the attribute in second record be compared.
     """
 
     class Result:
@@ -35,13 +33,9 @@ class Trial(object):
             record2 (Record): second record
             is_positive (bool): the result. true means 2 record are same, false means they are different
             confidence (float): how much confidence the similarity function has on the result
-            save_record (bool): whether to save the record data
-            key_1 (String): the attribute in first record be compared
-            key_2 (String): the attribute in second record be compared
         """
 
-        def __init__(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None,
-                     save_record: bool = False, key_1: str = None, key_2: str = None):
+        def __init__(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None):
             """
             init all information.
             Attributes:
@@ -49,21 +43,11 @@ class Trial(object):
                 record2 (Record): second record
                 is_positive (bool): the result. true means 2 record are same, false means they are different
                 confidence (float): how much confidence the similarity function has on the result
-                save_record (bool): whether to save the record data
-                key_1 (String): the attribute in first record be compared
-                key_2 (String): the attribute in second record be compared
             """
             self.record1 = record1
             self.record2 = record2
             self.is_positive = is_positive
             self.confidence = confidence
-
-            if save_record:
-                self.data1 = getattr(record1, key_1)
-                self.data2 = getattr(record2, key_2)
-            else:
-                self.data1 = None
-                self.data2 = None
 
         def __cmp__(self, other):
             return self.confidence < other.confidence
@@ -103,11 +87,15 @@ class Trial(object):
             Args:
                 save_record (boolean): Whether save the record of data. Defaults to False.
             """
+            self.save_record = save_record
+            self._reset()
+
+        def _reset(self):
+
             self.tp = 0
             self.tn = 0
             self.fp = 0
             self.fn = 0
-            self.save_record = save_record
 
             self.tp_list = []
             self.tn_list = []
@@ -115,23 +103,7 @@ class Trial(object):
             self.fn_list = []
 
         def evaluate(self, ground_truth: GroundTruth, data: list):
-            """
-            Based on the trial and the ground truth (stored in trial), do statistics analysis.
-            Save the statistics to the Class Args.
-
-            Args:
-                trial (Trial): the Trial to be analysis
-            """
-
-            self.tp = 0
-            self.tn = 0
-            self.fp = 0
-            self.fn = 0
-
-            self.tp_list = []
-            self.tn_list = []
-            self.fp_list = []
-            self.fn_list = []
+            self._reset()
 
             for trial_result in data:
                 gt_positive = ground_truth.is_positive(trial_result.record1.id, trial_result.record2.id)
@@ -255,28 +227,26 @@ class Trial(object):
                 return 0.0
             return self.fp / (self.fp + self.tp)
             
-    def __init__(self, groud_truth: GroundTruth, label: str = '', min_confidence: float = 0,
-                 top_k: int = 0, save_record: bool = False, key_1: str = None, key_2: str = None, **kwargs):
+    def __init__(self, ground_truth: GroundTruth, label: str = '', min_confidence: float = 0,
+                 top_k: int = 0, save_record: bool = False, **kwargs):
         """
         init data.
 
         Attributes:
-            groud_truth (GroundTruth): whether to save the record data.
+            ground_truth (GroundTruth): whether to save the record data.
             min_confidence (float): if the result has lower confidence than min confidence, it will not be saved.
             top_k (int): the max number of result to be saved.
             save_record (bool): whether to save the record data.
             key_1 (String): the attribute in first record be compared.
             key_2 (String): the attribute in second record be compared.
         """
-        self._ground_truth = groud_truth
+        self._ground_truth = ground_truth
         self._min_confidence = min_confidence
         self.label = label
         self._top_k = top_k
 
-        self._data = []  # trial results
+        self._results = []
         self.save_record = save_record
-        self.key_1 = key_1
-        self.key_2 = key_2
         self.evaluator = None
         self.self_defined_key_values = kwargs
 
@@ -295,15 +265,13 @@ class Trial(object):
             confidence (float): = how much confidence the similarity function has on the result.
         """
         if confidence >= self._min_confidence and self._ground_truth.is_member(record1.id, record2.id):
-            if self._top_k == 0 or len(self._data) < self._top_k:
-                cur = self.Result(record1, record2, is_positive, confidence, 
-                                       self.save_record, self.key_1, self.key_2)
-                heapq.heappush(self._data, cur)
-            elif confidence > self._data[0].confidence:
-                heapq.heappop(self._data)
-                cur = self.Result(record1, record2, is_positive, confidence, 
-                                       self.save_record, self.key_1, self.key_2)
-                heapq.heappush(self._data, cur)
+            if self._top_k == 0 or len(self._results) < self._top_k:
+                cur = self.Result(record1, record2, is_positive, confidence)
+                heapq.heappush(self._results, cur)
+            elif confidence > self._results[0].confidence:
+                heapq.heappop(self._results)
+                cur = self.Result(record1, record2, is_positive, confidence)
+                heapq.heappush(self._results, cur)
 
     def add_positive(self, kwargs):
         """syntactic sugar"""
@@ -320,7 +288,7 @@ class Trial(object):
         Returns:
             data (list)
         """
-        return self._data
+        return self._results
 
     def get_ground_truth(self):
         """
@@ -332,8 +300,8 @@ class Trial(object):
         return self._ground_truth
 
     def evaluate(self):
-        self.evaluator = self.Evaluator()
-        self.evaluator.evaluate(self._ground_truth, self._data)
+        self.evaluator = self.Evaluator(self.save_record)
+        self.evaluator.evaluate(self._ground_truth, self._results)
 
     def __getattr__(self, key):
         return self.self_defined_key_values[key]
@@ -444,9 +412,22 @@ class Trial(object):
         if not self.evaluator:
             raise Exception("Please run evaluate first")
 
-    def __str__(self):
-        res = json.dump(self._data)
-        return res
+    @property
+    def true_positives_list(self):
+        self.check_evaluator_init()
+        return self.evaluator.tp_list
 
-    def __repr__(self):
-        pass
+    @property
+    def true_negatives_list(self):
+        self.check_evaluator_init()
+        return self.evaluator.tn_list
+
+    @property
+    def false_positives_list(self):
+        self.check_evaluator_init()
+        return self.evaluator.fp_list
+
+    @property
+    def false_negatives_list(self):
+        self.check_evaluator_init()
+        return self.evaluator.fn_list
