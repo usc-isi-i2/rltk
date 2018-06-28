@@ -77,7 +77,7 @@ def test_lvl(ground_truth_list, min_c, top_k, similarity_info, tp, tn, fp, fn):
         gt.add_ground_truth(r1_id, r2_id, p)
 
     for similarity_function, min_confidence in similarity_info:
-        trial = Trial(gt, min_confidence=min_c, top_k=top_k, key_1='id', key_2='id')
+        trial = Trial(gt, min_confidence=min_c, top_k=top_k)
 
         i = 0
         for r1_id, r1_d, r2_id, r2_d, c in ground_truth_list:
