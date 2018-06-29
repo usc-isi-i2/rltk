@@ -25,7 +25,9 @@ arr = [
     {'doc_id': '2', 'doc_value': 'b'},
     {'doc_id': '3', 'doc_value': 'c'}
 ]
-ds1 = rltk.Dataset(reader=rltk.ArrayReader(arr), record_class=Record1)
+# adapter = rltk.RedisAdapter(host='127.0.0.1', key_format='cached_{record_id}')
+adapter = rltk.HBaseAdapter(host='127.0.0.1', key_prefix='test_', table='rltk_test1')
+ds1 = rltk.Dataset(reader=rltk.ArrayReader(arr), record_class=Record1, adapter=adapter)
 for r1 in ds1:
     print('------------')
     print('id:', r1.id)
