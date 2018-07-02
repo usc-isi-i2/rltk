@@ -1,5 +1,6 @@
 import json
 import heapq
+import random
 from typing import Callable
 
 from rltk.utils import get_record_pairs
@@ -175,3 +176,22 @@ class GroundTruth(object):
         for d in max_heap:
             r1_id, r2_id = d[1], d[2]
             self.add_negative(r1_id, r2_id)
+
+    def train_test_split(self, test_ratio: float = 0.2, random_seed: int = None):
+        size = len(self)
+        test_size = int(size * test_ratio)
+        if random_seed:
+            random.seed(random_seed)
+
+        indices = [i for i in range(size)]
+        random.shuffle(indices)
+        test_indices = set(indices[:test_size])
+
+        train_gt, test_gt = GroundTruth(), GroundTruth()
+        for idx, (id1, id2, label) in enumerate(self):
+            if idx in test_indices:
+                test_gt.add_ground_truth(id1, id2, label)
+            else:
+                train_gt.add_ground_truth(id1, id2, label)
+
+        return train_gt, test_gt
