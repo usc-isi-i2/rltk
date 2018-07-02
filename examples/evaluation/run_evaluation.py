@@ -1,42 +1,11 @@
-import rltk
-
-
-@rltk.remove_raw_object
-class EvaluationRecord(rltk.Record):
-    @rltk.cached_property
-    def id(self):
-        return self.raw_object['id']
-
-    @rltk.cached_property
-    def data(self):
-        return self.raw_object['data']
-
-
-@rltk.remove_raw_object
-class EvaluationRecord2(rltk.Record):
-    @rltk.cached_property
-    def id(self):
-        return self.raw_object['id']
-
-    @rltk.cached_property
-    def data2(self):
-        return self.raw_object['data2']
-
+from construct_datasets import *
 
 saved_ground_truth_file_name = 'ground_truth.csv'
 gt = rltk.GroundTruth()
 gt.load(saved_ground_truth_file_name)
 
-gt.add_ground_truth('1', '12', True)
+gt.add_ground_truth('0', '14', True)
 gt.save('saved_' + saved_ground_truth_file_name)
-
-dataset_1_file_name = 'data_1.csv'
-dataset_2_file_name = 'data_2.csv'
-
-ds1 = rltk.Dataset(reader=rltk.CSVReader(dataset_1_file_name),
-                   record_class=EvaluationRecord)
-ds2 = rltk.Dataset(reader=rltk.CSVReader(dataset_2_file_name),
-                   record_class=EvaluationRecord2)
 
 eva = rltk.Evaluation()
 
