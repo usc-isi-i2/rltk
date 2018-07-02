@@ -1,7 +1,14 @@
 import json
+import heapq
+from typing import Callable
 
+from rltk.utils import get_record_pairs
 from rltk.io.reader import GroundTruthReader
 from rltk.io.writer import GroundTruthWriter
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from rltk.dataset import Dataset
 
 
 class GroundTruth(object):
@@ -16,8 +23,7 @@ class GroundTruth(object):
     LABEL = 'label'
 
     def __init__(self):
-        self._ground_trurh_data = {}
-        
+        self._ground_truth_data = {}
 
     def add_positive(self, id1: str, id2: str):
         """
@@ -49,7 +55,7 @@ class GroundTruth(object):
             value (bool): ground truth value
         """
         key = self.encode_ids(id1, id2)
-        self._ground_trurh_data[key] = value
+        self._ground_truth_data[key] = value
 
     def is_member(self, id1: str, id2: str) -> bool:
         """
@@ -63,11 +69,11 @@ class GroundTruth(object):
             is_member (bool)
         """
         key = self.encode_ids(id1, id2)
-        return key in self._ground_trurh_data
+        return key in self._ground_truth_data
 
     def get_label(self, id1: str, id2: str) -> bool:
         key = self.encode_ids(id1, id2)
-        return self._ground_trurh_data.get(key)
+        return self._ground_truth_data.get(key)
 
     def is_positive(self, id1: str, id2: str) -> bool:
         """
@@ -111,7 +117,7 @@ class GroundTruth(object):
         """
         self.__init__()
         for obj in GroundTruthReader(filename):
-            self._ground_trurh_data[self.encode_ids(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL] == 'True'
+            self._ground_truth_data[self.encode_ids(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL] == 'True'
 
     def save(self, filename):
         """
@@ -121,7 +127,7 @@ class GroundTruth(object):
             filename (String): saving path
         """
         w = GroundTruthWriter(filename)
-        for k, v in self._ground_trurh_data.items():
+        for k, v in self._ground_truth_data.items():
             ids = json.loads(k)
             w.write(ids[self.ID1], ids[self.ID2], v)
         w.close()
@@ -148,6 +154,24 @@ class GroundTruth(object):
         return self.__next__()
 
     def __next__(self):
-        for k, v in self._ground_trurh_data.items():
+        for k, v in self._ground_truth_data.items():
             id1, id2 = self.decode_ids(k)
             yield id1, id2, v
+
+    def __len__(self):
+        return len(self._ground_truth_data)
+
+    def generate_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset', score_function: Callable):
+        size = len(self) # same size as positives
+        max_heap = []
+
+        for r1, r2 in get_record_pairs(dataset1, dataset2):
+            if not self.is_member(r1.id, r2.id):
+                s = score_function(r1, r2)
+                heapq.heappush(max_heap, (s, r1.id, r2.id))
+                if len(max_heap) > size:
+                    heapq.heappop(max_heap)
+
+        for d in max_heap:
+            r1_id, r2_id = d[1], d[2]
+            self.add_negative(r1_id, r2_id)
