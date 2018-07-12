@@ -88,3 +88,15 @@ def validate_record(obj):
         raise TypeError('Id in {} should be an utf-8 encoded string.'.format(obj.__class__.__name__))
     if not re_record_id.match(obj.id):
         raise ValueError('Id is not valid')
+
+
+def get_property_keys(cls):
+    """
+    Get keys of property and cached_property from a record class.
+    """
+    keys = []
+    for prop_name, prop_type in cls.__dict__.items():
+        if not isinstance(prop_type, property) and not isinstance(prop_type, cached_property):
+            continue
+        keys.append(prop_name)
+    return keys
