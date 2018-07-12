@@ -51,6 +51,6 @@ class Evaluation(object):
 
     def plot_precision_recall(self):
         return self.plot([{
-            'x': 'precision',
-            'y': 'recall'
+            'x': 'recall',
+            'y': 'precision'
         }])
