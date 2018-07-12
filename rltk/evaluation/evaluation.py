@@ -11,7 +11,7 @@ class Evaluation(object):
     def add_trial(self, trial: Trial):
         self.trial_list.append(trial)
 
-    def plot(self, parameter_list):
+    def plot(self, parameter_list, area):
         """
         Args:
             parameter_list (list): list of object
@@ -23,6 +23,7 @@ class Evaluation(object):
                     ...
                 }
                 ```
+           area (bool): whether AUC (area under the curve) is desired
         """
 
         if len(self.trial_list) == 0:
@@ -47,10 +48,39 @@ class Evaluation(object):
             plt.plot(x, y, **other_parameters)
 
         plt.legend(loc='upper right')
+        
+        if area:
+            coords = sorted([(x[i], y[i]) for i in range(len(x))])
+            coords_reduced = dict()
+            prev = coords[0][0]
+            max_y = coords[0][1]
+            for c in coords:
+                if prev == c[0]:
+                    if c[1] > max_y:
+                        max_y = c[1]
+                else:
+                    coords_reduced[prev] = max_y
+                    prev = c[0]
+                    max_y = c[1]
+            coords_reduced[prev] = max_y
+            
+            area = 0
+            x1 = 0
+            y1 = 0
+            first = True
+            for key, value in coords_reduced.items():
+                if not first:
+                    area +=  (key - x1) * (value + y1) / 2
+                x1 = key
+                y1 = value
+                first = False
+                print(area)
+            plt.text(x[-1], y[-1], 'Area: ' + ('%.5f' % area))
+
         plt.show()
 
     def plot_precision_recall(self):
         return self.plot([{
             'x': 'recall',
             'y': 'precision'
-        }])
+        }], False)
