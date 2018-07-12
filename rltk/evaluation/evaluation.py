@@ -74,9 +74,12 @@ class Evaluation(object):
                 x1 = key
                 y1 = value
                 first = False
-                print(area)
+                
             plt.text(x[-1], y[-1], 'Area: ' + ('%.5f' % area))
 
+        plt.xlim(0, 1.05)
+        plt.ylim(0, 1.05)
+        
         plt.show()
 
     def plot_precision_recall(self):
