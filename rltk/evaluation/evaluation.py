@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
 from rltk.evaluation.trial import Trial
-
+import matplotlib.pyplot as plt
 
 class Evaluation(object):
     def __init__(self, trial_list: list = None):
@@ -11,7 +10,39 @@ class Evaluation(object):
     def add_trial(self, trial: Trial):
         self.trial_list.append(trial)
 
-    def plot(self, parameter_list, area):
+    """
+    Args:
+        x (list): list of x coordinates
+        y (list): list of y coordinates
+    """
+    def auc(self, x, y):
+        coords = sorted([(x[i], y[i]) for i in range(len(x))])
+        coords_reduced = dict()
+        prev = coords[0][0]
+        max_y = coords[0][1]
+        for c in coords:
+            if prev == c[0]:
+                if c[1] > max_y:
+                    max_y = c[1]
+            else:
+                coords_reduced[prev] = max_y
+                prev = c[0]
+                max_y = c[1]
+        coords_reduced[prev] = max_y
+
+        x1 = 0
+        y1 = 0
+        auc = 0
+        first = True
+        for key, value in coords_reduced.items():
+            if not first:
+                auc += (key - x1) * (value + y1) / 2
+            x1 = key
+            y1 = value
+            first = False
+        return [auc, list(coords_reduced.keys()), list(coords_reduced.values())]
+        
+    def plot(self, parameter_list, label_max=False, label_min=False, auc_params=None, aoc_params=None):
         """
         Args:
             parameter_list (list): list of object
@@ -23,7 +54,21 @@ class Evaluation(object):
                     ...
                 }
                 ```
-           area (bool): whether AUC (area under the curve) is desired
+           label_max (bool, optional): whether to label max
+           label_min (bool, optional): whether to label min
+           auc_params (list, optional): list of AUC (area under curve) labelling and shading parameters
+                [
+                    desired x coordinate of AUC label (float),
+                    desired y coordinate of AUC label (float),
+                    whether to shading AUC is desired (bool)
+                ]
+
+            aoc_params (list, optional): list of AOC (area under curve) labelling and shading parameters
+                [
+                    desired x coordinate of AOC label (float),
+                    desired y coordinate of AOC label (float),
+                    whether to shading AOC is desired (bool)
+                ]
         """
 
         if len(self.trial_list) == 0:
@@ -48,34 +93,36 @@ class Evaluation(object):
             plt.plot(x, y, **other_parameters)
 
         plt.legend(loc='upper right')
-        
-        if area:
-            coords = sorted([(x[i], y[i]) for i in range(len(x))])
-            coords_reduced = dict()
-            prev = coords[0][0]
-            max_y = coords[0][1]
-            for c in coords:
-                if prev == c[0]:
-                    if c[1] > max_y:
-                        max_y = c[1]
-                else:
-                    coords_reduced[prev] = max_y
-                    prev = c[0]
-                    max_y = c[1]
-            coords_reduced[prev] = max_y
+
+        if label_max:
+            global_max = max([(x[i], y[i]) for i in range(len(x))], key=lambda i: (i[1], -i[0]))
+            plt.annotate("(" + ("%.3f" % global_max[0]) + ", " + ("%.3f" % global_max[1]) + ")", xy = (global_max[0] - 0.1, global_max[1] + 0.05))
             
-            area = 0
-            x1 = 0
-            y1 = 0
-            first = True
-            for key, value in coords_reduced.items():
-                if not first:
-                    area +=  (key - x1) * (value + y1) / 2
-                x1 = key
-                y1 = value
-                first = False
-                
-            plt.text(x[-1], y[-1], 'Area: ' + ('%.5f' % area))
+        if label_min:
+            global_min = min([(x[i], y[i]) for i in range(len(x))], key=lambda i: (i[1], -i[0]))
+            plt.annotate("(" + ("%.3f" % global_min[0]) + ", " + ("%.3f" % global_min[1]) + ")", xy = (global_min[0] - 0.1, global_min[1] - 0.05))
+
+        if auc_params != None:
+            vals = self.auc(x, y)
+            auc = vals[0]
+            area_label = 'AUC: ' + ('%.5f' % auc)
+            plt.annotate(area_label, xy = (auc_params[0], auc_params[1]))
+
+            if auc_params[2]:
+                x_vals = vals[1]
+                y_vals = vals[2]
+                plt.fill_between(x, y)
+
+        if aoc_params != None:
+            vals = self.auc(x, y)
+            aoc = 1 - vals[0]
+            area_label = 'AOC: ' + ('%.5f' % aoc)
+            plt.annotate(area_label, xy = (aoc_params[0], aoc_params[1]))
+
+            if aoc_params[2]:
+                x_vals = vals[1]
+                y_vals = vals[2]
+                plt.fill_between(x, y, y2=1)
 
         plt.xlim(0, 1.05)
         plt.ylim(0, 1.05)
@@ -86,4 +133,10 @@ class Evaluation(object):
         return self.plot([{
             'x': 'recall',
             'y': 'precision'
-        }], False)
+        }])
+
+    def plot_roc(self):
+        return self.plot([{
+            'x': 'false_positives',
+            'y': 'true_positives'
+        }], auc_params=[0.05, 0.95, True])
