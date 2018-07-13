@@ -63,7 +63,7 @@ class Evaluation(object):
                     whether to shading AUC is desired (bool)
                 ]
 
-            aoc_params (list, optional): list of AOC (area under curve) labelling and shading parameters
+            aoc_params (list, optional): list of AOC (area over curve) labelling and shading parameters
                 [
                     desired x coordinate of AOC label (float),
                     desired y coordinate of AOC label (float),
