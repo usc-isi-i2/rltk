@@ -8,8 +8,12 @@ class EvaluationRecord(rltk.Record):
         return self.raw_object['id']
 
     @rltk.cached_property
-    def data(self):
-        return self.raw_object['data']
+    def name(self):
+        return self.raw_object['name']
+
+    @rltk.cached_property
+    def laptop(self):
+        return self.raw_object['laptop_brand']
 
 
 @rltk.remove_raw_object
@@ -19,8 +23,12 @@ class EvaluationRecord2(rltk.Record):
         return self.raw_object['id']
 
     @rltk.cached_property
-    def data2(self):
-        return self.raw_object['data2']
+    def name(self):
+        return self.raw_object['name']
+
+    @rltk.cached_property
+    def laptop(self):
+        return self.raw_object['laptop']
 
 
 dataset_1_file_name = 'data_1.csv'

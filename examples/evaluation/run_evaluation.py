@@ -4,7 +4,7 @@ saved_ground_truth_file_name = 'ground_truth.csv'
 gt = rltk.GroundTruth()
 gt.load(saved_ground_truth_file_name)
 
-gt.add_ground_truth('0', '14', True)
+gt.add_ground_truth('3', '13', True)
 gt.save('saved_' + saved_ground_truth_file_name)
 
 eva = rltk.Evaluation()
@@ -15,7 +15,7 @@ for min_confidence_100 in range(0, 100):
                        label='min threshold is: {}'.format(threshold), threshold=threshold)
     pairs = rltk.get_record_pairs(ds1, ds2)
     for r1, r2 in pairs:
-        c = rltk.levenshtein_similarity(r1.data, r2.data2)
+        c = 0.3 * rltk.levenshtein_similarity(r1.name, r2.name) + 0.7 * rltk.levenshtein_similarity(r1.laptop, r2.laptop)
         p = (c >= threshold)
         trial.add_result(r1, r2, p, c)
 
@@ -43,3 +43,5 @@ for min_confidence_100 in range(0, 100):
 # ]
 # eva.plot(coord)
 eva.plot_precision_recall()
+
+eva.plot_roc()
