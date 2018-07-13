@@ -1,5 +1,5 @@
-id,data
-0,hello
-1,world
-2,foo
-3,bar
+id,name,laptop_brand
+0,Jerry Li,Alienware
+1,Jeremy Yin,Apple
+2,Jack Liu,HP
+3,John Xi,Apple

@@ -5,7 +5,7 @@ gt.load('gt_positive_only.csv')
 
 
 def score_function(r1, r2):
-    return rltk.levenshtein_similarity(r1.data, r2.data2)
+    return rltk.levenshtein_similarity(r1.name, r2.name)
 
 gt.generate_negatives(ds1, ds2, score_function=score_function)
 
