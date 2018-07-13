@@ -90,7 +90,7 @@ def validate_record(obj):
         raise ValueError('Id is not valid')
 
 
-def get_property_keys(cls):
+def get_property_names(cls):
     """
     Get keys of property and cached_property from a record class.
     """

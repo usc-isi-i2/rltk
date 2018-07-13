@@ -1,6 +1,6 @@
 from rltk.io.reader import Reader
 from rltk.io.adapter import KeyValueAdapter, MemoryAdapter
-from rltk.record import Record, generate_record_property_cache, get_property_keys
+from rltk.record import Record, generate_record_property_cache, get_property_names
 
 import pandas as pd
 
@@ -59,20 +59,16 @@ class Dataset(object):
         """
         return self._adapter.get(record_id)
 
-    def get_dataframe(self, size=None, **kwargs):
+    def get_dataframe(self, **kwargs):
         table = []
         columns = None
 
         # construct table
-        c = 0
         for r in self:
-            c += 1
-            if size and c >= size:
-                break
 
             # generate columns based on first record
             if not columns:
-                columns = get_property_keys(r.__class__)
+                columns = get_property_names(r.__class__)
 
             # get data
             row_data = []
