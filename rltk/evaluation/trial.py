@@ -1,7 +1,8 @@
 import json
 import heapq
+import pandas as pd
 
-from rltk.record import Record
+from rltk.record import Record, get_property_names
 from rltk.evaluation.ground_truth import GroundTruth
 
 
@@ -58,6 +59,9 @@ class Trial(object):
 
         def __getattr__(self, key):
             return self.extra_key_values[key]
+
+        def get_property_names(self):
+            return list(self.extra_key_values.keys()) + ['is_positive', 'confidence']
 
     class Evaluator:
         """
@@ -431,3 +435,35 @@ class Trial(object):
     def false_negatives_list(self):
         self.check_evaluator_init()
         return self.evaluator.fn_list
+
+    @staticmethod
+    def generate_dataframe(results, **kwargs):
+
+        table = []
+        r1_columns = None
+        r2_columns = None
+        res_columns = None
+
+        # construct table
+        for result in results:
+
+            # generate columns based on first result
+            if not r1_columns or not r2_columns:
+                r1_columns = get_property_names(result.record1.__class__)
+                r2_columns = get_property_names(result.record2.__class__)
+                res_columns = result.get_property_names()
+
+            # get data
+            row_data = []
+            for prop_name in r1_columns:
+                row_data.append(getattr(result.record1, prop_name))
+            for prop_name in r2_columns:
+                row_data.append(getattr(result.record2, prop_name))
+            for prop_name in res_columns:
+                row_data.append(getattr(result, prop_name))
+
+            # append data
+            table.append(row_data)
+
+        columns = r1_columns + r2_columns + res_columns
+        return pd.DataFrame(table, columns=columns, **kwargs)
