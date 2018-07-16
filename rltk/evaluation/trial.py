@@ -61,7 +61,7 @@ class Trial(object):
             return self.extra_key_values[key]
 
         def get_property_names(self):
-            return list(self.extra_key_values.keys()) + ['is_positive', 'confidence']
+            return ['is_positive', 'confidence'] + list(self.extra_key_values.keys())
 
     class Evaluator:
         """
@@ -437,12 +437,12 @@ class Trial(object):
         return self.evaluator.fn_list
 
     @staticmethod
-    def generate_dataframe(results, **kwargs):
+    def generate_dataframe(results, record1_columns=None, record2_columns=None, result_columns=None, **kwargs):
 
         table = []
-        r1_columns = None
-        r2_columns = None
-        res_columns = None
+        r1_columns = record1_columns
+        r2_columns = record2_columns
+        res_columns = result_columns
 
         # construct table
         for result in results:
@@ -454,16 +454,18 @@ class Trial(object):
                 res_columns = result.get_property_names()
 
             # get data
-            row_data = []
+            r1_data = []
+            r2_data = []
+            res_data = []
             for prop_name in r1_columns:
-                row_data.append(getattr(result.record1, prop_name))
+                r1_data.append(getattr(result.record1, prop_name))
             for prop_name in r2_columns:
-                row_data.append(getattr(result.record2, prop_name))
+                r2_data.append(getattr(result.record2, prop_name))
             for prop_name in res_columns:
-                row_data.append(getattr(result, prop_name))
+                res_data.append(getattr(result, prop_name))
 
             # append data
-            table.append(row_data)
+            table.append([r1_data, r2_data] + res_data)
 
-        columns = r1_columns + r2_columns + res_columns
+        columns = [r1_columns, r2_columns] + res_columns
         return pd.DataFrame(table, columns=columns, **kwargs)
