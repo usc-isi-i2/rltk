@@ -25,7 +25,7 @@ class Trial(object):
     class Result:
         """
         Result structure.
-        Contain the 2 compared record, the is_positive result and confidence.
+        Contain the 2 compared records, the is_positive result and confidence.
         if save_record is True, the whole item (including record information and confidence) will be stored.
 
         Attributes:
@@ -35,7 +35,7 @@ class Trial(object):
             confidence (float): how much confidence the similarity function has on the result
         """
 
-        def __init__(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None):
+        def __init__(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None, **kwargs):
             """
             init all information.
             Attributes:
@@ -48,12 +48,16 @@ class Trial(object):
             self.record2 = record2
             self.is_positive = is_positive
             self.confidence = confidence
+            self.extra_key_values = kwargs
 
         def __cmp__(self, other):
             return self.confidence < other.confidence
 
         def __lt__(self, other):
             return self.confidence < other.confidence
+
+        def __getattr__(self, key):
+            return self.extra_key_values[key]
 
     class Evaluator:
         """
@@ -228,7 +232,7 @@ class Trial(object):
             return self.fp / (self.fp + self.tp)
             
     def __init__(self, ground_truth: GroundTruth, label: str = '', min_confidence: float = 0,
-                 top_k: int = 0, save_record: bool = False, **kwargs):
+                 top_k: int = 0, save_record: bool = False):
         """
         init data.
 
@@ -248,9 +252,8 @@ class Trial(object):
         self._results = []
         self.save_record = save_record
         self.evaluator = None
-        self.self_defined_key_values = kwargs
 
-    def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = 1) -> None:
+    def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = 1, **kwargs) -> None:
         """
         Add one pair record comparison result.
         If confidence is less than min_confidence, it will skip.
@@ -262,15 +265,15 @@ class Trial(object):
             record1 (Record): first record.
             record2 (Record): second record.
             is_positive (bool): the result of similarity function.
-            confidence (float): = how much confidence the similarity function has on the result.
+            confidence (float): how much confidence the similarity function has on the result.
         """
         if confidence >= self._min_confidence and self._ground_truth.is_member(record1.id, record2.id):
             if self._top_k == 0 or len(self._results) < self._top_k:
-                cur = self.Result(record1, record2, is_positive, confidence)
+                cur = self.Result(record1, record2, is_positive, confidence, **kwargs)
                 heapq.heappush(self._results, cur)
             elif confidence > self._results[0].confidence:
                 heapq.heappop(self._results)
-                cur = self.Result(record1, record2, is_positive, confidence)
+                cur = self.Result(record1, record2, is_positive, confidence, **kwargs)
                 heapq.heappush(self._results, cur)
 
     def add_positive(self, kwargs):
@@ -302,9 +305,6 @@ class Trial(object):
     def evaluate(self):
         self.evaluator = self.Evaluator(self.save_record)
         self.evaluator.evaluate(self._ground_truth, self._results)
-
-    def __getattr__(self, key):
-        return self.self_defined_key_values[key]
 
     @property
     def precision(self) -> float:
@@ -410,7 +410,7 @@ class Trial(object):
 
     def check_evaluator_init(self):
         if not self.evaluator:
-            raise Exception("Please run evaluate first")
+            raise Exception("Please run evaluator first")
 
     @property
     def true_positives_list(self):
