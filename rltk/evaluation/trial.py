@@ -448,9 +448,11 @@ class Trial(object):
         for result in results:
 
             # generate columns based on first result
-            if not r1_columns or not r2_columns:
+            if not r1_columns:
                 r1_columns = get_property_names(result.record1.__class__)
+            if not r2_columns:
                 r2_columns = get_property_names(result.record2.__class__)
+            if not res_columns:
                 res_columns = result.get_property_names()
 
             # get data
