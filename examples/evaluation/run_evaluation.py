@@ -11,7 +11,7 @@ eva = rltk.Evaluation()
 
 for min_confidence_100 in range(0, 100):
     threshold = min_confidence_100 / 100
-    trial = rltk.Trial(gt, min_confidence=0, top_k=0, save_record=True,
+    trial = rltk.Trial(gt, min_confidence=0, top_k=0,
                        label='min threshold is: {}'.format(threshold), threshold=threshold)
     pairs = rltk.get_record_pairs(ds1, ds2)
     for r1, r2 in pairs:

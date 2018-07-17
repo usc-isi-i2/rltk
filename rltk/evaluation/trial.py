@@ -12,16 +12,12 @@ class Trial(object):
     It will only save the result which is also in groud_truth, and then can be used to evaluate.
     By setting min_confidence, it can filter and save the result with a min confidence.
     By setting top_k, it will save at most k result order by confidence DESC.
-
-    If save_record is true, it will save the record of all data.
-    It is useful to check whether the similarity function is good, but will cost memory to store the data.
     """
 
     class Result:
         """
         Result structure.
         Contain the 2 compared records, the is_positive result and confidence.
-        if save_record is True, the whole item (including record information and confidence) will be stored.
 
         Attributes:
             record1 (Record): first record
