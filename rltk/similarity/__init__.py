@@ -8,7 +8,7 @@ from rltk.similarity.needleman import needleman_wunsch_score, needleman_wunsch_s
 from rltk.similarity.jaro import jaro_winkler_distance, jaro_winkler_similarity, jaro_distance
 from rltk.similarity.jaccard import jaccard_index_similarity, jaccard_index_distance
 from rltk.similarity.cosine import cosine_similarity, string_cosine_similarity
-from rltk.similarity.tf_idf import tf_idf_similarity, compute_idf, compute_tf, tf_idf_similarity_by_dict
+from rltk.similarity.tf_idf import tf_idf_similarity, compute_idf, compute_tf, tf_idf_cosine_similarity, TF_IDF
 from rltk.similarity.lcs import longest_common_subsequence_distance, metric_longest_common_subsequence
 from rltk.similarity.ngram import ngram_distance, ngram_similarity
 from rltk.similarity.qgram import qgram_distance, qgram_similarity

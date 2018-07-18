@@ -61,28 +61,28 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
     return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
 
 
-def compute_tf(t, bag_len):
+def compute_tf(tokens):
     """
     Args:
-        t (dict): {term: count,...}
+        tokens (list): tokens
     """
-    return {k: float(v) / bag_len for k, v in t.items()}
+    terms = collections.Counter(tokens)
+    return {k: float(v) / len(tokens) for k, v in terms.items()}
 
 
-# # plus 1
-# def compute_idf(df, doc_size, math_log=False):
-#     return {k: float(doc_size) / v if math_log is False \
-#             else math.log(float(doc_size + 1) / (v + 1)) \
-#             for k, v in df.iteritems()}
-
-
-def compute_idf(df, doc_size, math_log=False):
+def compute_idf(df_corpus, doc_size, math_log=False):
+    """
+    Args:
+        df_corpus (dict): terms in document
+        doc_size (int): total document size
+        math_log (bool): logarithm of the result
+    """
     return {k: doc_size * 1.0 / v if math_log is False \
         else math.log(doc_size * 1.0 / v) \
-            for k, v in df.iteritems()}
+            for k, v in df_corpus.items()}
 
 
-def tf_idf_similarity_by_dict(tfidf_dict1, tfidf_dict2):
+def tf_idf_cosine_similarity(tfidf_dict1, tfidf_dict2):
     """
     all terms of dict1 and dict2 should be in corpus
 
@@ -92,14 +92,39 @@ def tf_idf_similarity_by_dict(tfidf_dict1, tfidf_dict2):
 
     # intersection of dict1 and dict2
     # ignore the values that are not in both
-    for t in tfidf_dict1.iterkeys():
+    for t in tfidf_dict1.keys():
         if t in tfidf_dict2:
             v_x_y = tfidf_dict1[t] * tfidf_dict2[t]
 
-    for t, tfidf in tfidf_dict1.iteritems():
+    for t, tfidf in tfidf_dict1.items():
         v_x_2 += tfidf * tfidf
-    for t, tfidf in tfidf_dict2.iteritems():
+    for t, tfidf in tfidf_dict2.items():
         v_y_2 += tfidf * tfidf
 
     # cosine similarity
     return 0.0 if v_x_y == 0 else v_x_y / (math.sqrt(v_x_2) * math.sqrt(v_y_2))
+
+
+class TF_IDF():
+    def __init__(self):
+        self.tf = {}
+        self.df_corpus = {}
+        self.doc_size = 0
+        self.idf = 0
+
+    def add_document(self, doc_id, tokens):
+        self.doc_size += 1
+        tf = compute_tf(tokens)
+        self.tf[doc_id] = tf
+        for k, _ in tf.items():
+            self.df_corpus[k] = self.df_corpus.get(k, 0) + 1
+
+    def pre_compute(self, math_log=False):
+        self.idf = compute_idf(self.df_corpus, self.doc_size, math_log)
+
+    def similarity(self, id1, id2):
+        tf_x = self.tf[id1]
+        tfidf_x = {k: v * self.idf[k] for k, v in tf_x.items()}
+        tf_y = self.tf[id2]
+        tfidf_y = {k: v * self.idf[k] for k, v in tf_y.items()}
+        return tf_idf_cosine_similarity(tfidf_x, tfidf_y)
