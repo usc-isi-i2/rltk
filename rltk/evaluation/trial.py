@@ -322,4 +322,4 @@ class Trial(object):
         r1_columns = ['record1.{}'.format(p) for p in r1_columns]
         r2_columns = ['record2.{}'.format(p) for p in r2_columns]
         columns = r1_columns + r2_columns + ['ground_truth.label'] + res_columns
-        return pd.DataFrame(table, columns=columns, **kwargs)
+        return pd.DataFrame(table, columns=columns).assign(**kwargs)
