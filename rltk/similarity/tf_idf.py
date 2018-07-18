@@ -106,6 +106,24 @@ def tf_idf_cosine_similarity(tfidf_dict1, tfidf_dict2):
 
 
 class TF_IDF():
+    """
+    TF/IDF helper class
+    
+    ```
+    # initialization
+    tfidf = TF_IDF()
+    # add document
+    tfidf.add_document('id1', ['a', 'b', 'a'])
+    tfidf.add_document('id2', ['b', 'c'])
+    tfidf.add_document('id3', ['b', 'd'])
+    # compute idf
+    tfidf.pre_compute()
+    # get similarity
+    tfidf.similarity('id1', 'id2')
+    tfidf.similarity('id1', 'id3')
+    ```
+    """
+
     def __init__(self):
         self.tf = {}
         self.df_corpus = {}
