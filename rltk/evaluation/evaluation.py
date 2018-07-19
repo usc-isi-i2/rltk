@@ -144,3 +144,53 @@ class Evaluation(object):
             'x': 'false_positives',
             'y': 'true_positives'
         }], auc_params=[0.05, 0.95, True])
+
+    def plot_features(self, df, f1, f2):
+        """
+        Args:
+            df (pandas.DataFrame): dataframe containing trial results and computed features
+            f1 (str): feature to place on the x-axis
+            f2 (str): feature to place on the y-axis
+        """
+        tpX = []
+        tpY = []
+        fpX = []
+        fpY = []
+        tnX = []
+        tnY = []
+        fnX = []
+        fnY = []
+        count = 0
+        
+        for index, row in df.iterrows():
+            count += 1
+            l = row['ground_truth.label']
+            p = row['is_positive']
+            if int(l) == 1 and p == 1:
+                tpX.append(row[f1])
+                tpY.append(row[f2])
+            if int(l) == 0 and p == 1:
+                fpX.append(row[f1])
+                fpY.append(row[f2])
+            if int(l) == 1 and p == 0:
+                fnX.append(row[f1])
+                fnY.append(row[f2])
+            if int(l) == 0 and p == 0:
+                tnX.append(row[f1])
+                tnY.append(row[f2])
+                
+        plt.subplot(1, 2, 1)
+        plt.plot(tpX, tpY, 'o', color='green')
+        plt.plot(fpX, fpY, 'o', color='red')
+        plt.xlabel(f1)
+        plt.ylabel(f2)
+        plt.title(f1 + ' vs ' + f2 + ' TP and FP')
+        
+        plt.subplot(1, 2, 2)
+        plt.plot(tnX, tnY, 'o', color='green')
+        plt.plot(fnX, fnY, 'o', color='red')
+        plt.xlabel(f1)
+        plt.ylabel(f2)
+        plt.title(f1 + ' vs ' + f2 + ' TN and FN')
+        plt.tight_layout()
+        plt.show()
