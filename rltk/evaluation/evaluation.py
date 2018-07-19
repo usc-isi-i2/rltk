@@ -193,4 +193,4 @@ class Evaluation(object):
         plt.ylabel(f2)
         plt.title(f1 + ' vs ' + f2 + ' TN and FN')
         plt.tight_layout()
-        plt.show()
+        return plt
