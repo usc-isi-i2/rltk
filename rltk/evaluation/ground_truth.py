@@ -162,8 +162,8 @@ class GroundTruth(object):
     def __len__(self):
         return len(self._ground_truth_data)
 
-    def generate_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset', score_function: Callable):
-        size = len(self) # same size as positives
+    def generate_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset', score_function: Callable, size=-1):
+        size = len(self) if size == -1 else size # same size as positives
         max_heap = []
 
         for r1, r2 in get_record_pairs(dataset1, dataset2):
@@ -176,6 +176,11 @@ class GroundTruth(object):
         for d in max_heap:
             r1_id, r2_id = d[1], d[2]
             self.add_negative(r1_id, r2_id)
+
+    def generate_all_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset'):
+        for r1, r2 in get_record_pairs(dataset1, dataset2):
+            if not self.is_member(r1.id, r2.id):
+                self.add_negative(r1.id, r2.id)
 
     def train_test_split(self, test_ratio: float = 0.2, random_seed: int = None):
         size = len(self)
