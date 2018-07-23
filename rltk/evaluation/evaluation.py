@@ -11,13 +11,12 @@ class Evaluation(object):
     def add_trial(self, trial: Trial):
         self.trial_list.append(trial)
 
-    """
-    Args:
-        x (list): list of x coordinates
-        y (list): list of y coordinates
-    """
-
     def auc(self, x, y):
+        """
+        Args:
+            x (list): list of x coordinates
+            y (list): list of y coordinates
+        """
         coords = sorted([(x[i], y[i]) for i in range(len(x))])
         coords_reduced = dict()
         prev = coords[0][0]
@@ -106,7 +105,7 @@ class Evaluation(object):
             plt.annotate("(" + ("%.3f" % global_min[0]) + ", " + ("%.3f" % global_min[1]) + ")",
                          xy=(global_min[0] - 0.1, global_min[1] - 0.05))
 
-        if auc_params != None:
+        if not auc_params:
             vals = self.auc(x, y)
             auc = vals[0]
             area_label = 'AUC: ' + ('%.5f' % auc)
@@ -117,7 +116,7 @@ class Evaluation(object):
                 y_vals = vals[2]
                 plt.fill_between(x, y)
 
-        if aoc_params != None:
+        if not aoc_params:
             vals = self.auc(x, y)
             aoc = 1 - vals[0]
             area_label = 'AOC: ' + ('%.5f' % aoc)
