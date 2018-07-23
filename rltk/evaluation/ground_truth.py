@@ -2,6 +2,7 @@ import json
 import heapq
 import random
 from typing import Callable
+import pandas as pd
 
 from rltk.utils import get_record_pairs
 from rltk.io.reader import GroundTruthReader
@@ -200,3 +201,10 @@ class GroundTruth(object):
                 train_gt.add_ground_truth(id1, id2, label)
 
         return train_gt, test_gt
+
+    def generate_dataframe(self, **kwargs):
+        columns = ['id1', 'id2', 'label']
+        table = []
+        for id1, id2, label in self:
+            table.append([id1, id2, label])
+        return pd.DataFrame(table, columns=columns, **kwargs)
