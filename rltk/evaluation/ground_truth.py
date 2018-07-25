@@ -183,6 +183,30 @@ class GroundTruth(object):
             if not self.is_member(r1.id, r2.id):
                 self.add_negative(r1.id, r2.id)
 
+    def generate_stratified_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
+                                      classify: Callable, num_of_clusters: int, random_seed: int = None):
+
+        # add positives and negatives to different clusters
+        clusters = [{'p': [], 'n': []} for _ in range(num_of_clusters)]
+
+        # build clusters
+        for r1, r2 in get_record_pairs(dataset1, dataset2):
+            cluster_id = classify(r1, r2)
+            p_n = 'p' if self.is_member(r1.id, r2.id) else 'n'
+            clusters[cluster_id][p_n].append((r1.id, r2.id))
+
+        if random_seed:
+            random.seed(random_seed)
+
+        # pick negatives
+        # TODO:
+        # if the size of negatives is smaller than positives, it's NOT correct, need to be fixed
+        for c in clusters:
+            neg_size = len(c['p'])
+            negs = random.sample(c['n'], neg_size)
+            for n in negs:
+                self.add_negative(n[0], n[1])
+
     def train_test_split(self, test_ratio: float = 0.2, random_seed: int = None):
         size = len(self)
         test_size = int(size * test_ratio)
