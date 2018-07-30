@@ -8,7 +8,10 @@ def _jaccard_index(set1, set2):
     if len(set1) == 0 or len(set2) == 0:
         return 0
 
-    return float(len(set1 & set2)) / float(len(set1 | set2))
+    # return float(len(set1 & set2)) / float(len(set1 | set2))
+
+    inter_len = len(set1 & set2)
+    return float(inter_len) / (len(set1) + len(set2) - inter_len)
 
 
 def jaccard_index_similarity(set1, set2):
