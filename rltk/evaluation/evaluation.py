@@ -105,7 +105,7 @@ class Evaluation(object):
             plt.annotate("(" + ("%.3f" % global_min[0]) + ", " + ("%.3f" % global_min[1]) + ")",
                          xy=(global_min[0] - 0.1, global_min[1] - 0.05))
 
-        if not auc_params:
+        if auc_params:
             vals = self.auc(x, y)
             auc = vals[0]
             area_label = 'AUC: ' + ('%.5f' % auc)
@@ -116,7 +116,7 @@ class Evaluation(object):
                 y_vals = vals[2]
                 plt.fill_between(x, y)
 
-        if not aoc_params:
+        if aoc_params:
             vals = self.auc(x, y)
             aoc = 1 - vals[0]
             area_label = 'AOC: ' + ('%.5f' % aoc)
