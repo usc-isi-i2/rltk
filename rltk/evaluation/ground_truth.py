@@ -3,6 +3,9 @@ import heapq
 import random
 from typing import Callable
 import pandas as pd
+from collections import OrderedDict
+from operator import itemgetter
+import copy
 
 from rltk.utils import get_record_pairs
 from rltk.io.reader import GroundTruthReader
@@ -184,26 +187,52 @@ class GroundTruth(object):
                 self.add_negative(r1.id, r2.id)
 
     def generate_stratified_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
-                                      classify: Callable, num_of_clusters: int, random_seed: int = None):
+                                      classify: Callable, num_of_strata: int, random_seed: int = None):
 
         # add positives and negatives to different clusters
-        clusters = [{'p': [], 'n': []} for _ in range(num_of_clusters)]
+        strata = [{'p': [], 'n': []} for _ in range(num_of_strata)]
 
-        # build clusters
+        # build strata
         for r1, r2 in get_record_pairs(dataset1, dataset2):
-            cluster_id = classify(r1, r2)
+            stratum_id = classify(r1, r2)
             p_n = 'p' if self.is_member(r1.id, r2.id) else 'n'
-            clusters[cluster_id][p_n].append((r1.id, r2.id))
+            strata[stratum_id][p_n].append((r1.id, r2.id))
 
-        if random_seed:
-            random.seed(random_seed)
+        # compute weights: p / n
+        strata_weights = {}
+        for idx, s in enumerate(strata):
+            stratum_id = str(idx)
+            # nothing to pick
+            if s['p'] == 0 or s['n'] == 0:
+                strata_weights[stratum_id] = 0.0
+                continue
+            strata_weights[stratum_id] = float(len(s['p'])) / len(s['n'])
+
+        # sorting
+        sorted_strata_weights = OrderedDict(sorted(strata_weights.items(), key=itemgetter(1), reverse=True))
+
+        # find out the number of negatives to pick from each stratum
+        total_num = sum([len(s['p']) for s in strata])
+        num_to_pick_from_each_stratum = [0] * num_of_strata
+        curr_strata_weights = copy.deepcopy(sorted_strata_weights)
+        for stratum_id in sorted_strata_weights.keys():
+            if total_num <= 0 or len(curr_strata_weights) == 0:
+                break
+            weight = sorted_strata_weights[stratum_id]
+            idx = int(stratum_id)
+            # normalize weights
+            denominator = sum([w for w in curr_strata_weights.values()])
+            num_to_pick_from_each_stratum[idx] = \
+                min(round(total_num * weight / denominator), len(strata[idx]['n']))
+            # prep for next round
+            total_num -= num_to_pick_from_each_stratum[idx]
+            curr_strata_weights.popitem(last=False)
 
         # pick negatives
-        # TODO:
-        # if the size of negatives is smaller than positives, it's NOT correct, need to be fixed
-        for c in clusters:
-            neg_size = len(c['p'])
-            negs = random.sample(c['n'], neg_size)
+        if random_seed:
+            random.seed(random_seed)
+        for idx, num in enumerate(num_to_pick_from_each_stratum):
+            negs = random.sample(strata[idx]['n'], num)
             for n in negs:
                 self.add_negative(n[0], n[1])
 
