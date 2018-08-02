@@ -214,7 +214,7 @@ class GroundTruth(object):
         sorted_strata_weights = OrderedDict(sorted(strata_weights.items(), key=itemgetter(1), reverse=True))
 
         # find out the number of negatives to pick from each stratum
-        total_num = sum([len(s['p']) for s in strata]) if not num_of_negatives else num_of_negatives
+        total_num = sum([len(s['p']) for s in strata]) if num_of_negatives == -1 else num_of_negatives
         num_to_pick_from_each_stratum = [0] * num_of_strata
         curr_strata_weights = copy.deepcopy(sorted_strata_weights)
         for stratum_id in sorted_strata_weights.keys():
