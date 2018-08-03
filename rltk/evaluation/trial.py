@@ -120,9 +120,7 @@ class Trial(object):
 
         df = self.generate_dataframe(self.get_all_data())
         r1ids = df['record1.id']
-        r1yrs = df['record1.year']
         r2ids = df['record2.id']
-        r2yrs = df['record2.year']
         confs = df['confidence']
         r1_set = sorted(set(r1ids))
         r2_set = sorted(set(r2ids))
