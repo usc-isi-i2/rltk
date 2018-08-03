@@ -1,11 +1,10 @@
 import json
 import heapq
 import pandas as pd
-from hungarian import Hungarian
 
 from rltk.record import Record, get_property_names
 from rltk.evaluation.ground_truth import GroundTruth
-
+from rltk.evaluation.hungarian import Hungarian
 
 class Trial(object):
     """
