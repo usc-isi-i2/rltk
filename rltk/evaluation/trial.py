@@ -4,7 +4,7 @@ import pandas as pd
 
 from rltk.record import Record, get_property_names
 from rltk.evaluation.ground_truth import GroundTruth
-
+from rltk.evaluation.hungarian import Hungarian
 
 class Trial(object):
     """
@@ -97,6 +97,44 @@ class Trial(object):
         for trial_result in self._results:
             gt_positive = self._ground_truth.is_positive(trial_result.record1.id, trial_result.record2.id)
             trial_positive = trial_result.is_positive
+
+            if trial_positive and gt_positive:
+                self.tp_list.append(trial_result)
+            elif not trial_positive and not gt_positive:
+                self.tn_list.append(trial_result)
+            elif trial_positive and not gt_positive:
+                self.fp_list.append(trial_result)
+            elif not trial_positive and gt_positive:
+                self.fn_list.append(trial_result)
+
+        self.tp = len(self.tp_list)
+        self.tn = len(self.tn_list)
+        self.fp = len(self.fp_list)
+        self.fn = len(self.fn_list)
+
+    def evaluate_hungarian(self):
+        """
+        Evaluate using Hungarian Algorithm, useful when dataset solutions are one to one matches
+        """
+        self.pre_evaluate()
+
+        df = self.generate_dataframe(self.get_all_data())
+        r1ids = df['record1.id']
+        r2ids = df['record2.id']
+        confs = df['confidence']
+        r1_set = sorted(set(r1ids))
+        r2_set = sorted(set(r2ids))
+        pmatrix = len(r1_set) * [len(r2_set) * [0]]
+        for i in range(len(r1ids)):
+            pmatrix[r1_set.index(r1ids[i])][r2_set.index(r2ids[i])] = confs[i][0]
+
+        hungarian = Hungarian(pmatrix, is_profit_matrix=True)
+        hungarian.calculate()
+        results = hungarian.get_results()
+
+        for trial_result in self._results:
+            gt_positive = self._ground_truth.is_positive(trial_result.record1.id, trial_result.record2.id)
+            trial_positive = (r1_set.index(trial_result.record1.id), r2_set.index(trial_result.record2.id)) in results
 
             if trial_positive and gt_positive:
                 self.tp_list.append(trial_result)
