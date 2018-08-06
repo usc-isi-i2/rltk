@@ -1,4 +1,4 @@
-import munkres
+from scipy.optimize import linear_sum_assignment
 import rltk.utils as utils
 from rltk.similarity.jaro import jaro_winkler_similarity
 
@@ -42,7 +42,7 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
             inner.append(1.0 - score)  # munkres finds out the smallest element
         matching_score.append(inner)
 
-    indexes = munkres.Munkres().compute(matching_score)
+    indexes = linear_sum_assignment(matching_score)
 
     score_sum, matching_count = 0.0, 0
     for r, c in indexes:
