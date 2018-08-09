@@ -94,7 +94,7 @@ def tf_idf_cosine_similarity(tfidf_dict1, tfidf_dict2):
     # ignore the values that are not in both
     for t in tfidf_dict1.keys():
         if t in tfidf_dict2:
-            v_x_y = tfidf_dict1[t] * tfidf_dict2[t]
+            v_x_y += tfidf_dict1[t] * tfidf_dict2[t]
 
     for t, tfidf in tfidf_dict1.items():
         v_x_2 += tfidf * tfidf
