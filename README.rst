@@ -10,6 +10,10 @@ RLTK: Record Linkage ToolKit
     :target: https://travis-ci.org/usc-isi-i2/rltk
     :alt: Travis
 
+.. image:: https://badge.fury.io/py/rltk.svg
+    :target: https://badge.fury.io/py/rltk
+    :alt: pypi
+
 .. image:: https://readthedocs.org/projects/rltk/badge/?version=latest
     :target: http://rltk.readthedocs.io/en/latest
     :alt: Documents
@@ -25,8 +29,12 @@ RLTK is under active maintenance and we expect to keep adding new features and s
 
 .. end-intro
 
+Datasets & Experiments
+-------------
+* `rltk-experimentation <https://github.com/usc-isi-i2/rltk-experimentation>`_
+
 Documentation
 -------------
 
-* `Tutorials <http://rltk.readthedocs.io>`_
-* `API Reference <http://rltk.readthedocs.io/en/latest/modules.html>`_
+* `Tutorials <http://rltk.readthedocs.io>`_ (out-of-date)
+* `API Reference <http://rltk.readthedocs.io/en/latest/modules.html>`_ (out-of-date)
