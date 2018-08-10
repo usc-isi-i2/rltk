@@ -42,10 +42,10 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
             inner.append(1.0 - score)  # munkres finds out the smallest element
         matching_score.append(inner)
 
-    indexes = linear_sum_assignment(matching_score)
+    row_idx, col_idx = linear_sum_assignment(matching_score)
 
     score_sum, matching_count = 0.0, 0
-    for r, c in indexes:
+    for r, c in zip(row_idx, col_idx):
         matching_count += 1
         score_sum += 1.0 - matching_score[r][c]  # go back to similarity
 
