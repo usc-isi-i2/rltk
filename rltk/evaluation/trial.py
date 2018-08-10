@@ -1,10 +1,10 @@
-import json
 import heapq
 import pandas as pd
 
 from rltk.record import Record, get_property_names
 from rltk.evaluation.ground_truth import GroundTruth
-from rltk.evaluation.hungarian import Hungarian
+from scipy.optimize import linear_sum_assignment
+
 
 class Trial(object):
     """
@@ -81,6 +81,13 @@ class Trial(object):
         except:
             raise AttributeError
 
+    def __iter__(self):
+        return self.__next__()
+
+    def __next__(self):
+        for r in self._results:
+            yield r
+
     def pre_evaluate(self):
         self.tp = 0
         self.tn = 0
@@ -112,43 +119,39 @@ class Trial(object):
         self.fp = len(self.fp_list)
         self.fn = len(self.fn_list)
 
-    def evaluate_hungarian(self):
+    def run_munkres(self, threshold=0):
         """
-        Evaluate using Hungarian Algorithm, useful when dataset solutions are one to one matches
+        `result.is_positive` will be overwritten.
+        `result.confidence` should be set.
         """
-        self.pre_evaluate()
-
-        df = self.generate_dataframe(self.get_all_data())
-        r1ids = df['record1.id']
-        r2ids = df['record2.id']
-        confs = df['confidence']
-        r1_set = sorted(set(r1ids))
-        r2_set = sorted(set(r2ids))
-        pmatrix = len(r1_set) * [len(r2_set) * [0]]
+        r1ids = [r.record1.id for r in self._results]
+        r2ids = [r.record2.id for r in self._results]
+        confs = [r.confidence for r in self._results]
+        r1_idx = {v: i for i, v in enumerate(set(r1ids))}  # id -> index
+        r2_idx = {v: i for i, v in enumerate(set(r2ids))}  # id -> index
+        matrix = [len(r2_idx) * [1] for _ in range(len(r1_idx))]
         for i in range(len(r1ids)):
-            pmatrix[r1_set.index(r1ids[i])][r2_set.index(r2ids[i])] = confs[i][0]
+            matrix[r1_idx[r1ids[i]]][r2_idx[r2ids[i]]] = 1.0 - confs[i]
 
-        hungarian = Hungarian(pmatrix, is_profit_matrix=True)
-        hungarian.calculate()
-        results = hungarian.get_results()
+        # TODO:
+        # replace munkres here by an implementation supports sparse matrix
+
+        # sparse munkres
+        # m_input = []
+        # for r in range(len(pmatrix)):
+        #     for c in range(len(pmatrix[0])):
+        #         m_input.append((r, c, pmatrix[r][c]))
+        # results = mk.munkres(m_input)
+        # results = set(results)
+
+        row_idx, col_idx = linear_sum_assignment(matrix)
+        indexes = set([(r, c) for r, c in zip(row_idx, col_idx)])
 
         for trial_result in self._results:
-            gt_positive = self._ground_truth.is_positive(trial_result.record1.id, trial_result.record2.id)
-            trial_positive = (r1_set.index(trial_result.record1.id), r2_set.index(trial_result.record2.id)) in results
-
-            if trial_positive and gt_positive:
-                self.tp_list.append(trial_result)
-            elif not trial_positive and not gt_positive:
-                self.tn_list.append(trial_result)
-            elif trial_positive and not gt_positive:
-                self.fp_list.append(trial_result)
-            elif not trial_positive and gt_positive:
-                self.fn_list.append(trial_result)
-
-        self.tp = len(self.tp_list)
-        self.tn = len(self.tn_list)
-        self.fp = len(self.fp_list)
-        self.fn = len(self.fn_list)
+            trial_result.is_positive = False
+            if (r1_idx[trial_result.record1.id], r2_idx[trial_result.record2.id]) in indexes:
+                if trial_result.confidence >= threshold:
+                    trial_result.is_positive = True
 
     def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = 1, **kwargs) -> None:
         """
