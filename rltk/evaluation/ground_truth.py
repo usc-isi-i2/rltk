@@ -29,12 +29,14 @@ class GroundTruth(object):
 
     def __init__(self):
         self._ground_truth_data = {}
+        self._gt_id1s = set([])
+        self._gt_id2s = set([])
 
     def add_positive(self, id1: str, id2: str):
         """
         add a positive ground truth
 
-        Attributes:
+        Args:
             id1 (String): first id
             id2 (String): second id
         """
@@ -44,7 +46,7 @@ class GroundTruth(object):
         """
         add a negative ground truth
 
-        Attributes:
+        Args:
             id1 (String): first id
             id2 (String): second id
         """
@@ -54,19 +56,21 @@ class GroundTruth(object):
         """
         add a ground truth
 
-        Attributes:
+        Args:
             id1 (String): first id
             id2 (String): second id
             value (bool): ground truth value
         """
         key = self.encode_ids(id1, id2)
         self._ground_truth_data[key] = value
+        self._gt_id1s.add(id1)
+        self._gt_id2s.add(id2)
 
     def is_member(self, id1: str, id2: str) -> bool:
         """
         check whether this item is in the ground truth dict
 
-        Attributes:
+        Args:
             id1 (String): first id
             id2 (String): second id
 
@@ -85,7 +89,7 @@ class GroundTruth(object):
         if ground truth does not contain the item, raise a exception
         if ground truth contain the true value, return true; else, return false
 
-        Attributes:
+        Args:
             id1 (String): first id
             id2 (String): second id
 
@@ -101,7 +105,7 @@ class GroundTruth(object):
         if ground truth does not contain the item, raise a exception
         if ground truth contain the true value, return false; else, return true
 
-        Attributes:
+        Args:
             id1 (String): first id
             id2 (String): second id
 
@@ -117,7 +121,7 @@ class GroundTruth(object):
         load the ground truth from file.
         this will overwrite the current self.ground_trurh
 
-        Attributes:
+        Args:
             filename (String): loading path
         """
         self.__init__()
@@ -128,7 +132,7 @@ class GroundTruth(object):
         """
         save the ground truth to file.
 
-        Attributes:
+        Args:
             filename (String): saving path
         """
         w = GroundTruthWriter(filename)
@@ -141,7 +145,7 @@ class GroundTruth(object):
         """
         combine id1 and id2 and gen the key to save in dict.
 
-        Attributes:
+        Args:
             id1 (String): first id
             id2 (String): second id
 
@@ -167,12 +171,25 @@ class GroundTruth(object):
         return len(self._ground_truth_data)
 
     def generate_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
-                           score_function: Callable, num_of_negatives: int = -1):
+                           score_function: Callable, num_of_negatives: int = -1, range_in_gt: bool = False):
+        """
+        Args:
+            dataset1 (Dataset): 
+            dataset2 (Dataset): 
+            score_function (Callable): 
+            num_of_negatives (int, optional): Number of negatives to generate. 
+                                            Default is -1 which will generate same number of negatives to positives.
+            range_in_gt (bool, optional): The negatives will be generated within the range of ids 
+                                        in ground truth if it's True,
+                                        otherwise range will be the cross product of two datasets. 
+                                        Default is False.
+        """
         num_of_negatives = len(self) if num_of_negatives == -1 else num_of_negatives
         max_heap = []
 
         for r1, r2 in get_record_pairs(dataset1, dataset2):
-            if not self.is_member(r1.id, r2.id):
+            if not self.is_member(r1.id, r2.id) and \
+                    (not range_in_gt or (r1.id in self._gt_id1s and r2.id in self._gt_id2s)):
                 s = score_function(r1, r2)
                 heapq.heappush(max_heap, (s, r1.id, r2.id))
                 if len(max_heap) > num_of_negatives:
@@ -182,20 +199,39 @@ class GroundTruth(object):
             r1_id, r2_id = d[1], d[2]
             self.add_negative(r1_id, r2_id)
 
-    def generate_all_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset'):
+    def generate_all_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset', range_in_gt: bool = False):
+        """
+        Args:
+            dataset1 (Dataset):
+            dataset2 (Dataset):
+            range_in_gt (bool, optional):
+        """
         for r1, r2 in get_record_pairs(dataset1, dataset2):
-            if not self.is_member(r1.id, r2.id):
+            if not self.is_member(r1.id, r2.id) and \
+                    (not range_in_gt or (r1.id in self._gt_id1s and r2.id in self._gt_id2s)):
                 self.add_negative(r1.id, r2.id)
 
     def generate_stratified_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
                                       classify: Callable, num_of_strata: int, random_seed: int = None,
-                                      num_of_negatives: int = -1):
+                                      num_of_negatives: int = -1, range_in_gt: bool = False):
+        """
+        Args:
+            dataset1 (Dataset):
+            dataset2 (Dataset):
+            classify (Callable):
+            num_of_strata (int):
+            random_seed (int, optional):
+            num_of_negatives (int, optional):
+            range_in_gt (bool, optional):
+        """
 
         # add positives and negatives to different clusters
         strata = [{'p': [], 'n': []} for _ in range(num_of_strata)]
 
         # build strata
         for r1, r2 in get_record_pairs(dataset1, dataset2):
+            if range_in_gt and not (r1.id in self._gt_id1s and r2.id in self._gt_id2s):
+                continue
             stratum_id = classify(r1, r2)
             p_n = 'p' if self.is_member(r1.id, r2.id) else 'n'
             strata[stratum_id][p_n].append((r1.id, r2.id))
