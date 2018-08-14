@@ -238,8 +238,8 @@ class Trial(object):
         Returns:
             f_measure (float)
         """
-        return 1 / 2 * (self.precision + self.recall)
-
+        return 2 * (self.precision * self.recall) / (self.precision + self.recall)
+        
     @property
     def false_positives(self) -> float:
         """
