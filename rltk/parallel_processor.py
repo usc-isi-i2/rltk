@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import threading
 import queue
+from typing import Callable
 
 
 class OutputThread(threading.Thread):
@@ -11,7 +12,7 @@ class OutputThread(threading.Thread):
 
     def run(self):
         for o in self.instance.get_output():
-            self.output_handler(o)
+            self.output_handler(**o)
 
 
 class ParallelProcessor(object):
@@ -20,8 +21,9 @@ class ParallelProcessor(object):
     CMD_DATA = 0
     CMD_STOP = 1
 
-    def __init__(self, input_handler, num_of_processor,
-                 max_size_per_input_queue=0, max_size_per_output_queue=0, output_handler=None):
+    def __init__(self, input_handler: Callable, num_of_processor: int,
+                 max_size_per_input_queue: int = 0, max_size_per_output_queue: int = 0,
+                 output_handler: Callable = None):
         self.num_of_processor = num_of_processor
         self.input_queues = [mp.Queue(maxsize=max_size_per_input_queue) for _ in range(num_of_processor)]
         self.output_queues = [mp.Queue(maxsize=max_size_per_output_queue) for _ in range(num_of_processor)]
@@ -32,8 +34,9 @@ class ParallelProcessor(object):
         self.input_queue_index = 0
         self.output_queue_index = 0
 
-        # if output_handler is set, output need to be handled in main process
-        # otherwise, output will not be there
+        # output can be handled in each process or in main process after merging (output_handler needs to be set)
+        # if output_handler is set, output needs to be handled in main process
+        # otherwise, it assumes there's no output
         if output_handler:
             self.output_thread = OutputThread(self, output_handler)
 
@@ -70,7 +73,7 @@ class ParallelProcessor(object):
         for q in self.input_queues:
             q.put((ParallelProcessor.CMD_STOP,))
 
-    def run(self, idx, input_queue, output_queue):
+    def run(self, idx: int, input_queue: mp.Queue, output_queue: mp.Queue):
         """
         subprocess
         all self.XXX are copied from parent process, don't use them as variable
