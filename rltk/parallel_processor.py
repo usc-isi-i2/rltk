@@ -12,7 +12,7 @@ class OutputThread(threading.Thread):
 
     def run(self):
         for o in self.instance.get_output():
-            self.output_handler(**o)
+            self.output_handler(*o)
 
 
 class ParallelProcessor(object):
