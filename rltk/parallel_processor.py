@@ -90,6 +90,8 @@ class ParallelProcessor(object):
                 args, kwargs = data[1], data[2]
                 # print(idx, 'data')
                 result = self.input_handler(*args, **kwargs)
+                if not isinstance(result, tuple):
+                    result = (result,)
                 if self.output_handler:
                     output_queue.put((ParallelProcessor.CMD_DATA, result))
 
