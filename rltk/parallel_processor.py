@@ -5,6 +5,10 @@ from typing import Callable
 
 
 class OutputThread(threading.Thread):
+    """
+    Handle output in main process.
+    Create a thread and call ParallelProcessor.get_output().
+    """
     def __init__(self, instance, output_handler):
         super(OutputThread, self).__init__()
         self.output_handler = output_handler
@@ -16,7 +20,8 @@ class OutputThread(threading.Thread):
 
 
 class ParallelProcessor(object):
-    # command format
+    # Command format in queue. Represent in tuple.
+    # The first element of tuple will be command, the rests are arguments or data.
     # (CMD_XXX, args...)
     CMD_DATA = 0
     CMD_STOP = 1
@@ -24,6 +29,20 @@ class ParallelProcessor(object):
     def __init__(self, input_handler: Callable, num_of_processor: int,
                  max_size_per_input_queue: int = 0, max_size_per_output_queue: int = 0,
                  output_handler: Callable = None):
+        """
+        Args:
+            input_handler (Callable): Computational function. 
+            num_of_processor (int): Number of processes to use. 
+            max_size_per_input_queue (int): Maximum size of input queue for one process.
+                                        If it's full, the corresponding process will be blocked.
+                                        0 by default means unlimited.
+            max_size_per_output_queue (int): Maximum size of output queue for one process.
+                                        If it's full, the corresponding process will be blocked.
+                                        0 by default means unlimited.
+            output_handler (Callable): If the output data needs to be get in main process (another thread), 
+                                    set this handler, the arguments are same to the return from input_handler.
+                                    The return result is one by one, order is arbitrary.
+        """
         self.num_of_processor = num_of_processor
         self.input_queues = [mp.Queue(maxsize=max_size_per_input_queue) for _ in range(num_of_processor)]
         self.output_queues = [mp.Queue(maxsize=max_size_per_output_queue) for _ in range(num_of_processor)]
@@ -35,27 +54,40 @@ class ParallelProcessor(object):
         self.output_queue_index = 0
 
         # output can be handled in each process or in main process after merging (output_handler needs to be set)
-        # if output_handler is set, output needs to be handled in main process
-        # otherwise, it assumes there's no output
+        # if output_handler is set, output needs to be handled in main process; otherwise, it assumes there's no output.
         if output_handler:
             self.output_thread = OutputThread(self, output_handler)
 
     def start(self):
+        """
+        Start processes and threads.
+        """
         if self.output_handler:
             self.output_thread.start()
         for p in self.processes:
             p.start()
 
     def join(self):
+        """
+        Block until processes and threads return.
+        """
         for p in self.processes:
             p.join()
         if self.output_handler:
             self.output_thread.join()
 
+    def task_done(self):
+        """
+        Indicate that all resources which need to compute are added to processes.
+        (main process, blocked)
+        """
+        for q in self.input_queues:
+            q.put((ParallelProcessor.CMD_STOP,))
+
     def compute(self, *args, **kwargs):
         """
-        main process
-        unblock, round robin to find next available queue
+        Add data to one of the input queues.
+        (main process, unblocked, using round robin to find next available queue)
         """
         while True:
             q = self.input_queues[self.input_queue_index]
@@ -66,19 +98,11 @@ class ParallelProcessor(object):
             except queue.Full:
                 continue  # find next available
 
-    def task_done(self):
-        """
-        main process
-        """
-        for q in self.input_queues:
-            q.put((ParallelProcessor.CMD_STOP,))
-
     def run(self, idx: int, input_queue: mp.Queue, output_queue: mp.Queue):
         """
-        subprocess
-        all self.XXX are copied from parent process, don't use them as variable
+        Process’s activity. It handles queue IO and invokes user's input handler.
+        (subprocess, blocked, only two queues can be used to communicate with main process)
         """
-        # block
         while True:
             data = input_queue.get()
             if data[0] == ParallelProcessor.CMD_STOP:
@@ -90,15 +114,15 @@ class ParallelProcessor(object):
                 args, kwargs = data[1], data[2]
                 # print(idx, 'data')
                 result = self.input_handler(*args, **kwargs)
-                if not isinstance(result, tuple):
+                if not isinstance(result, tuple):  # output must represent as tuple
                     result = (result,)
                 if self.output_handler:
                     output_queue.put((ParallelProcessor.CMD_DATA, result))
 
     def get_output(self):
         """
-        main process
-        unblock, round robin to find next available queue
+        Get data from output queue sequentially.
+        (main process, unblocked, using round robin to find next available queue)
         """
         if not self.output_handler:
             return
