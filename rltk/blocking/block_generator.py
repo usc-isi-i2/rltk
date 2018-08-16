@@ -3,7 +3,7 @@ from rltk.dataset import Dataset
 
 
 class BlockGenerator(object):
-    def __init__(self, dataset1 : Dataset, dataset2 : Dataset, writer: BlockWriter, **kwargs):
+    def __init__(self, dataset1: Dataset, dataset2: Dataset, writer: BlockWriter, **kwargs):
         self._writer = writer
         self._dataset1 = dataset1
         self._dataset2 = dataset2
