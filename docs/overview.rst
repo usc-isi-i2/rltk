@@ -148,6 +148,18 @@ For example: Full comparison (cross product) of two tables (shown in figure) is 
 .. image:: images/overview-blocking-workflow.png
    :scale: 60 %
 
+.. code-block:: python
+
+   ngram = rltk.NGramTokenizer()
+   def tokenizer(r):
+       return ngram.basic(r.first_name, 3)
+
+   block_handler = rltk.InvertedIndexBlockGenerator(
+       ds1, ds2, writer=rltk.BlockFileWriter('ngram_blocks.jl'), tokenizer=tokenizer).generate()
+   pairs = rltk.get_record_pairs(ds1, ds2, rltk.BlockFileReader(block_handler))
+   for r1, r2 in pairs:
+       print(r1.id, r1.full_name, '\t', r2.id, r2.full_name)
+
 Blocks need to be calculated and passed while generating candidate pairs. Blocks' calculation can be time consuming so RLTK supports dumping them to disk for further usage.
 
 Summary
