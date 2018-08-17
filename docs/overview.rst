@@ -54,7 +54,7 @@ Now we have two ``Datasets`` and we need to find pairs (If it's de-duplication p
 
 Simply using RLTK's API to get all possible combinations of candidate pairs and implement your only "magical function" to find if two ``Record`` s are the same.
 
-Let's look at an example input datasets and minimal implementation.
+Let's look at example input datasets and minimal implementation.
 
 .. image:: images/overview-inputs.png
    :scale: 60 %
@@ -94,6 +94,8 @@ Let's look at an example input datasets and minimal implementation.
 	    print(r1.id, r1.value, '\t', r2.id, r2.value)
 	    print('levenshtein_distance:', rltk.levenshtein_distance(r1.value, r2.value))
 	    print('levenshtein_similarity:', rltk.levenshtein_similarity(r1.value, r2.value))
+
+One thing to notice here: the property in ``Record`` class can be decorated by ``@property``, or ``@rltk.cached_property`` which pre-calculates the value instead of computing at the runtime.
 
 Evaluation
 ----------
