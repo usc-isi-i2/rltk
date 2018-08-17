@@ -20,6 +20,21 @@ class OutputThread(threading.Thread):
 
 
 class ParallelProcessor(object):
+    """
+    Args:
+        input_handler (Callable): Computational function. 
+        num_of_processor (int): Number of processes to use. 
+        max_size_per_input_queue (int): Maximum size of input queue for one process.
+                                    If it's full, the corresponding process will be blocked.
+                                    0 by default means unlimited.
+        max_size_per_output_queue (int): Maximum size of output queue for one process.
+                                    If it's full, the corresponding process will be blocked.
+                                    0 by default means unlimited.
+        output_handler (Callable): If the output data needs to be get in main process (another thread), 
+                                set this handler, the arguments are same to the return from input_handler.
+                                The return result is one by one, order is arbitrary.
+    """
+
     # Command format in queue. Represent in tuple.
     # The first element of tuple will be command, the rests are arguments or data.
     # (CMD_XXX, args...)
@@ -29,20 +44,6 @@ class ParallelProcessor(object):
     def __init__(self, input_handler: Callable, num_of_processor: int,
                  max_size_per_input_queue: int = 0, max_size_per_output_queue: int = 0,
                  output_handler: Callable = None):
-        """
-        Args:
-            input_handler (Callable): Computational function. 
-            num_of_processor (int): Number of processes to use. 
-            max_size_per_input_queue (int): Maximum size of input queue for one process.
-                                        If it's full, the corresponding process will be blocked.
-                                        0 by default means unlimited.
-            max_size_per_output_queue (int): Maximum size of output queue for one process.
-                                        If it's full, the corresponding process will be blocked.
-                                        0 by default means unlimited.
-            output_handler (Callable): If the output data needs to be get in main process (another thread), 
-                                    set this handler, the arguments are same to the return from input_handler.
-                                    The return result is one by one, order is arbitrary.
-        """
         self.num_of_processor = num_of_processor
         self.input_queues = [mp.Queue(maxsize=max_size_per_input_queue) for _ in range(num_of_processor)]
         self.output_queues = [mp.Queue(maxsize=max_size_per_output_queue) for _ in range(num_of_processor)]

@@ -18,6 +18,7 @@
 #
 import os
 import sys
+import datetime
 sys.path.insert(0, os.path.abspath('../rltk'))
 sys.path.insert(0, os.path.abspath('../'))
 
@@ -47,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'RLTK'
-copyright = u'2017, USC/ISI'
+copyright = u'{}, USC/ISI'.format(datetime.datetime.now().year)
 author = u'USC/ISI'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -5,6 +5,7 @@ API Reference
    :maxdepth: 4
 
    mod_dataset.rst
+   mod_parallel_processor.rst
    mod_record.rst
    mod_similarity.rst
 ..   mod_io.rst
