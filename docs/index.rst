@@ -14,7 +14,7 @@ RLTK: Record Linkage ToolKit
 Getting Started
 ---------------
 
-Installation (need to upload to PyPI later)::
+Installation::
 
    pip install -U rltk
 
@@ -24,11 +24,13 @@ Example::
    >>> rltk.levenshtein_distance('abc', 'abd')
    1
 
-More Examples
+Tutorial
 -------------
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
+
+   overview.rst
 
 
 API Reference
@@ -38,11 +40,3 @@ API Reference
    :maxdepth: 2
 
    modules.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

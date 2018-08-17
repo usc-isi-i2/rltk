@@ -98,9 +98,9 @@ html_theme_options = {
     'github_type': 'star',
     'extra_nav_links': {
         'RLTK @ GitHub': 'https://github.com/usc-isi-i2/rltk',
-        # 'RLTK @ PyPI': 'https://github.com/usc-isi-i2/rltk',
+        'RLTK @ PyPI': 'https://pypi.org/project/rltk',
         'Issue Tracker': 'https://github.com/usc-isi-i2/rltk/issues',
-        'USC/ISI-I2': 'http://usc-isi-i2.github.io/'
+        'USC/ISI CKG': 'http://usc-isi-i2.github.io/'
     },
     'show_powered_by': False
 }
