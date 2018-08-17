@@ -61,39 +61,39 @@ Let's look at example input datasets and minimal implementation.
 
 .. code-block:: python
 
-	import rltk
+   import rltk
 
-	class Record1(rltk.Record):
-	    @property
-	    def id(self):
-	        return self.raw_object['doc_id']
+   class Record1(rltk.Record):
+      @property
+      def id(self):
+         return self.raw_object['doc_id']
 
-	    @property
-	    def value(self):
-	        return self.raw_object['doc_value']
+      @property
+      def value(self):
+         return self.raw_object['doc_value']
 
-	class Record2(rltk.Record):
-	    @rltk.cached_property
-	    def id(self):
-	        return self.raw_object['ident']
+   class Record2(rltk.Record):
+      @rltk.cached_property
+      def id(self):
+         return self.raw_object['ident']
 
-	    @rltk.cached_property
-	    def value(self):
-	        v = self.raw_object.get('values', list())
-	        return v[0] if len(v) > 0 else 'empty'
+      @rltk.cached_property
+      def value(self):
+         v = self.raw_object.get('values', list())
+         return v[0] if len(v) > 0 else 'empty'
 
 
-	ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv'),
-	                   record_class=Record1, adapter=rltk.MemoryAdapter())
-	ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
-	                   record_class=Record2, adapter=rltk.DBMAdapter('file_index'))
+   ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv'),
+                        record_class=Record1, adapter=rltk.MemoryAdapter())
+   ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
+                        record_class=Record2, adapter=rltk.DBMAdapter('file_index'))
 
-	pairs = rltk.get_record_pairs(ds1, ds2)
-	for r1, r2 in pairs:
-	    print('-------------')
-	    print(r1.id, r1.value, '\t', r2.id, r2.value)
-	    print('levenshtein_distance:', rltk.levenshtein_distance(r1.value, r2.value))
-	    print('levenshtein_similarity:', rltk.levenshtein_similarity(r1.value, r2.value))
+   pairs = rltk.get_record_pairs(ds1, ds2)
+   for r1, r2 in pairs:
+      print('-------------')
+      print(r1.id, r1.value, '\t', r2.id, r2.value)
+      print('levenshtein_distance:', rltk.levenshtein_distance(r1.value, r2.value))
+      print('levenshtein_similarity:', rltk.levenshtein_similarity(r1.value, r2.value))
 
 One thing to notice here: the property in ``Record`` class can be decorated by ``@property``, or ``@rltk.cached_property`` which pre-calculates the value instead of computing at the runtime.
 
@@ -102,7 +102,7 @@ For the "magical function", you can use any methods that make sense: hand-crafte
 Evaluation
 ----------
 
-After designing the "magical function", you need a way to judge it's performance. RLTK has a built-in package called evaluation which includes three basic components:
+After designing the "magical function", you need a way to judge its performance. RLTK has a built-in package called ``Evaluation`` which includes three basic components:
 
 * Groud Truth: Ground truth data.
 * Trial: Store the result of prediction of candidate pairs.
@@ -111,7 +111,7 @@ After designing the "magical function", you need a way to judge it's performance
 .. image:: images/overview-evaluation-workflow.png
    :scale: 60 %
 
-As can be seen from the figure, every ``Trial`` has a corresponding ``GroundTruth``. ``GroundTruth`` needs to be provided while generating candidate pairs. Add prediction result to trial if it needs to be evaluate later. Call ``evaluate()`` to get the evaluation of the ``Trial`` against ``GroundTruth``.
+As can be seen from the figure, every ``Trial`` has a corresponding ``GroundTruth``. ``GroundTruth`` needs to be provided while generating candidate pairs. Add prediction result to ``Trial`` if it needs to be evaluated later. Call ``evaluate()`` to get the evaluation of the ``Trial`` against ``GroundTruth``.
 
 .. code-block:: python
 
@@ -129,7 +129,6 @@ As can be seen from the figure, every ``Trial`` has a corresponding ``GroundTrut
    print(trial.true_positives, trial.false_positives, trial.true_negatives, trial.false_negatives,
           trial.precision, trial.recall, trial.f_measure)
 
-
 Notice ``add_positive()`` and ``add_negative()`` are just syntactic sugar of ``add_result()`` used in above code snippet.
 
 Blocking
@@ -145,6 +144,8 @@ Let's say the 1st dataset has M items and and 2nd has N, then it needs M*N compa
 
 For example: Full comparison (cross product) of two tables (shown in figure) is 12 times. After inspection, it's obvious to say that "last name" can be used as blocking key (group by based on key) since people who have different last name can't be the same. Then, total comparison drops to 3 times.
 
+Blocks need to be calculated and passed while generating candidate pairs. Blocks' calculation can be time consuming so RLTK supports dumping them to disk for further usage.
+
 .. image:: images/overview-blocking-workflow.png
    :scale: 60 %
 
@@ -156,11 +157,9 @@ For example: Full comparison (cross product) of two tables (shown in figure) is 
 
    block_handler = rltk.InvertedIndexBlockGenerator(
        ds1, ds2, writer=rltk.BlockFileWriter('ngram_blocks.jl'), tokenizer=tokenizer).generate()
-   pairs = rltk.get_record_pairs(ds1, ds2, rltk.BlockFileReader(block_handler))
+   pairs = rltk.get_record_pairs(ds1, ds2, block_reader=rltk.BlockFileReader(block_handler))
    for r1, r2 in pairs:
        print(r1.id, r1.full_name, '\t', r2.id, r2.full_name)
-
-Blocks need to be calculated and passed while generating candidate pairs. Blocks' calculation can be time consuming so RLTK supports dumping them to disk for further usage.
 
 Summary
 -------
