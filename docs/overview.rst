@@ -11,7 +11,7 @@ Assume we have two following tables:
 .. image:: images/overview-tables.png
    :scale: 60 %
 
-It's obvious that both of them have *id* ``A04`` and these two belong to the same entity. Then we know that "David's id is A04 and he is a male".
+It's obvious that both of them have identical *id* ``A04`` and these two belong to the same entity. Then we know that "David's id is A04 and he is a male".
 
 But real world situations are more complex:
 
@@ -44,15 +44,15 @@ So, the data flow is: in order to create ``Dataset``, use ``Reader`` to read fro
 
 Obviously, generating ``Record`` is really time consuming if the dataset is large, but if the concrete ``Adapter`` is a persistent one (e.g., ``HBaseAdapter``), then next time, ``Dataset`` can be loaded directly from this ``Adapter`` instead of regenerating again from raw input.
 
-Minimal Workflow
-----------------
+Minimal Workflow & Implementation
+---------------------------------
 
 Now we have two ``Datasets`` and we need to find pairs (If it's de-duplication problem, only one ``Dataset`` is needed).
 
 .. image:: images/overview-basic-workflow.png
    :scale: 60 %
 
-Simply using RLTK's API to get all possible combinations of candidate pairs and implement your only "magical function" to find if two ``Record`` s are the same.
+Simply using RLTK's API to get all possible combinations of candidate pairs and implement your only "magical function" (shown as ``is_pair()`` in figure) to find if two ``Record`` s are the same.
 
 Let's look at example input datasets and minimal implementation.
 
@@ -97,13 +97,62 @@ Let's look at example input datasets and minimal implementation.
 
 One thing to notice here: the property in ``Record`` class can be decorated by ``@property``, or ``@rltk.cached_property`` which pre-calculates the value instead of computing at the runtime.
 
+For the "magical function", you can use any methods that make sense: hand-crafted rules, machine learning model, etc. RLTK provides a lot of similarity metrics which can be very helpful while doing comparison.
+
 Evaluation
 ----------
 
+After designing the "magical function", you need a way to judge it's performance. RLTK has a built-in package called evaluation which includes three basic components:
+
+* Groud Truth: Ground truth data.
+* Trial: Store the result of prediction of candidate pairs.
+* Evaluation: Visualize the result of evaluation if multiple trials are given.
+
+.. image:: images/overview-evaluation-workflow.png
+   :scale: 60 %
+
+As can be seen from the figure, every ``Trial`` has a corresponding ``GroundTruth``. ``GroundTruth`` needs to be provided while generating candidate pairs. Add prediction result to trial if it needs to be evaluate later. Call ``evaluate()`` to get the evaluation of the ``Trial`` against ``GroundTruth``.
+
+.. code-block:: python
+
+   gt = rltk.GroundTruth()
+   gt.load('gt.csv')
+   eva = rltk.Evaluation()
+   trial = rltk.Trial(ground_truth=gt)
+
+   test_pairs = rltk.get_record_pairs(ds1, ds2, ground_truth=gt):
+   for r1, r2 in test_pairs:
+      is_positive = is_pair(r1, r2)
+      trial.add_result(r1, r2, is_positive)
+
+   trial.evaluate()
+   print(trial.true_positives, trial.false_positives, trial.true_negatives, trial.false_negatives,
+          trial.precision, trial.recall, trial.f_measure)
+
+
+Notice ``add_positive()`` and ``add_negative()`` are just syntactic sugar of ``add_result()`` used in above code snippet.
 
 Blocking
 --------
 
+When finding pairs between two datasets, how many total comparison does it make?
 
-Optimization
-------------
+Let's say the 1st dataset has M items and and 2nd has N, then it needs M*N comparisons. If M=10,000, N=100,000, M*N=1,000,000,000. If the computer can determine a heavy ``is_pair()`` in 0.001s, in total it costs 1 billion x 0.001s / 60 / 60 / 24 = 11.57 days. Apparently exhausting is not a good choice. Blocking is something invented to tackle this problem. Blocking attempts to restrict comparisons to just those records for which one or more particularly discriminating identifiers agree, which has the effect of increasing the positive predictive value (precision) at the expense of sensitivity (recall).
+
+
+.. image:: images/overview-blocking-tables.png
+   :scale: 60 %
+
+For example: Full comparison (cross product) of two tables (shown in figure) is 12 times. After inspection, it's obvious to say that "last name" can be used as blocking key (group by based on key) since people who have different last name can't be the same. Then, total comparison drops to 3 times.
+
+.. image:: images/overview-blocking-workflow.png
+   :scale: 60 %
+
+Blocks need to be calculated and passed while generating candidate pairs. Blocks' calculation can be time consuming so RLTK supports dumping them to disk for further usage.
+
+Summary
+-------
+
+Now you should know what's the goal of record linkage, how to construct ``Dataset`` and how to use it in RLTK workflow, how to evaluate the quality of linkage and how to use blocking technique to deal with large datasets.
+
+The next step is: look at more real dataset examples and tests in `rltk-experimentation <https://github.com/usc-isi-i2/rltk-experimentation>`_.
