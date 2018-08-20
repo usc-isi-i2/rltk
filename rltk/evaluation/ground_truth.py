@@ -241,7 +241,7 @@ class GroundTruth(object):
         for idx, s in enumerate(strata):
             stratum_id = str(idx)
             # nothing to pick
-            if s['p'] == 0 or s['n'] == 0:
+            if len(s['p']) == 0 or len(s['n']) == 0:
                 strata_weights[stratum_id] = 0.0
                 continue
             strata_weights[stratum_id] = float(len(s['p'])) / len(s['n'])
