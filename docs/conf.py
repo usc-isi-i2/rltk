@@ -47,9 +47,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'RLTK'
-copyright = u'{}, USC/ISI'.format(datetime.datetime.now().year)
-author = u'USC/ISI'
+project = 'RLTK'
+copyright = '{}, USC/ISI'.format(datetime.datetime.now().year)
+author = 'USC/ISI'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -156,7 +156,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'rltk.tex', u'RLTK Documentation',
+    (master_doc, 'rltk.tex', 'RLTK Documentation',
      u'USC/ISI', 'manual'),
 ]
 
@@ -166,7 +166,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'rltk', u'RLTK Documentation',
+    (master_doc, 'rltk', 'RLTK Documentation',
      [author], 1)
 ]
 
@@ -177,7 +177,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'rltk', u'RLTK Documentation',
-     author, 'rltk', 'One line description of project.',
+    (master_doc, 'rltk', 'RLTK Documentation',
+     author, 'rltk', 'Record Linkage ToolKit',
      'Miscellaneous'),
 ]
