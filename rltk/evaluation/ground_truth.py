@@ -18,47 +18,50 @@ if TYPE_CHECKING:
 
 class GroundTruth(object):
     """
-    ground truth container.
-    A dict containing all ground truth
-    the key is the combination of 2 id
-    the value is the whether it is same by ground truth
+    Ground Truth
+    
+    Args:
+        filename (string, optional): existing ground truth file name
     """
     ID1 = 'id1'
     ID2 = 'id2'
     LABEL = 'label'
 
-    def __init__(self):
+    def __init__(self, filename: str = None):
         self._ground_truth_data = {}
         self._gt_id1s = set([])
         self._gt_id2s = set([])
 
+        if filename:
+            self.load(filename)
+
     def add_positive(self, id1: str, id2: str):
         """
-        add a positive ground truth
+        Add a positive ground truth. It's a syntactic sugar of :meth:`add_ground_truth`.
 
         Args:
-            id1 (String): first id
-            id2 (String): second id
+            id1 (str): first id
+            id2 (str): second id
         """
         self.add_ground_truth(id1, id2, True)
 
     def add_negative(self, id1: str, id2: str):
         """
-        add a negative ground truth
+        Add a negative ground truth. It's a syntactic sugar of :meth:`add_ground_truth`.
 
         Args:
-            id1 (String): first id
-            id2 (String): second id
+            id1 (str): first id
+            id2 (str): second id
         """
         self.add_ground_truth(id1, id2, False)
 
     def add_ground_truth(self, id1: str, id2: str, value: bool):
         """
-        add a ground truth
+        Add a pair to ground truth
 
         Args:
-            id1 (String): first id
-            id2 (String): second id
+            id1 (str): first id
+            id2 (str): second id
             value (bool): ground truth value
         """
         key = self.encode_ids(id1, id2)
@@ -68,33 +71,45 @@ class GroundTruth(object):
 
     def is_member(self, id1: str, id2: str) -> bool:
         """
-        check whether this item is in the ground truth dict
+        Check if this pair is in ground truth
 
         Args:
-            id1 (String): first id
-            id2 (String): second id
+            id1 (str): first id
+            id2 (str): second id
 
         Returns:
-            is_member (bool)
+            bool:
         """
         key = self.encode_ids(id1, id2)
         return key in self._ground_truth_data
 
     def get_label(self, id1: str, id2: str) -> bool:
+        """
+        Pair's label
+        
+        Args:
+            id1 (str): first id
+            id2 (str): second id
+        
+        Returns:
+            bool: True if positive, else negative
+        """
         key = self.encode_ids(id1, id2)
         return self._ground_truth_data.get(key)
 
     def is_positive(self, id1: str, id2: str) -> bool:
         """
-        if ground truth does not contain the item, raise a exception
-        if ground truth contain the true value, return true; else, return false
+        If pair is positive in ground truth. It's a syntactic sugar of :meth:`get_label`.
 
         Args:
-            id1 (String): first id
-            id2 (String): second id
+            id1 (str): first id
+            id2 (str): second id
 
         Returns:
-            is_positive (bool)
+            bool:
+            
+        Raises:
+            KeyError: if pair is not in ground truth
         """
         if not self.is_member(id1, id2):
             raise KeyError('Not in ground truth')
@@ -102,38 +117,39 @@ class GroundTruth(object):
 
     def is_negative(self, id1: str, id2: str) -> bool:
         """
-        if ground truth does not contain the item, raise a exception
-        if ground truth contain the true value, return false; else, return true
+        If pair is negative in ground truth. It's a syntactic sugar of :meth:`get_label`.
 
         Args:
-            id1 (String): first id
-            id2 (String): second id
+            id1 (str): first id
+            id2 (str): second id
 
         Returns:
-            is_positive (bool)
+            bool:
+            
+        Raises:
+            KeyError: if pair is not in ground truth
         """
         if not self.is_member(id1, id2):
             raise KeyError('Not in ground truth')
         return not self.get_label(id1, id2)
 
-    def load(self, filename):
+    def load(self, filename: str):
         """
-        load the ground truth from file.
-        this will overwrite the current self.ground_trurh
+        Load the ground truth from file
 
         Args:
-            filename (String): loading path
+            filename (str): loading path
         """
         self.__init__()
         for obj in GroundTruthReader(filename):
             self._ground_truth_data[self.encode_ids(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL] == 'True'
 
-    def save(self, filename):
+    def save(self, filename: str):
         """
-        save the ground truth to file.
+        Save the ground truth to file
 
         Args:
-            filename (String): saving path
+            filename (str): saving path
         """
         w = GroundTruthWriter(filename)
         for k, v in self._ground_truth_data.items():
@@ -143,40 +159,63 @@ class GroundTruth(object):
 
     def encode_ids(self, id1: str, id2: str):
         """
-        combine id1 and id2 and gen the key to save in dict.
+        Encode ids to key in ground truth dictionary
 
         Args:
-            id1 (String): first id
-            id2 (String): second id
+            id1 (str): first id
+            id2 (str): second id
 
         Returns:
-            key (String)
+            string:
         """
         key = json.dumps({self.ID1: id1, self.ID2: id2})
         return key
 
     def decode_ids(self, key: str):
+        """
+        Decode key in ground truth dictionary to ids
+
+        Args:
+            key (str):
+
+        Returns:
+            tuple:
+                id1 (str)
+                id2 (str)
+        """
         obj = json.loads(key)
         return obj[self.ID1], obj[self.ID2]
 
     def __iter__(self):
+        """
+        Same as :meth:`__next__`
+        """
         return self.__next__()
 
     def __next__(self):
+        """
+        Iterator
+        
+        Returns:
+            iter: id1, id2, label
+        """
         for k, v in self._ground_truth_data.items():
             id1, id2 = self.decode_ids(k)
             yield id1, id2, v
 
     def __len__(self):
+        """
+        Size of ground truth
+        """
         return len(self._ground_truth_data)
 
     def generate_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
                            score_function: Callable, num_of_negatives: int = -1, range_in_gt: bool = False):
         """
         Args:
-            dataset1 (Dataset): 
-            dataset2 (Dataset): 
-            score_function (Callable): 
+            dataset1 (Dataset): Dataset 1.
+            dataset2 (Dataset): Dataset 2.
+            score_function (Callable): User function, inputs are two :meth:`rltk.record.Record` s, return is a float.
             num_of_negatives (int, optional): Number of negatives to generate. 
                                             Default is -1 which will generate same number of negatives to positives.
             range_in_gt (bool, optional): The negatives will be generated within the range of ids 
@@ -202,9 +241,12 @@ class GroundTruth(object):
     def generate_all_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset', range_in_gt: bool = False):
         """
         Args:
-            dataset1 (Dataset):
-            dataset2 (Dataset):
-            range_in_gt (bool, optional):
+            dataset1 (Dataset): Dataset 1.
+            dataset2 (Dataset): Dataset 2.
+            range_in_gt (bool, optional): The negatives will be generated within the range of ids 
+                                        in ground truth if it's True,
+                                        otherwise range will be the cross product of two datasets. 
+                                        Default is False.
         """
         for r1, r2 in get_record_pairs(dataset1, dataset2):
             if not self.is_member(r1.id, r2.id) and \
@@ -216,13 +258,19 @@ class GroundTruth(object):
                                       num_of_negatives: int = -1, range_in_gt: bool = False):
         """
         Args:
-            dataset1 (Dataset):
-            dataset2 (Dataset):
-            classify (Callable):
-            num_of_strata (int):
-            random_seed (int, optional):
-            num_of_negatives (int, optional):
-            range_in_gt (bool, optional):
+            dataset1 (Dataset): Dataset 1.
+            dataset2 (Dataset): Dataset 2.
+            classify (Callable): User function, inputs are two :meth:`rltk.record.Record` s, 
+                                return is an integer which identify which stratum the pair belongs to.
+                                The return integer should be in range [0, num_of_strata).
+            num_of_strata (int): Number of strata.
+            random_seed (int, optional): The seed used by :py:meth:`random.seed`.
+            num_of_negatives (int, optional): Number of negatives to generate. 
+                                            Default is -1 which will generate same number of negatives to positives.
+            range_in_gt (bool, optional): The negatives will be generated within the range of ids 
+                                        in ground truth if it's True,
+                                        otherwise range will be the cross product of two datasets. 
+                                        Default is False.
         """
 
         # add positives and negatives to different clusters
@@ -275,6 +323,18 @@ class GroundTruth(object):
                 self.add_negative(n[0], n[1])
 
     def train_test_split(self, test_ratio: float = 0.2, random_seed: int = None):
+        """
+        Train test split
+        
+        Args:
+            test_ratio (float, optional): The ratio of test from all ground truth data. Default is 0.2.
+            random_seed (int, optional): The seed used by :py:meth:`random.seed`.
+            
+        Returns:
+            tuple:
+                train_gt (GroudTruth)
+                test_gt (GroudTruth)
+        """
         size = len(self)
         test_size = int(size * test_ratio)
         if random_seed:
@@ -294,6 +354,12 @@ class GroundTruth(object):
         return train_gt, test_gt
 
     def generate_dataframe(self, **kwargs):
+        """
+        Generate data frame
+        
+        Returns:
+            pandas.DataFrame:
+        """
         columns = ['id1', 'id2', 'label']
         table = []
         for id1, id2, label in self:
