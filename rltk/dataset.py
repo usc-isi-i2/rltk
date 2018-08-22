@@ -3,6 +3,7 @@ from rltk.io.adapter import KeyValueAdapter, MemoryAdapter
 from rltk.record import Record, generate_record_property_cache, get_property_names
 
 import pandas as pd
+from typing import Callable
 
 
 class Dataset(object):
@@ -19,9 +20,10 @@ class Dataset(object):
     Note:
         Set reader, record_class and adapter if new a Dataset needs to be generated.
         If Dataset is already generated and stored in a permanent adapter, only adapter needs to be provided.
+        
     """
     def __init__(self, reader: Reader = None, record_class: type(Record) = None, adapter: KeyValueAdapter = None,
-                 size: int = None, sampling_function: callable = None):
+                 size: int = None, sampling_function: Callable = None):
         if not adapter:
             adapter = MemoryAdapter()
         self._adapter = adapter
@@ -52,14 +54,22 @@ class Dataset(object):
     def get_record(self, record_id):
         """
         Getter of a record.
+        
         Args:
             record_id (str): Record id.
+            
         Returns:
             Record: Record object.
         """
         return self._adapter.get(record_id)
 
-    def get_dataframe(self, **kwargs):
+    def generate_dataframe(self, **kwargs):
+        """
+        Generate Pandas Dataframe
+        
+        Returns:
+            pandas.Dataframe
+        """
         table = []
         columns = None
 
@@ -81,8 +91,17 @@ class Dataset(object):
         return pd.DataFrame(table, columns=columns, **kwargs)
 
     def __iter__(self):
+        """
+        Same as :meth:`__next__`
+        """
         return self.__next__()
 
     def __next__(self):
+        """
+        Iterator
+        
+        Returns:
+            iter: Record
+        """
         for r in self._adapter:
             yield r
