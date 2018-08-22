@@ -3,19 +3,37 @@ import matplotlib.pyplot as plt
 
 
 class Evaluation(object):
+    """
+    A collection of :meth:`Trial`s. It can be used to plot chart for multiple Trials.
+    
+    Args:
+        trial_list (list[Trial], optional): List of Trials, default is None.
+    """
+
     def __init__(self, trial_list: list = None):
         if not trial_list:
             trial_list = []
         self.trial_list = trial_list
 
     def add_trial(self, trial: Trial):
+        """
+        Add a Trial
+        
+        Args:
+            trial (Trial): A Trial.
+        """
         self.trial_list.append(trial)
 
     def auc(self, x, y):
         """
+        Compute AUC (Area Under Curve)
+        
         Args:
             x (list): list of x coordinates
             y (list): list of y coordinates
+            
+        Returns:
+            list:
         """
         coords = sorted([(x[i], y[i]) for i in range(len(x))])
         coords_reduced = dict()
@@ -45,31 +63,37 @@ class Evaluation(object):
 
     def plot(self, parameter_list, label_max=False, label_min=False, auc_params=None, aoc_params=None):
         """
+        General purpose plotting interface.
+        
         Args:
-            parameter_list (list): list of object
-                ```
+            parameter_list (list): list of object::
+            
                 {
                     'x': 'name of a property in Trial',
                     'y': 'name of a property in Trial',
-                    'label': 'label name',
-                    ...
+                    'label': 'label name'
                 }
-                ```
-           label_max (bool, optional): whether to label max
-           label_min (bool, optional): whether to label min
-           auc_params (list, optional): list of AUC (area under curve) labelling and shading parameters
+                
+            label_max (bool, optional): whether to label max
+            label_min (bool, optional): whether to label min
+            auc_params (list, optional): list of AUC labelling and shading parameters::
+            
                 [
                     desired x coordinate of AUC label (float),
                     desired y coordinate of AUC label (float),
                     whether to shading AUC is desired (bool)
                 ]
-
-            aoc_params (list, optional): list of AOC (area over curve) labelling and shading parameters
+                
+            aoc_params (list, optional): list of AOC labelling and shading parameters::
+            
                 [
                     desired x coordinate of AOC label (float),
                     desired y coordinate of AOC label (float),
                     whether to shading AOC is desired (bool)
                 ]
+                
+        Returns:
+            matplotlib.pyplot:
         """
 
         if len(self.trial_list) == 0:
@@ -133,12 +157,24 @@ class Evaluation(object):
         return plt
 
     def plot_precision_recall(self):
+        """
+        Plot precision recall curve. X-axis is recall, Y-axis is precision.
+        
+        Returns:
+            matplotlib.pyplot:
+        """
         return self.plot([{
             'x': 'recall',
             'y': 'precision'
         }])
 
     def plot_roc(self):
+        """
+        Plot ROC (Receiver Operating Characteristic) curve. X-axis is false positives, Y-axis is true positives.
+        
+        Returns:
+            matplotlib.pyplot:
+        """
         return self.plot([{
             'x': 'false_positives',
             'y': 'true_positives'
@@ -146,10 +182,15 @@ class Evaluation(object):
 
     def plot_features(self, df, f1, f2):
         """
+        Plot distribution of two features.
+        
         Args:
             df (pandas.DataFrame): dataframe containing trial results and computed features
             f1 (str): feature to place on the x-axis
             f2 (str): feature to place on the y-axis
+            
+        Returns:
+            matplotlib.pyplot:
         """
         tpX = []
         tpY = []
