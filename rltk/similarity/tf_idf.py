@@ -7,6 +7,9 @@ import rltk.utils as utils
 def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
     """
     Computes TF/IDF measure. This measure employs the notion of TF/IDF score commonly used in information retrieval (IR) to find documents that are relevant to keyword queries. The intuition underlying the TF/IDF measure is that two strings are similar if they share distinguishing terms.
+        
+    Note:
+        If you will call this function many times, :meth:`TF_IDF` is more efficient.
 
     Args:
         bag1 (list): Bag 1.
@@ -116,7 +119,7 @@ def tf_idf_cosine_similarity(tfidf_dict1, tfidf_dict2):
 
 class TF_IDF():
     """
-    TF/IDF helper class
+    TF/IDF helper class (An efficient implementation)
     
     Examples::
     
@@ -139,17 +142,40 @@ class TF_IDF():
         self.doc_size = 0
         self.idf = 0
 
-    def add_document(self, doc_id, tokens):
+    def add_document(self, doc_id: str, tokens: list):
+        """
+        Add document to corpus
+        
+        Args:
+            doc_id (str): Document (record) id.
+            tokens (list): List of token string.
+        """
         self.doc_size += 1
         tf = compute_tf(tokens)
         self.tf[doc_id] = tf
         for k, _ in tf.items():
             self.df_corpus[k] = self.df_corpus.get(k, 0) + 1
 
-    def pre_compute(self, math_log=False):
+    def pre_compute(self, math_log: bool = False):
+        """
+        Pre-compute IDF score
+        
+        Args:
+            math_log (bool, optional): Flag to indicate whether math.log() should be used in TF and IDF formulas. Defaults to False.
+        """
         self.idf = compute_idf(self.df_corpus, self.doc_size, math_log)
 
     def similarity(self, id1, id2):
+        """
+        Get similarity
+        
+        Args:
+            id1 (str): id 1
+            id2 (str): id2
+        
+        Returns:
+            float:
+        """
         tf_x = self.tf[id1]
         tfidf_x = {k: v * self.idf[k] for k, v in tf_x.items()}
         tf_y = self.tf[id2]
