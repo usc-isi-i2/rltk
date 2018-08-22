@@ -33,7 +33,10 @@ class Evaluation(object):
             y (list): list of y coordinates
             
         Returns:
-            list:
+            tuple:
+                float: AUC 
+                list: X-axis
+                list: Y-axis
         """
         coords = sorted([(x[i], y[i]) for i in range(len(x))])
         coords_reduced = dict()
