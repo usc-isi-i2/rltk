@@ -27,6 +27,7 @@ class Record(object):
 
 class cached_property(property):
     """
+    Decorator.
     If a Record property is decorated, the final value of it will be pre-calculated.
     """
     def __init__(self, func):
@@ -54,6 +55,7 @@ class cached_property(property):
 
 def remove_raw_object(cls):
     """
+    Decorator.
     If a Record class is decorated, raw_object will be removed once all mark properties are cached.
     """
     cls.remove_raw_object = True
@@ -83,6 +85,9 @@ def validate_record(obj):
     
     Args:
         obj (Record): Record instance.
+        
+    Raises:
+        TypeError: if id is not valid
     """
     if not isinstance(obj.id, str):
         raise TypeError('Id in {} should be an utf-8 encoded string.'.format(obj.__class__.__name__))
@@ -90,9 +95,15 @@ def validate_record(obj):
         raise ValueError('Id is not valid')
 
 
-def get_property_names(cls):
+def get_property_names(cls: type):
     """
     Get keys of property and cached_property from a record class.
+    
+    Args:
+        cls (type): Record class
+    
+    Returns:
+        list: Property names in class
     """
     keys = []
     for prop_name, prop_type in cls.__dict__.items():
