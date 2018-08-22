@@ -11,9 +11,14 @@ def _get_score(c1, c2, match, mismatch, score_table):
         return match if c1 == c2 else mismatch
 
 
-def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
+def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table=None):
+    """
+    Neeldman Wunsch score
+    """
     utils.check_for_none(s1, s2)
     utils.check_for_type(str, s1, s2)
+
+    score_table = score_table if isinstance(score_table, dict) else {}
 
     # s1 = utils.unicode_normalize(s1)
     # s2 = utils.unicode_normalize(s2)
@@ -40,7 +45,7 @@ def needleman_wunsch_score(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={
     return dp[n1][n2]
 
 
-def needleman_wunsch_similarity(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table={}):
+def needleman_wunsch_similarity(s1, s2, match=2, mismatch=-1, gap=-0.5, score_table=None):
     """
     This Needleman Wunsch Similarity is computed as needlman_wunsch_score over maximum score of s1 and s2.
 

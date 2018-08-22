@@ -3,7 +3,7 @@ from collections import defaultdict
 import rltk.utils as utils
 
 
-def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
+def levenshtein_distance(s1, s2, insert=None, delete=None, substitute=None,
                          insert_default=1, delete_default=1, substitute_default=1):
     """
     The Levenshtein distance between two words is the minimum number of single-character edits (insertions, deletions or substitutions) required to change one word into the other.
@@ -11,9 +11,9 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     Args:
         s1 (str): Sequence 1.
         s2 (str): Sequence 2.
-        insert (dict(str, int), optional): Insert cost of characters. Defaults to empty dict.
-        delete (dict(str, int), optional): Delete cost of characters. Defaults to empty dict.
-        substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to empty dict.
+        insert (dict(str, int), optional): Insert cost of characters. Defaults to None.
+        delete (dict(str, int), optional): Delete cost of characters. Defaults to None.
+        substitute (dict(str, dict(str, int)), optional): Substitute cost of characters. Defaults to None.
         insert_default (int, optional): Default value of insert cost. Defaults to 1.
         delete_default (int, optional): Default value of delete cost. Defaults to 1.
         substitute_default (int, optional): Default value of substitute cost. Defaults to 1.
@@ -31,6 +31,10 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
 
     utils.check_for_none(s1, s2)
     utils.check_for_type(str, s1, s2)
+
+    insert = insert if isinstance(insert, dict) else {}
+    delete = delete if isinstance(delete, dict) else {}
+    substitute = substitute if isinstance(substitute, dict) else {}
 
     # s1 = utils.unicode_normalize(s1)
     # s2 = utils.unicode_normalize(s2)
@@ -71,7 +75,7 @@ def levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
     return dp[n1][n2]
 
 
-def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
+def levenshtein_similarity(s1, s2, insert=None, delete=None, substitute=None,
                            insert_default=1, delete_default=1, substitute_default=1):
     """
     Computed as 1 - normalized_levenshtein_distance.
@@ -80,11 +84,15 @@ def levenshtein_similarity(s1, s2, insert={}, delete={}, substitute={},
                                                  insert_default, delete_default, substitute_default)
 
 
-def normalized_levenshtein_distance(s1, s2, insert={}, delete={}, substitute={},
+def normalized_levenshtein_distance(s1, s2, insert=None, delete=None, substitute=None,
                                     insert_default=1, delete_default=1, substitute_default=1):
     """
     Computed as levenshtein - max-insert-cost(s1,s2)
     """
+
+    insert = insert if isinstance(insert, dict) else {}
+    delete = delete if isinstance(delete, dict) else {}
+    substitute = substitute if isinstance(substitute, dict) else {}
 
     def compute_insert_cost(s):
         cost = 0

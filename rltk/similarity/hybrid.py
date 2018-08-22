@@ -5,7 +5,7 @@ from rltk.similarity.jaro import jaro_winkler_similarity
 MIN_FLOAT = float('-inf')
 
 
-def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_similarity, parameters={}):
+def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_similarity, parameters=None):
     """
     Generalized Jaccard Measure.
 
@@ -17,7 +17,7 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
         function (function, optional): The reference of a similarity measure function. \
             It should return the value in range [0,1]. If it is set to None, \
             `jaro_winlker_similarity` will be used.
-        parameters (dict, optional): Other parameters of function. Defaults to empty dict.
+        parameters (dict, optional): Other parameters of function. Defaults to None.
 
     Returns:
         float: Hybrid Jaccard similarity.
@@ -31,6 +31,8 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
 
     utils.check_for_none(set1, set2)
     utils.check_for_type(set, set1, set2)
+
+    parameters = parameters if isinstance(parameters, dict) else {}
 
     matching_score = []
     for s1 in set1:
@@ -54,7 +56,7 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
     return float(score_sum) / float(len(set1) + len(set2) - matching_count)
 
 
-def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters={}):
+def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None):
     """
     Monge Elkan similarity.
 
@@ -64,7 +66,7 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
         function (function, optional): The reference of a similarity measure function. \
             It should return the value in range [0,1]. If it is set to None, \
             `jaro_winlker_similarity` will be used.
-        parameters (dict, optional): Other parameters of function. Defaults to empty dict.
+        parameters (dict, optional): Other parameters of function. Defaults to None.
 
     Returns:
         float: Monge Elkan similarity.
@@ -72,6 +74,8 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
 
     utils.check_for_none(bag1, bag2)
     utils.check_for_type(list, bag1, bag2)
+
+    parameters = parameters if isinstance(parameters, dict) else {}
 
     if len(bag1) == 0:
         return 0.0
@@ -86,7 +90,7 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
     return float(score_sum) / float(len(bag1))
 
 
-def symmetric_monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters={}):
+def symmetric_monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None):
     """
     Symmetric Monge Elkan similarity is computed by \
     (monge_elkan_similarity(b1, b2) + monge_elkan_similarity(b2, b1)) / 2.
