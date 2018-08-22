@@ -63,6 +63,8 @@ def tf_idf_similarity(bag1, bag2, df_corpus, doc_size, math_log=False):
 
 def compute_tf(tokens):
     """
+    Compute TF (Term Frequency)
+    
     Args:
         tokens (list): tokens
     """
@@ -72,6 +74,8 @@ def compute_tf(tokens):
 
 def compute_idf(df_corpus, doc_size, math_log=False):
     """
+    Compute IDF (Inverted Document Frequency)
+    
     Args:
         df_corpus (dict): terms in document
         doc_size (int): total document size
@@ -84,9 +88,14 @@ def compute_idf(df_corpus, doc_size, math_log=False):
 
 def tf_idf_cosine_similarity(tfidf_dict1, tfidf_dict2):
     """
-    all terms of dict1 and dict2 should be in corpus
-
-    tfidf_dict: {term: tfidf, ...}
+    Compute Cosine similarity for TF/IDF value dictionary
+    
+    Args:
+        tfidf_dict1 (dict): TF/IDF dictionary for first record, format in ``{term1: tfidf value, ...}``
+        tfidf_dict2 (dict): TF/IDF dictionary for second record, same format as tfidf_dict1.
+    
+    Returns:
+        float:
     """
     v_x_y, v_x_2, v_y_2 = 0.0, 0.0, 0.0
 
@@ -109,19 +118,19 @@ class TF_IDF():
     """
     TF/IDF helper class
     
-    ```
-    # initialization
-    tfidf = TF_IDF()
-    # add document
-    tfidf.add_document('id1', ['a', 'b', 'a'])
-    tfidf.add_document('id2', ['b', 'c'])
-    tfidf.add_document('id3', ['b', 'd'])
-    # compute idf
-    tfidf.pre_compute()
-    # get similarity
-    tfidf.similarity('id1', 'id2')
-    tfidf.similarity('id1', 'id3')
-    ```
+    Examples::
+    
+        # initialization
+        tfidf = TF_IDF()
+        # add document
+        tfidf.add_document('id1', ['a', 'b', 'a'])
+        tfidf.add_document('id2', ['b', 'c'])
+        tfidf.add_document('id3', ['b', 'd'])
+        # compute idf
+        tfidf.pre_compute()
+        # get similarity
+        tfidf.similarity('id1', 'id2')
+        tfidf.similarity('id1', 'id3')
     """
 
     def __init__(self):
