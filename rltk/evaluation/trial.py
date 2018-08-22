@@ -4,37 +4,35 @@ import pandas as pd
 from rltk.record import Record, get_property_names
 from rltk.evaluation.ground_truth import GroundTruth
 from scipy.optimize import linear_sum_assignment
+from typing import Any
 
 
 class Trial(object):
     """
-    Trial stores the calculate result.
-    It will only save the result which is also in groud_truth, and then can be used to evaluate.
-    By setting min_confidence, it can filter and save the result with a min confidence.
-    By setting top_k, it will save at most k result order by confidence DESC.
+    Trial stores the calculated result for further evaluation.
+    It only saves the result which is also in ground truth.
+    
+    Args:
+        ground_truth (GroundTruth): Ground truth.
+        min_confidence (float): If the result has lower confidence than min confidence, it will not be saved.
+                                Default is 0.
+        top_k (int): Max number of result to be saved. 0 means no limitation.
+                    Default is 0.
+        **kwargs: Other user-defined properties.
     """
 
     class Result:
         """
-        Result structure.
-        Contain the 2 compared records, the is_positive result and confidence.
+        Result data structure
 
-        Attributes:
+        Args:
             record1 (Record): first record
             record2 (Record): second record
-            is_positive (bool): the result. true means 2 record are same, false means they are different
-            confidence (float): how much confidence the similarity function has on the result
+            is_positive (bool): if the prediction of these two records is pair
+            confidence (float): the probability of positive
         """
 
         def __init__(self, record1: Record, record2: Record, is_positive: bool, confidence: float = None, **kwargs):
-            """
-            init all information.
-            Attributes:
-                record1 (Record): first record
-                record2 (Record): second record
-                is_positive (bool): the result. true means 2 record are same, false means they are different
-                confidence (float): how much confidence the similarity function has on the result
-            """
             self.record1 = record1
             self.record2 = record2
             self.is_positive = is_positive
@@ -51,28 +49,29 @@ class Trial(object):
             return self.extra_key_values[key]
 
         def get_property_names(self):
+            """
+            Get all properties in Result
+            
+            Returns:
+                list:
+            """
             return ['is_positive', 'confidence'] + list(self.extra_key_values.keys())
             
-    def __init__(self, ground_truth: GroundTruth, label: str = '', min_confidence: float = 0,
-                 top_k: int = 0, **kwargs):
-        """
-        init data.
-
-        Attributes:
-            ground_truth (GroundTruth): whether to save the record data.
-            min_confidence (float): if the result has lower confidence than min confidence, it will not be saved.
-            top_k (int): the max number of result to be saved.
-            key_1 (String): the attribute in first record be compared.
-            key_2 (String): the attribute in second record be compared.
-        """
+    def __init__(self, ground_truth: GroundTruth, min_confidence: float = 0, top_k: int = 0, **kwargs):
         self._ground_truth = ground_truth
         self._min_confidence = min_confidence
-        self.label = label
         self._top_k = top_k
         self._results = []
         self.extra_key_values = kwargs
 
-    def add_property(self, key, value):
+    def add_property(self, key: str, value: Any):
+        """
+        Add new property to Trial
+        
+        Args:
+            key (str): Key name
+            value (Any): Any type of value
+        """
         self.extra_key_values[key] = value
 
     def __getattr__(self, key):
@@ -82,13 +81,25 @@ class Trial(object):
             raise AttributeError
 
     def __iter__(self):
+        """
+        Same as :meth:`__next__`
+        """
         return self.__next__()
 
     def __next__(self):
+        """
+        Iterator
+        
+        Returns:
+            iter: Result
+        """
         for r in self._results:
             yield r
 
     def pre_evaluate(self):
+        """
+        Preparation before evaluation
+        """
         self.tp = 0
         self.tn = 0
         self.fp = 0
@@ -99,6 +110,9 @@ class Trial(object):
         self.fn_list = []
 
     def evaluate(self):
+        """
+        Run evaluation
+        """
         self.pre_evaluate()
 
         for trial_result in self._results:
@@ -121,8 +135,17 @@ class Trial(object):
 
     def run_munkres(self, threshold=0):
         """
-        `result.is_positive` will be overwritten.
-        `result.confidence` should be set.
+        Run Munkres algorithm (also called the Hungarian algorithm) on all pairs in Trial. 
+        Only run this method if the linkage between two datasets are one to one.
+        
+        Args:
+            threshold (float, optional): Only if :meth:`Result.confidence` is greater than this threshold,
+                                    `Result.is_positive` will be set to True.
+                                    Default is 0.
+        
+        Note:
+            :meth:`Result.is_positive` will be overwritten.
+            :meth:`Result.confidence` should be set.
         """
         r1ids = [r.record1.id for r in self._results]
         r2ids = [r.record2.id for r in self._results]
@@ -134,15 +157,7 @@ class Trial(object):
             matrix[r1_idx[r1ids[i]]][r2_idx[r2ids[i]]] = 1.0 - confs[i]
 
         # TODO:
-        # replace munkres here by an implementation supports sparse matrix
-
-        # sparse munkres
-        # m_input = []
-        # for r in range(len(pmatrix)):
-        #     for c in range(len(pmatrix[0])):
-        #         m_input.append((r, c, pmatrix[r][c]))
-        # results = mk.munkres(m_input)
-        # results = set(results)
+        # replace Munkres here by an implementation supports sparse matrix
 
         row_idx, col_idx = linear_sum_assignment(matrix)
         indexes = set([(r, c) for r, c in zip(row_idx, col_idx)])
@@ -155,17 +170,13 @@ class Trial(object):
 
     def add_result(self, record1: Record, record2: Record, is_positive: bool, confidence: float = 1, **kwargs) -> None:
         """
-        Add one pair record comparison result.
-        If confidence is less than min_confidence, it will skip.
-        If confidence is less than the least confidence saved item and there are top_k items, it will skip.
-        If confidence is more than the least confidence saved item and there are top_k items, the least confidence saved item will be removed and then save the current one.
-        If it is not full, it wll directly save the current one.
+        Add comparison result
 
-        Attributes:
+        Args:
             record1 (Record): first record.
             record2 (Record): second record.
-            is_positive (bool): the result of similarity function.
-            confidence (float): how much confidence the similarity function has on the result.
+            is_positive (bool): if the prediction of these two records is pair
+            confidence (float): the probability of positive
         """
         if confidence >= self._min_confidence and self._ground_truth.is_member(record1.id, record2.id):
             if self._top_k == 0 or len(self._results) < self._top_k:
@@ -177,40 +188,42 @@ class Trial(object):
                 heapq.heappush(self._results, cur)
 
     def add_positive(self, kwargs):
-        """syntactic sugar"""
+        """
+        Syntactic sugar of :meth:`add_result`
+        """
         self.add_result(is_positive=True, **kwargs)
 
     def add_negative(self, kwargs):
-        """syntactic sugar"""
+        """
+        Syntactic sugar of :meth:`add_result`
+        """
         self.add_result(is_positive=False, **kwargs)
 
     def get_all_data(self):
         """
-        get all saved data
+        Get all saved Result
 
         Returns:
-            data (list)
+            list[Result]:
         """
         return self._results
 
     def get_ground_truth(self):
         """
-        get saved ground truth
+        Get associated GroundTruth
 
         Returns:
-            ground_truth (GroundTruth)
+            GroundTruth:
         """
         return self._ground_truth
 
     @property
     def precision(self) -> float:
         """
-        Based on the mathematical formula:
-            precision = true positive / (true positive + false positive)
-        Calculate and return the precision
+        precision = true positive / (true positive + false positive)
 
         Returns:
-            precision (float)
+            float:
         """
         if (self.tp + self.fp) == 0:
             return 0.0
@@ -219,10 +232,10 @@ class Trial(object):
     @property
     def recall(self) -> float:
         """
-        return the true positive ratio
+        recall = true positive / (true positive + false negative)
 
         Returns:
-            recall (float)
+            float:
         """
         if (self.tp + self.fn) == 0:
             return 0.0
@@ -231,24 +244,20 @@ class Trial(object):
     @property
     def f_measure(self) -> float:
         """
-        Based on the mathematical formula:
-            f_measure = 2 * true positive / (2 * true positive + false positive + false negative)
-        Calculate and return the f_measure
+        f_measure = 2 * precision * recall / (precision + recall)
 
         Returns:
-            f_measure (float)
+            float:
         """
         return 2 * (self.precision * self.recall) / (self.precision + self.recall)
         
     @property
     def false_positives(self) -> float:
         """
-        Based on the mathematical formula:
-            false positive ratio = false positive / (false positive + true negative)
-        Calculate and return the false positive ratio
+        false positive ratio = false positive / (false positive + true negative)
 
         Returns:
-            false positive ratio (float)
+            float:
         """
         if (self.fp + self.tn) == 0:
             return 0.0
@@ -257,12 +266,10 @@ class Trial(object):
     @property
     def true_positives(self) -> float:
         """
-        Based on the mathematical formula:
-            true positive ratio = true positive / (true positive + false negative)
-        Calculate and return the true positive ratio
+        true positive ratio = true positive / (true positive + false negative)
 
         Returns:
-            true positive ratio (float)
+            float:
         """
         if (self.tp + self.fn) == 0:
             return 0.0
@@ -271,12 +278,10 @@ class Trial(object):
     @property
     def false_negatives(self) -> float:
         """
-        Based on the mathematical formula:
-            false negative ratio = false negative / (false negative + true positive)
-        Calculate and return the false negative ratio
+        false negative ratio = false negative / (false negative + true positive)
 
         Returns:
-            false negative ratio (float)
+            float:
         """
         if (self.tp + self.fn) == 0:
             return 0.0
@@ -285,12 +290,10 @@ class Trial(object):
     @property
     def true_negatives(self) -> float:
         """
-        Based on the mathematical formula:
-            true negative ratio = true negative / (true negative + false positive)
-        Calculate and return the true negative ratio
+        true negative ratio = true negative / (true negative + false positive)
 
         Returns:
-            true negative ratio (float)
+            float:
         """
         if (self.fp + self.tn) == 0:
             return 0.0
@@ -299,12 +302,10 @@ class Trial(object):
     @property
     def false_discovery(self):
         """
-        Based on the mathematical formula:
-            false discovery = false positive / (false positive + true positive)
-        Calculate and return the false false discovery
+        false discovery = false positive / (false positive + true positive)
 
         Returns:
-            false discovery (float)
+            float:
         """
         if (self.fp + self.tp) == 0:
             return 0.0
@@ -312,21 +313,61 @@ class Trial(object):
 
     @property
     def true_positives_list(self):
+        """
+        List of all true positives
+        
+        Returns:
+            list:
+        """
         return self.tp_list
 
     @property
     def true_negatives_list(self):
+        """
+        List of all true negatives
+        
+        Returns:
+            list:
+        """
         return self.tn_list
 
     @property
     def false_positives_list(self):
+        """
+        List of all false positives
+        
+        Returns:
+            list:
+        """
         return self.fp_list
 
     @property
     def false_negatives_list(self):
+        """
+        List of all false negatives
+        
+        Returns:
+            list:
+        """
         return self.fn_list
 
     def generate_dataframe(self, results, record1_columns=None, record2_columns=None, result_columns=None, **kwargs):
+        """
+        Generate Pandas Dataframe
+        
+        Args:
+            results (list): Result list
+            record1_columns (list, optional): List of property names from record 1 which need to be shown in dataframe columns.
+                                            Default is None, all properties are used.
+            record2_columns (list, optional): List of property names from record 2 which need to be shown in dataframe columns.
+                                            Default is None, all properties are used.
+            result_columns (list, optional): List of property names from result which need to be shown in dataframe columns.
+                                            Default is None, all properties are used.
+            **kwargs: Parameters of pandas.Dataframe.
+            
+        Returns:
+            pandas.DataFrame:
+        """
 
         table = []
         r1_columns = record1_columns
