@@ -30,6 +30,7 @@ Tutorial
 .. toctree::
    :maxdepth: 2
 
+   installation.rst
    overview.rst
 
 
@@ -37,6 +38,6 @@ API Reference
 -------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    modules.rst
