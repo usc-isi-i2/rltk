@@ -1,3 +1,30 @@
+"""
+This module is designed for breaking the restriction of Python Global Interpreter Lock (GIL): It uses multi-processing (compute-intensive operations) and multi-threading (return data collecting) to accelerate computing.
+Once it's initialized, it creates a sub process pool, all the added data will be dispatched to different sub processes for parallel computing. The result sends back and consumes in another thread in current main process. The Inter Process Communication (IPC) between main process and sub processes is based on queue.
+
+Example::
+
+    result = []
+    
+    def dummy_computation_with_input(x):
+        time.sleep(0.0001)
+        return x * x, x + 5
+    
+    def output_handler(r1, r2):
+        result.append(r1 if r1 > r2 else r2)
+    
+    pp = ParallelProcessor(dummy_computation_with_input, 8, output_handler=output_handler)
+    pp.start()
+    
+    for i in range(8):
+        pp.compute(i)
+    
+    pp.task_done()
+    pp.join()
+    
+    print(result)
+"""
+
 import multiprocessing as mp
 import threading
 import queue
@@ -33,6 +60,10 @@ class ParallelProcessor(object):
         output_handler (Callable): If the output data needs to be get in main process (another thread), 
                                 set this handler, the arguments are same to the return from input_handler.
                                 The return result is one by one, order is arbitrary.
+    
+    
+    Note:
+        Do NOT implement heavy compute-intensive operations in output_handler, they should be in input_handler.
     """
 
     # Command format in queue. Represent in tuple.
