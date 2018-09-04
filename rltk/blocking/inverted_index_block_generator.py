@@ -8,11 +8,36 @@ from rltk.io.writer import BlockFileWriter
 
 
 class InvertedIndexBlockGenerator(BlockGenerator):
+    """
+    Generic inverted index based block generator.
+    
+    Args:
+        tokenizer (Callable): The tokenizer for record from dataset1 and dataset 2.
+                                The signature is `tokenizer(r: Record) -> List[str]`.
+        tokenizer1 (Callable): The tokenizer for record of dataset 1.
+        tokenizer2 (Callable): The tokenizer for record of dataset 2.
+        buffer_size (int, optional): The maximum size of in-memory buffer, defaults to 10,000.
+        token_size (int, optional): The maximum number that this token is used in documents. Defaults to 1,000.
+        temp_dir_path (str, optional): Where the temp data stores while buffer is out-of-memory. 
+                                        Defaults to system's temporary path (:py:meth:`tempfile.gettempdir`).
+                                        
+    Note:
+        Either `tokenizer` or both `tokenizer1` and `tokenizer2` should be given.
+        
+    
+    Note:
+        If you use QGram as tokenizer, this becomes QGram block generator.
+        
+    Note:
+        If tokens are pre-calculated, they can be returned directly in tokenizer function (e.g., `return r.name_tokens`).
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._tokenizer = self._kwargs.get('tokenizer')
+        self._tokenizer = self._kwargs.get('tokenizer', None)
         self._tokenizer1 = self._kwargs.get('tokenizer1', self._tokenizer)
         self._tokenizer2 = self._kwargs.get('tokenizer2', self._tokenizer)
+        if not self._tokenizer1 or not self._tokenizer2:
+            raise ValueError('Tokenizer is not properly set')
         self._buffer_size = self._kwargs.get('buffer_size') or 10000
         self._token_size = self._kwargs.get('token_size') or 1000
         self._temp_dir_path = self._kwargs.get('temp_dir_path', tempfile.gettempdir())

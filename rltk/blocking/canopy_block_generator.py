@@ -94,6 +94,7 @@ class CanopyBlockGenerator(BlockGenerator):
                 if distance < t2:
                     delete_list.append(d_idx)
 
+            # delete vector from dataset from backward
             for d_idx in sorted(delete_list, reverse=True):
                 del dataset[d_idx]
             new_canopy.append(center_vec)  # add center
