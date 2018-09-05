@@ -26,6 +26,7 @@ class InvertedIndexBlockGenerator(BlockGenerator):
         
     
     Note:
+        This is a generic inverted index implementation which can be easily extended.
         If you use QGram as tokenizer, this becomes QGram block generator.
         
     Note:

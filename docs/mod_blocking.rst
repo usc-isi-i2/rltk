@@ -1,6 +1,9 @@
 Blocking
 ========
 
+Block Generator
+---------------
+
 .. automodule:: rltk.blocking.block_generator
     :members:
     :special-members:
@@ -20,6 +23,9 @@ Blocking
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
+
+Blocking Helper
+---------------
 
 .. automodule:: rltk.blocking.blocking_helper
     :members:

@@ -24,7 +24,7 @@ class BlockGenerator(object):
         Generate blocks (:meth:`_generate_blocks`) and return handler.
         
         Returns:
-            obj: Writer handler, which can be used by corresponding Reader.
+            obj: Block handler, which can be used by corresponding BlockReader.
             
         """
 
