@@ -2,6 +2,12 @@ from rltk.io.reader import BlockReader
 
 
 class BlockArrayReader(BlockReader):
+    """
+    Block reader which input is an array.
+    
+    Args:
+        array (list): A Python list which stores blocks.
+    """
 
     def __init__(self, array):
         if not isinstance(array, list):

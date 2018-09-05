@@ -2,22 +2,35 @@ import io
 
 
 class Reader(object):
+    """
+    Reader.
+    """
+
     def __init__(self):
         pass
 
     def __iter__(self):
+        """
+        Same as :meth:`__next__`.
+        """
         return self.__next__()
 
     def __next__(self):
-        """return raw content of one record"""
+        """
+        Iterator.
+        
+        Returns:
+            iter: `raw_object`. The raw_object is a dict which represents raw data of a logical row.
+        """
         raise NotImplementedError
 
     def __del__(self):
+        """
+        Same as :meth:`close`
+        """
+
+    def close(self):
+        """
+        Close handler.
+        """
         pass
-
-    @staticmethod
-    def get_file_handler(f):
-        if isinstance(f, io.IOBase):
-            return f
-
-        return open(f)

@@ -2,6 +2,12 @@ from rltk.io.reader import Reader
 
 
 class ArrayReader(Reader):
+    """
+    Array Reader.
+    
+    Args:
+        array (list): Array.
+    """
 
     def __init__(self, array):
         try:
