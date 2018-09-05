@@ -3,6 +3,9 @@ from rltk.record import Record
 
 
 class MemoryAdapter(KeyValueAdapter):
+    """
+    Basic in-memory (dict) adapter.
+    """
     def __init__(self):
         self._records = dict()
 

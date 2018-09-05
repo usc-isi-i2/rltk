@@ -6,10 +6,19 @@ from rltk.record import Record
 
 
 class DBMAdapter(KeyValueAdapter):
+    """
+    Python builtin `DBM <https://docs.python.org/3.6/library/dbm.html>`_ adapter.
+    
+    Args:
+        filename (str): DBM file name.
+        dbm_class (dbm): The value can be `dbm.gnu`, `dbm.ndbm` or `dbm.dumb`.
+        serializer (Serializer, optional): The serializer used to serialize Record object. 
+                                If it's None, `PickleSerializer` will be used. Defaults to None.
+        
+    Note:
+        Performance drops when dataset is large.
+    """
     def __init__(self, filename, dbm_class=dbm.ndbm, serializer: Serializer = None):
-        """
-        :dbm_class dbm, dbm.gnu, dbm.ndbm, dbm.dumb (same as dbm)
-        """
         if not serializer:
             serializer = PickleSerializer()
         self._db = dbm_class.open(filename, 'c')
@@ -30,5 +39,5 @@ class DBMAdapter(KeyValueAdapter):
         for i in self._ids:
             yield self.get(i)
 
-    def __del__(self):
+    def close(self):
         self._db.close()
