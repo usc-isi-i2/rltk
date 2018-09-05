@@ -6,7 +6,17 @@ from rltk.io.writer import BlockWriter
 
 
 class BlockFileWriter(BlockWriter):
-    def __init__(self, filename, buffer_size=10000, set_size=sys.maxsize, index_blacklist:set=None):
+    """
+    Block writer stores data in file.
+    
+    Args:
+        filename (str): File name.
+        buffer_size (int, optional): Buffer size. Defaults to 10,000.
+        set_size (int, optional): Maximum size of a block. Defaults to `sys.maxsize`.
+        index_blacklist (set, optional): If a Record's id is in blacklist, it won't be in output. Default's to None.
+    """
+    def __init__(self, filename: str, buffer_size: int = 10000,
+                 set_size: int = sys.maxsize, index_blacklist: set = None):
         self._filename = filename
         self._temp_filename = filename + '.temp'
         self._buffer_size = buffer_size
@@ -18,7 +28,7 @@ class BlockFileWriter(BlockWriter):
         # clean up output file
         open(self._filename, 'w').close()
 
-    def write(self, id1, id2):
+    def write(self, id1: str, id2: str):
         # skip if id1 is in blacklist
         if id1 in self._blacklist:
             return

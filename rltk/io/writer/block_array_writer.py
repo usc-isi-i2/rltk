@@ -1,15 +1,24 @@
+import sys
+
 from rltk.io.writer import BlockWriter
 
 
 class BlockArrayWriter(BlockWriter):
-    def __init__(self, set_size=float('inf'), index_blacklist:set=None):
+    """
+    Block writer stores data in array (list).
+    
+    Args:
+        set_size (int, optional): Maximum size of a block. Defaults to `sys.maxsize`.
+        index_blacklist (set, optional): If a Record's id is in blacklist, it won't be in output. Default's to None.
+    """
+    def __init__(self, set_size: int = sys.maxsize, index_blacklist: set = None):
         self._array = list()
         self._dict = dict()
         self._is_dirty = False
         self._set_size = set_size
         self._blacklist = index_blacklist or set()
 
-    def write(self, id1, id2):
+    def write(self, id1: str, id2: str):
         if id1 in self._blacklist:
             return
 
