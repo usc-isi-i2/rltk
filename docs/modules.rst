@@ -9,6 +9,6 @@ API Reference
    mod_similarity.rst
    mod_evaluation.rst
    mod_blocking.rst
+   mod_io.rst
    mod_parallel_processor.rst
-..   mod_io.rst
 ..   mod_tokenizer.rst
