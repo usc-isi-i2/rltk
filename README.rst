@@ -34,5 +34,5 @@ Datasets & Experiments
 Documentation
 -------------
 
-* `Tutorials <http://rltk.readthedocs.io>`_ (out-of-date)
-* `API Reference <http://rltk.readthedocs.io/en/latest/modules.html>`_ (out-of-date)
+* `Tutorials <http://rltk.readthedocs.io>`_
+* `API Reference <http://rltk.readthedocs.io/en/latest/modules.html>`_
