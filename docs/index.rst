@@ -32,6 +32,7 @@ Tutorial
 
    installation.rst
    overview.rst
+   step_by_step.ipynb
 
 
 API Reference

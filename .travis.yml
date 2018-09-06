@@ -7,6 +7,9 @@ script:
 - pytest -v --color=yes
 notifications:
   email: false
+addons:
+  apt_packages:
+    - pandoc
 deploy:
 - provider: pypi
   user: usc_isi_i2_admin
