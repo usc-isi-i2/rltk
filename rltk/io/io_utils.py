@@ -1,12 +1,13 @@
 import io
 
 
-def get_file_handler(f):
+def get_file_handler(f, mode='r'):
     """
     Helper function for getting file handler.
 
     Args:
         f (Union[str,io.IOBase]): File path or handler.
+        mode (str, optional): Parameter mode in :py:meth:`open`. Defaults to `r`.
 
     Returns:
         io.IOBase: File handler.
@@ -14,4 +15,4 @@ def get_file_handler(f):
     if isinstance(f, io.IOBase):
         return f
 
-    return open(f, 'w')
+    return open(f, mode)

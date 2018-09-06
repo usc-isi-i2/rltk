@@ -12,7 +12,7 @@ class GroundTruthWriter(Writer):
         file_handler (io.IOBase): It can be file name or file handler.
     """
     def __init__(self, file_handler):
-        self._file_handler = get_file_handler(file_handler)
+        self._file_handler = get_file_handler(file_handler, 'w')
         fieldnames = ['id1', 'id2', 'label']
         self._csv_writer = csv.DictWriter(self._file_handler, fieldnames=fieldnames)
         self._csv_writer.writeheader()
