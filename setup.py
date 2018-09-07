@@ -23,7 +23,7 @@ setup(
     url='https://github.com/usc-isi-i2/rltk',
     license='MIT',
     author='USC/ISI',
-    author_email='',
+    author_email='yixiangy@isi.edu',
     description='Record Linkage ToolKit',
     long_description=long_description,
     long_description_content_type='text/x-rst',

@@ -28,7 +28,7 @@ RLTK is under active maintenance and we expect to keep adding new features and s
 .. end-intro
 
 Datasets & Experiments
--------------
+----------------------
 * `rltk-experimentation <https://github.com/usc-isi-i2/rltk-experimentation>`_
 
 Documentation
