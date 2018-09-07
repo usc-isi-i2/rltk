@@ -182,3 +182,7 @@ texinfo_documents = [
      author, 'rltk', 'Record Linkage ToolKit',
      'Miscellaneous'),
 ]
+
+
+def setup(app):
+    app.add_stylesheet('style.css')
