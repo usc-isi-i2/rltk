@@ -75,6 +75,18 @@ class Trial(object):
         self.pre_evaluate()
 
     def __deepcopy__(self, memo):
+        """
+        Deep copy of trial and trial results.
+        
+        Args:
+            memo (dict): Argument `memo <https://docs.python.org/3.6/library/copy.html>`_ of :py:meth:`copy.deepcopy`.
+            
+        Note:
+            `Record` in `Result` is still reference.
+            
+        Returns:
+            Trial: Cloned object.
+        """
         cls = self.__class__
         copied = cls(ground_truth=self._ground_truth, min_confidence=self._min_confidence, top_k=self._top_k)
         copied._results = copy.deepcopy(self._results)
@@ -90,6 +102,9 @@ class Trial(object):
         return copied
 
     def clone(self):
+        """
+        Same as :meth:`__deepcopy__`.
+        """
         return copy.deepcopy(self)
 
     def add_property(self, key: str, value: Any):
