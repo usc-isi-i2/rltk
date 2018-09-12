@@ -203,17 +203,17 @@ class Trial(object):
                 cur = self.Result(record1, record2, is_positive, confidence, **kwargs)
                 heapq.heappush(self._results, cur)
 
-    def add_positive(self, kwargs):
+    def add_positive(self, *args, **kwargs):
         """
         Syntactic sugar of :meth:`add_result`
         """
-        self.add_result(is_positive=True, **kwargs)
+        self.add_result(*args, is_positive=True, **kwargs)
 
-    def add_negative(self, kwargs):
+    def add_negative(self, *args, **kwargs):
         """
         Syntactic sugar of :meth:`add_result`
         """
-        self.add_result(is_positive=False, **kwargs)
+        self.add_result(*args, is_positive=False, **kwargs)
 
     def get_all_data(self):
         """
