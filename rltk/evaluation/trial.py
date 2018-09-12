@@ -1,5 +1,6 @@
 import heapq
 import pandas as pd
+import copy
 
 from rltk.record import Record, get_property_names
 from rltk.evaluation.ground_truth import GroundTruth
@@ -39,6 +40,14 @@ class Trial(object):
             self.confidence = confidence
             self.extra_key_values = kwargs
 
+        def __deepcopy__(self, memo):
+            # Notice: record objects are NOT deep copied. Only reference is used here.
+            cls = self.__class__
+            copied = cls(record1=self.record1, record2=self.record2, is_positive=self.is_positive,
+                         confidence=self.confidence)
+            copied.extra_key_values = copy.deepcopy(self.extra_key_values)
+            return copied
+
         def __cmp__(self, other):
             return self.confidence < other.confidence
 
@@ -63,6 +72,25 @@ class Trial(object):
         self._top_k = top_k
         self._results = []
         self.extra_key_values = kwargs
+        self.pre_evaluate()
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        copied = cls(ground_truth=self._ground_truth, min_confidence=self._min_confidence, top_k=self._top_k)
+        copied._results = copy.deepcopy(self._results)
+        copied._extra_key_value = copy.deepcopy(self.extra_key_values)
+        copied.tp = self.tp
+        copied.tn = self.tn
+        copied.fp = self.fp
+        copied.fn = self.fn
+        copied.tp_list = self.tp_list
+        copied.tn_list = self.tn_list
+        copied.fp_list = self.fp_list
+        copied.fn_list = self.fn_list
+        return copied
+
+    def clone(self):
+        return copy.deepcopy(self)
 
     def add_property(self, key: str, value: Any):
         """
