@@ -109,13 +109,29 @@ class Trial(object):
         self.fp_list = []
         self.fn_list = []
 
-    def evaluate(self):
+    def evaluate(self, threshold: float = None):
         """
         Run evaluation
+        
+        Args:
+            threshold (float, optional): Only if :meth:`Result.confidence` is greater than this threshold,
+                                    `Result.is_positive` will be set to True. 
+                                    If it's None, then `Result.is_positive` is used.
+                                    Default is None.
+                                    
+        Note:
+            If `threshold` is set:
+            :meth:`Result.is_positive` will be overwritten.
+            :meth:`Result.confidence` should be set.
         """
         self.pre_evaluate()
 
         for trial_result in self._results:
+            if threshold is not None:
+                trial_result.is_positive = False
+                if trial_result.confidence >= threshold:
+                    trial_result.is_positive = True
+
             gt_positive = self._ground_truth.is_positive(trial_result.record1.id, trial_result.record2.id)
             trial_positive = trial_result.is_positive
 
