@@ -1,13 +1,13 @@
-table {
+table.dataframe {
     border-collapse: collapse;
     /*width: 100%;*/
 }
 
-th, td {
+table.dataframe th, table.dataframe td {
     text-align: left;
     padding: 8px;
 }
 
-tr:nth-child(even) {
+table.dataframe tr:nth-child(even) {
     background-color: #f2f2f2;
 }
