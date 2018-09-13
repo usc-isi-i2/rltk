@@ -42,6 +42,6 @@ for min_confidence_100 in range(0, 100):
 #     }
 # ]
 # eva.plot(coord)
-eva.plot_precision_recall()
+eva.plot_precision_recall().show()
 
-eva.plot_roc()
+eva.plot_roc().show()
