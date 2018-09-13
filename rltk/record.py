@@ -24,6 +24,17 @@ class Record(object):
         """
         raise NotImplementedError
 
+    def __eq__(self, other):
+        """
+        Only if both instances have the same class and id.
+        
+        Returns:
+            bool: Equal or not.
+        """
+        if not isinstance(other, self.__class__):  # class should be exactly the same
+            return False
+        return self.id == other.id
+
 
 class cached_property(property):
     """
