@@ -64,18 +64,19 @@ class Evaluation(object):
             first = False
         return [auc, list(coords_reduced.keys()), list(coords_reduced.values())]
 
-    def plot(self, parameter_list, label_max=False, label_min=False, auc_params=None, aoc_params=None):
+    def plot(self, parameter_list, label_max=False, label_min=False, auc_params=None, aoc_params=None,
+             x_label=None, y_label=None):
         """
         General purpose plotting interface.
         
         Args:
             parameter_list (list): list of object::
             
-                {
+                [{
                     'x': 'name of a property in Trial',
                     'y': 'name of a property in Trial',
                     'label': 'label name'
-                }
+                }]
                 
             label_max (bool, optional): whether to label max
             label_min (bool, optional): whether to label min
@@ -94,7 +95,10 @@ class Evaluation(object):
                     desired y coordinate of AOC label (float),
                     whether to shading AOC is desired (bool)
                 ]
-                
+            
+            x_labels (str, optional): Label of X-axis, defaults to None.
+            y_labels (str, optional): Label of Y-axis, defaults to None.
+            
         Returns:
             matplotlib.pyplot:
         """
@@ -121,6 +125,10 @@ class Evaluation(object):
             plt.plot(x, y, **other_parameters)
 
         plt.legend(loc='upper right')
+        if x_label:
+            plt.xlabel(x_label)
+        if y_label:
+            plt.ylabel(y_label)
 
         if label_max:
             global_max = max([(x[i], y[i]) for i in range(len(x))], key=lambda i: (i[1], -i[0]))
@@ -168,8 +176,9 @@ class Evaluation(object):
         """
         return self.plot([{
             'x': 'recall',
-            'y': 'precision'
-        }])
+            'y': 'precision',
+            'label': 'Precision - Recall'
+        }], x_label='Precision', y_label='Recall')
 
     def plot_roc(self):
         """
@@ -180,8 +189,9 @@ class Evaluation(object):
         """
         return self.plot([{
             'x': 'false_positives',
-            'y': 'true_positives'
-        }], auc_params=[0.05, 0.95, True])
+            'y': 'true_positives',
+            'label': 'ROC'
+        }], auc_params=[0.05, 0.95, True], x_label='False Positives', y_label='True Negatives')
 
     def plot_features(self, df, f1, f2):
         """
