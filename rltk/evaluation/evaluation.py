@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 class Evaluation(object):
     """
-    A collection of :meth:`Trial`s. It can be used to plot chart for multiple Trials.
+    A collection of :meth:`Trial` s. It can be used to plot chart for multiple Trials.
     
     Args:
         trial_list (list[Trial], optional): List of Trials, default is None.
@@ -75,7 +75,8 @@ class Evaluation(object):
                 [{
                     'x': 'name of a property in Trial',
                     'y': 'name of a property in Trial',
-                    'label': 'label name'
+                    'fmt': 'formatting of color, line style. defaults to b-',
+                    'label': 'label name, this can be empty'
                 }]
                 
             label_max (bool, optional): whether to label max
@@ -112,9 +113,10 @@ class Evaluation(object):
             x, y = [], []
 
             x_key, y_key = param['x'], param['y']
+            fmt = param.get('fmt', 'b-')
             other_parameters = {}
             for k in param.keys():
-                if k in ('x', 'y'):
+                if k in ('x', 'y', 'fmt'):
                     continue
                 other_parameters[k] = param[k]
 
@@ -122,7 +124,7 @@ class Evaluation(object):
                 x.append(getattr(trial, x_key))
                 y.append(getattr(trial, y_key))
 
-            plt.plot(x, y, **other_parameters)
+            plt.plot(x, y, fmt, **other_parameters)
 
         plt.legend(loc='upper right')
         if x_label:
@@ -167,18 +169,30 @@ class Evaluation(object):
 
         return plt
 
-    def plot_precision_recall(self):
+    def plot_precision_recall(self, show_points: bool = False):
         """
         Plot precision recall curve. X-axis is recall, Y-axis is precision.
+        
+        Args:
+            show_points (bool, optional): Show points or not. Default is False.
         
         Returns:
             matplotlib.pyplot:
         """
-        return self.plot([{
+
+        p_list = [{
             'x': 'recall',
             'y': 'precision',
-            'label': 'Precision - Recall'
-        }], x_label='Precision', y_label='Recall')
+            'fmt': 'b-',
+            'label': 'Precision - Recall',
+        }]
+        if show_points:
+            p_list.append({
+                'x': 'recall',
+                'y': 'precision',
+                'fmt': 'bo'
+            })
+        return self.plot(p_list, x_label='Precision', y_label='Recall')
 
     def plot_roc(self):
         """
