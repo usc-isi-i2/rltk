@@ -322,29 +322,40 @@ class GroundTruth(object):
             for n in negs:
                 self.add_negative(n[0], n[1])
 
-    def train_test_split(self, test_ratio: float = 0.2, random_seed: int = None):
+    def remove_negatives(self):
         """
-        Train test split
+        Remove all negatives from ground truth
+        """
+        keys_to_delete = []
+        for key, label in self._ground_truth_data.items():
+            if not label:
+                keys_to_delete.append(key)
+        for k in keys_to_delete:
+            del self._ground_truth_data[k]
+
+    def train_test_split(self, test_ratio: float = 0.3, random_seed: int = None):
+        """
+        Train test split.
         
         Args:
-            test_ratio (float, optional): The ratio of test from all ground truth data. Default is 0.2.
+            test_ratio (float, optional): The ratio of test from all ground truth data. Default is 0.3.
             random_seed (int, optional): The seed used by :py:meth:`random.seed`.
-            
         Returns:
             tuple:
                 train_gt (GroudTruth)
                 test_gt (GroudTruth)
         """
-        size = len(self)
-        test_size = int(size * test_ratio)
         if random_seed:
             random.seed(random_seed)
+
+        train_gt, test_gt = GroundTruth(), GroundTruth()
+        size = len(self)
+        test_size = int(size * test_ratio)
 
         indices = [i for i in range(size)]
         random.shuffle(indices)
         test_indices = set(indices[:test_size])
 
-        train_gt, test_gt = GroundTruth(), GroundTruth()
         for idx, (id1, id2, label) in enumerate(self):
             if idx in test_indices:
                 test_gt.add_ground_truth(id1, id2, label)
