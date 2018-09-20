@@ -210,7 +210,8 @@ class GroundTruth(object):
         return len(self._ground_truth_data)
 
     def generate_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
-                           score_function: Callable, num_of_negatives: int = -1, range_in_gt: bool = False):
+                           score_function: Callable, num_of_negatives: int = -1,
+                           range_in_gt: bool = False, exclude_from: GroundTruth = None):
         """
         Args:
             dataset1 (Dataset): Dataset 1.
@@ -222,12 +223,17 @@ class GroundTruth(object):
                                         in ground truth if it's True,
                                         otherwise range will be the cross product of two datasets. 
                                         Default is False.
+            exclude_from (GroundTruth, optional): Exclude the id pair which appears in this ground truth. 
+                                            Defaults to None.
+                                            This is especially useful when generating negatives for test set \
+                                            meanwhile the pairs in train set need to be excluded.
         """
         num_of_negatives = len(self) if num_of_negatives == -1 else num_of_negatives
         max_heap = []
 
         for r1, r2 in get_record_pairs(dataset1, dataset2):
             if not self.is_member(r1.id, r2.id) and \
+                    (not exclude_from or not exclude_from.is_member(r1.id, r2.id)) and \
                     (not range_in_gt or (r1.id in self._gt_id1s and r2.id in self._gt_id2s)):
                 s = score_function(r1, r2)
                 heapq.heappush(max_heap, (s, r1.id, r2.id))
@@ -238,7 +244,8 @@ class GroundTruth(object):
             r1_id, r2_id = d[1], d[2]
             self.add_negative(r1_id, r2_id)
 
-    def generate_all_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset', range_in_gt: bool = False):
+    def generate_all_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
+                               range_in_gt: bool = False, exclude_from: GroundTruth = None):
         """
         Args:
             dataset1 (Dataset): Dataset 1.
@@ -247,15 +254,21 @@ class GroundTruth(object):
                                         in ground truth if it's True,
                                         otherwise range will be the cross product of two datasets. 
                                         Default is False.
+            exclude_from (GroundTruth, optional): Exclude the id pair which appears in this ground truth. 
+                                            Defaults to None.
+                                            This is especially useful when generating negatives for test set \
+                                            meanwhile the pairs in train set need to be excluded.
         """
         for r1, r2 in get_record_pairs(dataset1, dataset2):
             if not self.is_member(r1.id, r2.id) and \
+                    (not exclude_from or not exclude_from.is_member(r1.id, r2.id)) and \
                     (not range_in_gt or (r1.id in self._gt_id1s and r2.id in self._gt_id2s)):
                 self.add_negative(r1.id, r2.id)
 
     def generate_stratified_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
                                       classify: Callable, num_of_strata: int, random_seed: int = None,
-                                      num_of_negatives: int = -1, range_in_gt: bool = False):
+                                      num_of_negatives: int = -1,
+                                      range_in_gt: bool = False, exclude_from: GroundTruth = None):
         """
         Args:
             dataset1 (Dataset): Dataset 1.
@@ -271,6 +284,10 @@ class GroundTruth(object):
                                         in ground truth if it's True,
                                         otherwise range will be the cross product of two datasets. 
                                         Default is False.
+            exclude_from (GroundTruth, optional): Exclude the id pair which appears in this ground truth. 
+                                            Defaults to None.
+                                            This is especially useful when generating negatives for test set \
+                                            meanwhile the pairs in train set need to be excluded.
         """
 
         # add positives and negatives to different clusters
@@ -278,7 +295,8 @@ class GroundTruth(object):
 
         # build strata
         for r1, r2 in get_record_pairs(dataset1, dataset2):
-            if range_in_gt and not (r1.id in self._gt_id1s and r2.id in self._gt_id2s):
+            if (range_in_gt and not (r1.id in self._gt_id1s and r2.id in self._gt_id2s)) or \
+                    (exclude_from and exclude_from.is_member(r1.id, r2.id)):
                 continue
             stratum_id = classify(r1, r2)
             p_n = 'p' if self.is_member(r1.id, r2.id) else 'n'
