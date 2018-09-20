@@ -211,7 +211,7 @@ class GroundTruth(object):
 
     def generate_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
                            score_function: Callable, num_of_negatives: int = -1,
-                           range_in_gt: bool = False, exclude_from: GroundTruth = None):
+                           range_in_gt: bool = False, exclude_from: 'GroundTruth' = None):
         """
         Args:
             dataset1 (Dataset): Dataset 1.
@@ -245,7 +245,7 @@ class GroundTruth(object):
             self.add_negative(r1_id, r2_id)
 
     def generate_all_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
-                               range_in_gt: bool = False, exclude_from: GroundTruth = None):
+                               range_in_gt: bool = False, exclude_from: 'GroundTruth' = None):
         """
         Args:
             dataset1 (Dataset): Dataset 1.
@@ -268,7 +268,7 @@ class GroundTruth(object):
     def generate_stratified_negatives(self, dataset1: 'Dataset', dataset2: 'Dataset',
                                       classify: Callable, num_of_strata: int, random_seed: int = None,
                                       num_of_negatives: int = -1,
-                                      range_in_gt: bool = False, exclude_from: GroundTruth = None):
+                                      range_in_gt: bool = False, exclude_from: 'GroundTruth' = None):
         """
         Args:
             dataset1 (Dataset): Dataset 1.
