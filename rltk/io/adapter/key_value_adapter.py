@@ -14,6 +14,9 @@ class KeyValueAdapter(object):
         """
         self.close()
 
+    #: If this adapter is parallel-safe. Defaults to False if it's not overwritten in concrete class.
+    parallel_safe = False
+
     def get(self, record_id) -> Record:
         """
         Get record.

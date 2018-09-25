@@ -44,6 +44,9 @@ class HBaseAdapter(KeyValueAdapter):
             self._create_table(table)
         self._table = self._conn.table(table)
 
+    #: parallel-safe
+    parallel_safe = True
+
     def _get_key(self, record_id):
         return '{prefix}{record_id}'.format(prefix=self._key_prefix, record_id=record_id).encode('utf-8')
 

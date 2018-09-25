@@ -27,6 +27,9 @@ class RedisAdapter(KeyValueAdapter):
         except:
             raise ValueError('Invalid key_format.')
 
+    #: parallel-safe
+    parallel_safe = True
+
     def _get_key(self, record_id):
         return self._key_format.format(record_id=record_id)
 
