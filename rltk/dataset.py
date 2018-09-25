@@ -55,6 +55,15 @@ class Dataset(object):
                 if size and curr_size >= size:
                     break
 
+    def set_record(self, record: Record):
+        """
+        Setter of a record.
+        
+        Args:
+            record (Record): Record object.
+        """
+        return self._adapter.set(record.id, record)
+
     def get_record(self, record_id):
         """
         Getter of a record.
