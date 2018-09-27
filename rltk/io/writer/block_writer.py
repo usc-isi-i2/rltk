@@ -31,8 +31,7 @@ class BlockWriter(Writer):
         Black list of indices. 
         """
         if getattr(self, '_blacklist'):
-            return self._blacklist
-        raise NotImplementedError
+            return self._blacklists
 
     def close(self):
         """
