@@ -13,3 +13,5 @@ happybase>=1.1.0
 matplotlib>=2.0.0
 pandas>=0.20.0
 pandoc>=1.0.2
+dask>=0.19.2
+git+https://github.com/GreatYYX/distributed@master#egg=distributed

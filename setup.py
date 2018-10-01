@@ -9,10 +9,14 @@ with open('README.rst', 'r') as fh:
 
 with open('requirements.txt', 'r') as f:
     install_requires = list()
+    dependency_links = list()
     for line in f:
         re = line.strip()
         if re:
-            install_requires.append(re)
+            if re.startswith('git+') or re.startswith('svn+') or re.startswith('hg+'):
+                dependency_links.append(re)
+            else:
+                install_requires.append(re)
 
 packages = find_packages()
 
@@ -29,6 +33,7 @@ setup(
     long_description_content_type='text/x-rst',
     include_package_data=True,
     install_requires=install_requires,
+    dependency_links=dependency_links,
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
