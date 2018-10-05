@@ -1,3 +1,27 @@
+@import url("http://fonts.googleapis.com/css?family=Ubuntu+Mono");
+@import url("http://fonts.googleapis.com/css?family=Open+Sans");
+
+pre, code {
+  font-family: "Ubuntu Mono", "Consolas", "Menlo", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+  font-size: 15px;
+}
+
+h1, h2, h3, h4, h5, h6, p.admonition-title, div.sphinxsidebar input, body {
+  font-family: "Open Sans", "Helvetica", "Arial", sans-serif;
+}
+
+div.sphinxsidebar ul li.toctree-l1 > a {
+    font-size: 100%;
+}
+
+div.sphinxsidebar ul li.toctree-l2 > a {
+    font-size: 100%;
+}
+
+div.sphinxsidebar ul li.toctree-l3 > a {
+    font-size: 100%;
+}
+
 table.dataframe {
     border-collapse: collapse;
     /*width: 100%;*/
