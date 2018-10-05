@@ -1,5 +1,6 @@
 import os
 import glob
+from distributed import Worker
 
 from dask.distributed import Client
 
@@ -10,6 +11,11 @@ class Remote(object):
         # TODO: authentication
         # http://distributed.dask.org/en/latest/tls.html?highlight=security
         self._client = Client(*args, **kwargs)
+        self._client.register_worker_callbacks(Remote._worker_startup)
+
+    @staticmethod
+    def _worker_startup(dask_worker: Worker):
+        os.chdir(dask_worker.local_dir)
 
     def add_dependencies(self, files):
         # TODO: automatically resolve module dependencies

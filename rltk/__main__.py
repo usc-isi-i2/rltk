@@ -24,14 +24,14 @@ if __name__ == '__main__':
         help_info()
 
     temp_path = os.path.join(tempfile.gettempdir(), 'rltk', 'remote')
-    # working_dir = os.path.join(temp_path, 'working_dir')
-    # os.chdir(working_dir)
+    if not os.path.exists(temp_path):
+        os.makedirs(temp_path, exist_ok=True)
     if cmd == 'remote.worker':
         logger = logging.getLogger('distributed.dask_worker')
         logger.setLevel(logging.ERROR)
         sys.argv.append('--local-directory')
         sys.argv.append(temp_path)
-        sys.argv.append('--change-directory')
+        # sys.argv.append('--change-directory')
         sys.exit(dask_worker.go())
     elif cmd == 'remote.scheduler':
         logger = logging.getLogger('distributed.scheduler')
