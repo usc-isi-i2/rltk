@@ -5,6 +5,18 @@ from rltk.remote.remote import Remote
 
 
 class Task(object):
+    """
+    Remote task. It has similar API to :meth:`rltk.ParallelProcessor`. 
+    But do not use :meth:`rltk.ParallelProcessor` if this module is used. If you still want multiprocessing, 
+    please give each worker more processes.
+    
+    Args:
+        remote (Remote): Remote object.
+        input_handler (Callable): Input handler.
+        output_handler (Callable): Output handler. It accepts same number of arguments to `input_handler` 's return values.
+        chunk_size (int, optional): Size of the each data chunk. Defaults to 1000.
+        max_queue_size (int, optional): How many chunks can be in the queue. Defaults to 10.
+    """
 
     def __init__(self, remote: Remote, input_handler: Callable, output_handler: Callable,
                  chunk_size: int = 1000, max_queue_size: int = 10):
@@ -19,6 +31,9 @@ class Task(object):
         self.done = False
 
     def start(self):
+        """
+        Start listening.
+        """
         pass
 
     @staticmethod
@@ -35,6 +50,9 @@ class Task(object):
         self.future_semaphore.release()
 
     def compute(self, *args, **kwargs):
+        """
+        Add data to compute.
+        """
         if self.done:
             return
 
@@ -60,9 +78,15 @@ class Task(object):
         self.chunk_data = []
 
     def task_done(self):
+        """
+        Indicate that all resources which need to compute are added.
+        """
         self.done = True
         self._submit()  # force flush buffer
 
     def join(self):
+        """
+        Block until all tasks are done.
+        """
         while len(self.all_futures) != 0:
             pass

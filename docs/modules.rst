@@ -11,4 +11,5 @@ API Reference
    mod_blocking.rst
    mod_io.rst
    mod_parallel_processor.rst
+   mod_remote.rst
 ..   mod_tokenizer.rst
