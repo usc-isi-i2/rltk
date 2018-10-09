@@ -1,5 +1,5 @@
-@import url("http://fonts.googleapis.com/css?family=Ubuntu+Mono");
-@import url("http://fonts.googleapis.com/css?family=Open+Sans");
+@import url("https://fonts.googleapis.com/css?family=Ubuntu+Mono");
+@import url("https://fonts.googleapis.com/css?family=Open+Sans");
 
 pre, code {
   font-family: "Ubuntu Mono", "Consolas", "Menlo", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
@@ -20,6 +20,10 @@ div.sphinxsidebar ul li.toctree-l2 > a {
 
 div.sphinxsidebar ul li.toctree-l3 > a {
     font-size: 100%;
+}
+
+div.body {
+    max-width: 100%; /* overwrite basic.css */
 }
 
 table.dataframe {
