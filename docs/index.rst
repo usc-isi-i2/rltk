@@ -33,6 +33,7 @@ Tutorial
    installation.rst
    overview.rst
    step_by_step.ipynb
+   scaling_and_optimization.rst
 
 
 API Reference
