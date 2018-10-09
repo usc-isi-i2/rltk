@@ -3,6 +3,7 @@ import glob
 from distributed import Worker
 
 from dask.distributed import Client
+from distributed.security import Security
 
 
 class Remote(object):
@@ -11,13 +12,29 @@ class Remote(object):
     
     Args:
         address (str): Remote scheduler address formed by `ip:port`.
+        tls_ca_file (str, optional): TLS CA certificate file path. Defaults to None.
+        tls_client_cert (str, optional): TLS certificate file path. Defaults to None.
+        tls_client_key (str, optional): TLS private key file path. Defaults to None.
+        require_encryption (bool, optional): Encrypt data exchange. Defaults to False.
+        
+    Note:
+        TLS will be enabled only if all three TLS arguments are provided. 
+        Remember to change network protocol to `tls://<address>`.
     """
-    def __init__(self, *args, **kwargs):
-        # TODO: authentication
-        # http://distributed.dask.org/en/latest/tls.html?highlight=security
-        self._client = Client(*args, **kwargs)
-        self._client.register_worker_callbacks(Remote._worker_startup)
+    def __init__(self, address: str,
+                 tls_ca_file: str = None, tls_client_cert: str = None, tls_client_key: str = None,
+                 require_encryption: bool = False):
+        # authentication
+        sec = None
+        if tls_ca_file and tls_client_cert and tls_client_key:
+            sec = Security(tls_ca_file=tls_ca_file,
+                           tls_client_cert=tls_client_cert,
+                           tls_client_key=tls_client_key,
+                           require_encryption=require_encryption)
 
+        # init
+        self._client = Client(address=address, security=sec)
+        self._client.register_worker_callbacks(Remote._worker_startup)
 
     @staticmethod
     def _worker_startup(dask_worker: Worker):
