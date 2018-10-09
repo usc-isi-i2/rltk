@@ -11,7 +11,7 @@ Some of the methods have optional / required arguments about buffer size, chunk 
 Parallel processing
 -------------------
 
-If you have some compute-intensive procedures and your machine has more than one CPU core, `rltk.ParallelProcessor` is a tool to try. You can find more detailed information in its documentation, but in general, it encapsulates multiprocessing and multithreading to do parallel computing. More detailed usage is in API documentation :doc:`mod_parallel_processor`.
+If you have some compute-intensive procedures and your machine has more than one CPU core, `rltk.ParallelProcessor` is a tool to try. You can find more detailed information in API documentation :doc:`mod_parallel_processor`, but in general, it encapsulates multiprocessing and multithreading to do parallel computing.
 
 .. code-block:: python
 
@@ -34,8 +34,8 @@ If you have some compute-intensive procedures and your machine has more than one
 
     print(result)
 
-Distributed computing (experimental)
--------------------------------
+Distributed computing (Experimental)
+------------------------------------
 
 .. note::
 
@@ -61,12 +61,36 @@ Second, change a bit of your code and run it. The API for distributed computing 
 
 .. code-block:: python
 
+    def input_handler(r1, r2):
+        return r1, r2, is_pair(r1, r2)
+
+    def output_handler(r1, r2, label):
+        print(r1.id, r2.id, label)
+
     remote = rltk.remote.Remote('127.0.0.1:8786')
-    task = rltk.remote.Task(remote, input_handler=heavy_calculation, output_handler=output_handler)
+    task = rltk.remote.Task(remote, input_handler=input_handler, output_handler=output_handler)
     task.start()
 
-    for i in range(8):
-        task.compute(i, i + 1)
+    for r1, r2 in rltk.get_record_pairs(ds1, ds2):
+        task.compute(r1, r2)
+
+    task.task_done()
+    task.join()
+
+If data is in shared data store (file systems or services), there's no need to transfer record data through scheduler to worker but record id. Then workers can get data directly from data store. So change your code to make `input_handler` accepts id as input and fetch the record data in it.
+
+.. code-block:: python
+    :emphasize-lines: 1,2,9
+
+    def input_handler(id1, id2):
+        r1, r2 = ds1.get(id1), ds2.get(id2)
+        return is_pair(r1, r2)
+
+    task = rltk.remote.Task(remote, input_handler=input_handler, output_handler=output_handler)
+    task.start()
+
+    for r1, r2 in rltk.get_record_pairs(ds1, ds2):
+        task.compute(r1.id, r2.id)
 
     task.task_done()
     task.join()
