@@ -32,7 +32,6 @@ class BlockWriter(Writer):
         """
         if getattr(self, '_blacklist'):
             return self._blacklist
-        raise NotImplementedError
 
     def close(self):
         """
