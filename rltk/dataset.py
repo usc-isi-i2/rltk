@@ -106,18 +106,26 @@ class Dataset(object):
         """
         return self._adapter.get(record_id)
 
-    def generate_dataframe(self, **kwargs):
+    def generate_dataframe(self, size: int = None, **kwargs):
         """
         Generate Pandas Dataframe
+        
+        Args:
+            size (int, optional): How many records should be used to generate `pandas.Dataframe`. 
+                                None means all. Defaults to None.
         
         Returns:
             pandas.Dataframe
         """
         table = []
         columns = None
+        count = 0
 
         # construct table
         for r in self:
+            if size and count >= size:
+                break
+            count += 1
 
             # generate columns based on first record
             if not columns:
