@@ -1,7 +1,7 @@
 from rltk.record import Record
 
 
-class KeyValueAdapter(object):
+class DatasetAdapter(object):
     """
     Super class of adapter of key value stores.
     """

@@ -1,8 +1,8 @@
-from rltk.io.adapter import KeyValueAdapter
+from rltk.io.adapter import DatasetAdapter
 from rltk.record import Record
 
 
-class MemoryAdapter(KeyValueAdapter):
+class MemoryDatasetAdapter(DatasetAdapter):
     """
     Basic in-memory (dict) adapter.
     """

@@ -1,11 +1,11 @@
 import dbm
 
-from rltk.io.adapter import KeyValueAdapter
+from rltk.io.adapter import DatasetAdapter
 from rltk.io.serializer import Serializer, PickleSerializer
 from rltk.record import Record
 
 
-class DBMAdapter(KeyValueAdapter):
+class DbmDatasetAdapter(DatasetAdapter):
     """
     Python builtin `DBM <https://docs.python.org/3.6/library/dbm.html>`_ adapter.
     

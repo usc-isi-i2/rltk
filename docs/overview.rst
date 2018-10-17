@@ -42,7 +42,7 @@ In RLTK, every "row" in table is called ``Record``. Notice "row" here is a logic
 
 So, the data flow is: in order to create ``Dataset``, use ``Reader`` to read from input source and convert entity by entity to ``raw_object`` which is used to construct ``Record``, then store ``Record`` in ``Adapter``.
 
-Obviously, generating ``Record`` is really time consuming if the dataset is large, but if the concrete ``Adapter`` is a persistent one (e.g., ``HBaseAdapter``), then next time, ``Dataset`` can be loaded directly from this ``Adapter`` instead of regenerating again from raw input.
+Obviously, generating ``Record`` is really time consuming if the dataset is large, but if the concrete ``Adapter`` is a persistent one (e.g., ``HBaseDatasetAdapter``), then next time, ``Dataset`` can be loaded directly from this ``Adapter`` instead of regenerating again from raw input.
 
 Minimal Workflow & Implementation
 ---------------------------------
@@ -84,9 +84,9 @@ Let's look at example input datasets and minimal implementation.
 
 
    ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv'),
-                        record_class=Record1, adapter=rltk.MemoryAdapter())
+                        record_class=Record1, adapter=rltk.MemoryDatasetAdapter())
    ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
-                        record_class=Record2, adapter=rltk.DBMAdapter('file_index'))
+                        record_class=Record2, adapter=rltk.DbmDatasetAdapter('file_index'))
 
    pairs = rltk.get_record_pairs(ds1, ds2)
    for r1, r2 in pairs:

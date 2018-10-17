@@ -1,5 +1,5 @@
 from rltk.io.reader import Reader
-from rltk.io.adapter import KeyValueAdapter, MemoryAdapter
+from rltk.io.adapter import DatasetAdapter, MemoryDatasetAdapter
 from rltk.record import Record, generate_record_property_cache, get_property_names
 from rltk.parallel_processor import ParallelProcessor
 
@@ -14,7 +14,7 @@ class Dataset(object):
     Args:
         reader (Reader, optional): Input reader.
         record_class (type(Record), optional): Concrete class of :meth:`Record`.
-        adapter (KeyValueAdapter, optional): Specify where to store indexed data. Defaults to :meth:`MemoryAdapter`.
+        adapter (DatasetAdapter, optional): Specify where to store indexed data. Defaults to :meth:`MemoryDatasetAdapter`.
         size (int, optional): Same as `size` in :meth:`add_records` .
         pp_num_of_processor (int, optional): Same as `pp_num_of_processor` in :meth:`add_records` .
         pp_max_size_per_input_queue (int, optional): Same as `pp_max_size_per_input_queue` in :meth:`add_records` .
@@ -27,10 +27,10 @@ class Dataset(object):
         
     """
 
-    def __init__(self, reader: Reader = None, record_class: type(Record) = None, adapter: KeyValueAdapter = None,
+    def __init__(self, reader: Reader = None, record_class: type(Record) = None, adapter: DatasetAdapter = None,
                  size: int = None, sampling_function: Callable = None,
                  pp_num_of_processor: int = 0, pp_max_size_per_input_queue: int = 200):
-        self._adapter = adapter or MemoryAdapter()
+        self._adapter = adapter or MemoryDatasetAdapter()
         self._record_class = record_class
         self._sampling_function = sampling_function
 

@@ -1,11 +1,11 @@
 import redis
 
 from rltk.record import Record
-from rltk.io.adapter import KeyValueAdapter
+from rltk.io.adapter import DatasetAdapter
 from rltk.io.serializer import Serializer, PickleSerializer
 
 
-class RedisAdapter(KeyValueAdapter):
+class RedisDatasetAdapter(DatasetAdapter):
     """
     Redis adapter.
     

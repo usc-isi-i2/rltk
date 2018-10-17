@@ -20,7 +20,7 @@ record = ConcreteRecord(raw_object={'id': 'id1', 'value': 'value1'})
 
 
 def test_memory_adapter():
-    adapter = MemoryAdapter()
+    adapter = MemoryDatasetAdapter()
     adapter.set(record.id, record)
     assert adapter.get(record.id).id == record.id
     assert adapter.get(record.id).value == record.value
@@ -31,7 +31,7 @@ def test_memory_adapter():
 
 def test_dbm_adapter():
     name = 'test_dbm_adapter'
-    adapter = DBMAdapter(name)
+    adapter = DbmDatasetAdapter(name)
     adapter.set(record.id, record)
     assert adapter.get(record.id).id == record.id
     assert adapter.get(record.id).value == record.value
@@ -44,7 +44,7 @@ def test_dbm_adapter():
 
 def test_redis_adapter():
     try:
-        adapter = RedisAdapter('127.0.0.1', key_format='test_{record_id}')
+        adapter = RedisDatasetAdapter('127.0.0.1', key_format='test_{record_id}')
         adapter.set(record.id, record)
         assert adapter.get(record.id).id == record.id
         assert adapter.get(record.id).value == record.value

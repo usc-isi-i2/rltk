@@ -26,9 +26,9 @@ class Record2(rltk.Record):
 
 
 ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv'),
-                   record_class=Record1, adapter=rltk.MemoryAdapter())
+                   record_class=Record1, adapter=rltk.MemoryDatasetAdapter())
 ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
-                   record_class=Record2, adapter=rltk.DBMAdapter('file_index'))
+                   record_class=Record2, adapter=rltk.DbmDatasetAdapter('file_index'))
 
 pairs = rltk.get_record_pairs(ds1, ds2)
 for r1, r2 in pairs:
