@@ -1,10 +1,18 @@
+import itertools
+
 from rltk.io.reader import Reader
+from rltk.blocking.block_generator import BlockDatasetID
+from rltk.io.adapter.key_set_adapter import KeySetAdapter
 
 
 class BlockReader(Reader):
     """
     Block reader.
     """
+
+    def __init__(self, key_set_adapter: KeySetAdapter):
+        super(BlockReader, self).__init__()
+        self.key_set_adapter = key_set_adapter
 
     def __next__(self):
         """
@@ -13,4 +21,21 @@ class BlockReader(Reader):
         Returns:
             iter: id1, id2.
         """
-        raise NotImplementedError
+        for block_id, data in self.key_set_adapter:
+            # fetch one block
+            ds1, ds2 = list(), list()
+            for dataset_id, record_id in data:
+                if dataset_id == BlockDatasetID.Dataset1:
+                    ds1.append(record_id)
+                elif dataset_id == BlockDatasetID.Dataset2:
+                    ds2.append(record_id)
+
+            # cross product
+            for id1, id2 in itertools.product(ds1, ds2):
+                yield block_id, id1, id2
+
+    def __iter__(self):
+        """
+        Same as :meth:`__next__`.
+        """
+        return self.__next__()
