@@ -29,5 +29,5 @@ class MemoryKeySetAdapter(KeySetAdapter):
         self._store = dict()
 
     def __next__(self):
-        for k, v in self._store:
+        for k, v in self._store.items():
             yield k, v
