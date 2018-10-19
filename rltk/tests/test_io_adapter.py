@@ -72,7 +72,7 @@ def test_memory_key_set_adapter():
 
 
 def test_leveldb_key_set_adapter():
-    path = os.path.join(tempfile.tempdir, 'rltk_test_leveldb_key_set_adapter')
+    path = os.path.join(tempfile.gettempdir(), 'rltk_test_leveldb_key_set_adapter')
     adapter = LevelDbKeySetAdapter(path, name='test')
     _test_key_set_adapter(adapter)
     shutil.rmtree(path)
