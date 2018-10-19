@@ -34,25 +34,29 @@ class Record2(rltk.Record):
 
 
 ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv', delimiter=','),
-                   record_class=Record1, adapter=rltk.MemoryAdapter())
+                   record_class=Record1, adapter=rltk.MemoryDatasetAdapter())
 ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
-                   record_class=Record2, adapter=rltk.MemoryAdapter())
+                   record_class=Record2, adapter=rltk.MemoryDatasetAdapter())
 
-# for r in ds1:
-#     print(r.id, r.first_name, r.last_name)
-# for r in ds2:
-#     print(r.id, r.first_name, r.last_name)
+print('--- block on first_name ---')
+bg = rltk.HashBlockGenerator()
+block_writer = rltk.BlockWriter()
+bg.generate(bg.block(ds1, property_='first_name'),
+            bg.block(ds2, property_='first_name'),
+            block_writer)
 
-block_writer = rltk.BlockFileWriter('blocks.jl')
-# block_writer = rltk.BlockArrayWriter()
-block_writer.write('1', 'a')
-block_writer.write('2', 'b')
-block_writer.write('2', 'd')
-block_writer.write('1', 'a')
-block_writer.flush() # flush / close must be called in order to read later
-
-block_reader = rltk.BlockFileReader('blocks.jl')
-# block_reader = rltk.BlockArrayReader(block_writer.get_handler())
+block_reader = rltk.BlockReader(block_writer.key_set_adapter)
 pairs = rltk.get_record_pairs(ds1, ds2, block_reader)
+for r1, r2 in pairs:
+    print(r1.id, r1.first_name, '\t', r2.id, r2.first_name)
+
+
+print('--- block on first_name[:1] ---')
+bg2 = rltk.HashBlockGenerator()
+ks_adapter2 = bg2.generate(
+            bg2.block(ds1, function_=lambda r: r.first_name[:1]),
+            bg2.block(ds2, function_=lambda r: r.first_name[:1]))
+
+pairs = rltk.get_record_pairs(ds1, ds2, rltk.BlockReader(ks_adapter2))
 for r1, r2 in pairs:
     print(r1.id, r1.first_name, '\t', r2.id, r2.first_name)
