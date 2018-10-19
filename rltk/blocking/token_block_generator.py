@@ -20,7 +20,7 @@ class TokenBlockGenerator(BlockGenerator):
             ks_adapter = MemoryKeySetAdapter()
         for r in dataset:
             value = function_(r) if function_ else getattr(r, property_)
-            if not isinstance(value, list):
+            if not isinstance(value, list) and not isinstance(value, set):
                 raise ValueError('Return of the function or property should be a list')
             for v in value:
                 if not isinstance(v, str):
