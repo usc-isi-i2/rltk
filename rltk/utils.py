@@ -43,13 +43,13 @@ def get_record_pairs(dataset1: 'Dataset',
         ground_truth (GroundTruth, optional): ground truth
     """
     if block_reader and not ground_truth:
-        for id1, id2 in block_reader:
+        for _, id1, id2 in block_reader:
             yield dataset1.get_record(id1), dataset2.get_record(id2)
     elif ground_truth and not block_reader:
         for id1, id2, label in ground_truth:
             yield dataset1.get_record(id1), dataset2.get_record(id2)
     elif ground_truth and block_reader:
-        for id1, id2 in block_reader:
+        for _, id1, id2 in block_reader:
             if ground_truth.is_member(id1, id2):
                 yield dataset1.get_record(id1), dataset2.get_record(id2)
     else:
