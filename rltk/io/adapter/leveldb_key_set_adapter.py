@@ -1,4 +1,3 @@
-import shutil
 import os
 import plyvel
 
@@ -19,9 +18,8 @@ class LevelDbKeySetAdapter(KeySetAdapter):
 
         # leveldb's connection can only be a singleton
         if not self.__class__._db_instance:
-            if os.path.exists(path):
-                shutil.rmtree(path)
-            os.mkdir(path)
+            if not os.path.exists(path):
+                os.mkdir(path)
             self.__class__._db_instance = plyvel.DB(path, create_if_missing=True)
         self._db = self.__class__._db_instance
         self.__class__._db_ref_count += 1
