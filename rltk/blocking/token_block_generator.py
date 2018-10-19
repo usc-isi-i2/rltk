@@ -2,12 +2,12 @@ from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from rltk.dataset import Dataset
-from rltk.blocking.block_generator import BlockGenerator, BlockDatasetID
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
+from rltk.blocking.block_generator import BlockGenerator, BlockDatasetID
 
 
-class HashBlockGenerator(BlockGenerator):
+class TokenBlockGenerator(BlockGenerator):
 
     @staticmethod
     def block(dataset: 'Dataset', function_: Callable = None, property_: str = None,
@@ -18,9 +18,12 @@ class HashBlockGenerator(BlockGenerator):
             ks_adapter = MemoryKeySetAdapter()
         for r in dataset:
             value = function_(r) if function_ else getattr(r, property_)
-            if not isinstance(value, str):
-                raise ValueError('Return of the function or property should be a string')
-            ks_adapter.add(value, r.id)
+            if not isinstance(value, list):
+                raise ValueError('Return of the function or property should be a list')
+            for v in value:
+                if not isinstance(v, str):
+                    raise ValueError('Elements in return list should be string')
+                ks_adapter.add(v, r.id)
         return ks_adapter
 
     @staticmethod
