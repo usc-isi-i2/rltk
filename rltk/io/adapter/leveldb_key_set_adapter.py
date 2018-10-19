@@ -7,14 +7,25 @@ from rltk.io.adapter.key_set_adapter import KeySetAdapter
 
 
 class LevelDbKeySetAdapter(KeySetAdapter):
+    """
+    https://plyvel.readthedocs.io/en/latest/api.html#DB
+    """
+    _db_instance = None
+    _db_ref_count = 0
 
     def __init__(self, path, name, serializer: Serializer=None):
         if not serializer:
             serializer = PickleSerializer()
-        if os.path.exists(path):
-            shutil.rmtree(path)
-        os.mkdir(path)
-        self._db = plyvel.DB(path, create_if_missing=True)
+
+        # leveldb's connection can only be a singleton
+        if not self.__class__._db_instance:
+            if os.path.exists(path):
+                shutil.rmtree(path)
+            os.mkdir(path)
+            self.__class__._db_instance = plyvel.DB(path, create_if_missing=True)
+        self._db = self.__class__._db_instance
+        self.__class__._db_ref_count += 1
+
         self._prefix = '{name}_'.format(name=name)
         self._prefix_db = self._db.prefixed_db(self._encode(self._prefix))
         self._serializer = serializer
@@ -64,4 +75,6 @@ class LevelDbKeySetAdapter(KeySetAdapter):
             yield self._decode(key), self._get(key)
 
     def close(self):
-        self._db.close()
+        self.__class__._db_ref_count -= 1
+        if self.__class__._db_ref_count == 0:
+            self._db.close()

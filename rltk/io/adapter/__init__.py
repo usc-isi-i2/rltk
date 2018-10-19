@@ -7,3 +7,4 @@ from rltk.io.adapter.hbase_dataset_adapter import HBaseDatasetAdapter
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
 from rltk.io.adapter.redis_key_set_adapter import RedisKeySetAdapter
+from rltk.io.adapter.leveldb_key_set_adapter import LevelDbKeySetAdapter
