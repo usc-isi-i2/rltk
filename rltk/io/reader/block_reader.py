@@ -1,7 +1,7 @@
 import itertools
 
 from rltk.io.reader import Reader
-from rltk.blocking.block_generator import BlockDatasetID
+from rltk.blocking.block_dataset_id import BlockDatasetID
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 
 

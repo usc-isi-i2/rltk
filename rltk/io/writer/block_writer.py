@@ -1,7 +1,7 @@
 from rltk.io.writer import Writer
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
-from rltk.blocking.block_generator import BlockDatasetID
+from rltk.blocking.block_dataset_id import BlockDatasetID
 
 
 class BlockWriter(Writer):
