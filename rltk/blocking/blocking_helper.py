@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from rltk.io.reader.block_reader import BlockReader
     from rltk.io.writer.block_writer import BlockWriter
-from rltk.blocking.block_generator import BlockDatasetID
+from rltk.blocking.block_dataset_id import BlockDatasetID
 
 
 class BlockingHelper(object):
