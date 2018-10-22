@@ -14,12 +14,7 @@ Block Generator
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
-.. automodule:: rltk.blocking.inverted_index_block_generator
-    :members:
-    :special-members:
-    :exclude-members: __dict__, __weakref__, __init__
-
-.. automodule:: rltk.blocking.canopy_block_generator
+.. automodule:: rltk.blocking.token_block_generator
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__

@@ -10,14 +10,17 @@ from rltk.blocking.block_dataset_id import BlockDatasetID
 
 
 class TokenBlockGenerator(BlockGenerator):
+    """
+    Token block generator. The return for :meth:`block` should be a `list` or `set`.
+    """
 
     @staticmethod
-    def block(dataset: 'Dataset', function_: Callable = None, property_: str = None,
+    def block(dataset, function_: Callable = None, property_: str = None,
               ks_adapter: KeySetAdapter = None):
-        if not function_ and not property_:
-            raise ValueError('Invalid function or property')
-        if not ks_adapter:
-            ks_adapter = MemoryKeySetAdapter()
+        """
+        The return of `property_` or `function_` should be list or set.
+        """
+        ks_adapter = BlockGenerator._block_args_check(function_, property_, ks_adapter)
         for r in dataset:
             value = function_(r) if function_ else getattr(r, property_)
             if not isinstance(value, list) and not isinstance(value, set):
@@ -30,8 +33,7 @@ class TokenBlockGenerator(BlockGenerator):
 
     @staticmethod
     def generate(ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):
-        if not block_writer:
-            block_writer = BlockWriter()
+        block_writer = BlockGenerator._generate_args_check(block_writer)
         for block_id, id1s in ks_adapter1:
             for id1 in id1s:
                 block_writer.write(block_id, BlockDatasetID.Dataset1, id1)
