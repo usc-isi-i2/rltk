@@ -10,6 +10,7 @@ API Reference
    mod_evaluation.rst
    mod_blocking.rst
    mod_io.rst
+   mod_utils.rst
    mod_parallel_processor.rst
    mod_remote.rst
 ..   mod_tokenizer.rst

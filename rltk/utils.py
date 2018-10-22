@@ -29,10 +29,10 @@ def convert_list_to_set(s):
     return s
 
 
-def get_record_pairs(dataset1: 'Dataset',
-                     dataset2: 'Dataset',
-                     block_reader: 'BlockReader' = None,
-                     ground_truth: 'GroundTruth' = None):
+def get_record_pairs(dataset1,
+                     dataset2,
+                     block_reader = None,
+                     ground_truth = None):
     """
     Generate pairs to compare.
 
