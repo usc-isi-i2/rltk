@@ -14,11 +14,11 @@ class BlockingHelper(object):
         reader2 (BlockReader): BlockReader 2.
     """
 
-    def __init__(self, reader1: 'BlockReader', reader2: 'BlockReader'):
+    def __init__(self, reader1, reader2):
         self._reader1 = reader1
         self._reader2 = reader2
 
-    def union(self, writer: 'BlockWriter'):
+    def union(self, writer):
         """
         Union two blocks.
         
