@@ -8,6 +8,9 @@ from rltk.io.adapter.key_set_adapter import KeySetAdapter
 class BlockReader(Reader):
     """
     Block reader.
+    
+    Args:
+        key_set_adapter (KeySetAdapter): Key set adapter.
     """
 
     def __init__(self, key_set_adapter: KeySetAdapter):
@@ -33,9 +36,3 @@ class BlockReader(Reader):
             # cross product
             for id1, id2 in itertools.product(ds1, ds2):
                 yield block_id, id1, id2
-
-    def __iter__(self):
-        """
-        Same as :meth:`__next__`.
-        """
-        return self.__next__()

@@ -7,6 +7,9 @@ from rltk.blocking.block_dataset_id import BlockDatasetID
 class BlockWriter(Writer):
     """
     Block writer
+    
+    Args:
+        key_set_adapter (KeySetAdapter): Key set adapter.
     """
     def __init__(self, key_set_adapter: KeySetAdapter = None):
         super(BlockWriter, self).__init__()
@@ -15,6 +18,14 @@ class BlockWriter(Writer):
         self.key_set_adapter = key_set_adapter
 
     def write(self, block_id, dataset_id: BlockDatasetID, record_id):
+        """
+        Write block to adapter.
+        
+        Args:
+            block_id (str): The id for a block.
+            dataset_id (BlockDatasetID): The index for a dataset.
+            record_id (str): The id of a record.
+        """
         self.key_set_adapter.add(block_id, (dataset_id, record_id))
 
     # def get_blacklist(self):
