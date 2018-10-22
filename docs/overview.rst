@@ -9,7 +9,7 @@ Record linkage (RL) is the task of finding records in a data set that refer to t
 Assume we have two following tables:
 
 .. image:: images/overview-tables.png
-   :scale: 60 %
+   :scale: 40 %
 
 It's obvious that both of them have identical *id* ``A04`` and these two belong to the same entity. Then we know that "David's id is A04 and he is a male".
 
@@ -30,7 +30,7 @@ Basic Components & Data Flow
 The first step of using RLTK is to create ``Dataset``.
 
 .. image:: images/overview-dataflow.png
-   :scale: 60 %
+   :scale: 40 %
 
 In RLTK, every "row" in table is called ``Record``. Notice "row" here is a logical concept: for a csv file it's a csv object (can be formed by multiple lines); for a json lines file, it's a line object; for a query from DBMS, it's one row; for some self-defined stream, it's a minimal entity.
 
@@ -38,11 +38,11 @@ In RLTK, every "row" in table is called ``Record``. Notice "row" here is a logic
 
 ``Reader`` is used to handle heterogeneous input. For each "row", the return of the ``Reader`` is represented in a Python dictionary, named ``raw_object`` (shown as grey ``{...}`` in figure). ``Record`` is generated based on ``raw_object``: user need to extend base ``Record`` class and add properties for later usage.
 
-``Adapter`` is where all ``Record`` s get stored. It can be either in memory or persistent.
+``DatasetAdapter`` is where all ``Record`` s get stored. It can be either in memory or persistent.
 
-So, the data flow is: in order to create ``Dataset``, use ``Reader`` to read from input source and convert entity by entity to ``raw_object`` which is used to construct ``Record``, then store ``Record`` in ``Adapter``.
+So, the data flow is: in order to create ``Dataset``, use ``Reader`` to read from input source and convert entity by entity to ``raw_object`` which is used to construct ``Record``, then store ``Record`` in ``DatasetAdapter``.
 
-Obviously, generating ``Record`` is really time consuming if the dataset is large, but if the concrete ``Adapter`` is a persistent one (e.g., ``HBaseDatasetAdapter``), then next time, ``Dataset`` can be loaded directly from this ``Adapter`` instead of regenerating again from raw input.
+Obviously, generating ``Record`` is really time consuming if the dataset is large, but if the concrete ``DatasetAdapter`` is a persistent one (e.g., ``HBaseDatasetAdapter``), then next time, ``Dataset`` can be loaded directly from this ``DatasetAdapter`` instead of regenerating again from raw input.
 
 Minimal Workflow & Implementation
 ---------------------------------
@@ -50,14 +50,14 @@ Minimal Workflow & Implementation
 Now we have two ``Datasets`` and we need to find pairs (If it's de-duplication problem, only one ``Dataset`` is needed).
 
 .. image:: images/overview-basic-workflow.png
-   :scale: 60 %
+   :scale: 40 %
 
 Simply using RLTK's API to get all possible combinations of candidate pairs and implement your only "magical function" (shown as ``is_pair()`` in figure) to find if two ``Record`` s are the same.
 
 Let's look at example input datasets and minimal implementation.
 
 .. image:: images/overview-inputs.png
-   :scale: 60 %
+   :scale: 40 %
 
 .. code-block:: python
 
@@ -109,7 +109,7 @@ After designing the "magical function", you need a way to judge its performance.
 * Evaluation: Visualize the result of evaluation if multiple trials are given.
 
 .. image:: images/overview-evaluation-workflow.png
-   :scale: 60 %
+   :scale: 40 %
 
 As can be seen from the figure, every ``Trial`` has a corresponding ``GroundTruth``. ``GroundTruth`` needs to be provided while generating candidate pairs. Add prediction result to ``Trial`` if it needs to be evaluated later. Call ``evaluate()`` to get the evaluation of the ``Trial`` against ``GroundTruth``.
 
@@ -140,26 +140,29 @@ Let's say the 1st dataset has M items and and 2nd has N, then it needs M*N compa
 
 
 .. image:: images/overview-blocking-tables.png
-   :scale: 60 %
+   :scale: 40 %
 
 For example: Full comparison (cross product) of two tables (shown in figure) is 12 times. After inspection, it's obvious to say that "last name" can be used as blocking key (group by based on key) since people who have different last name can't be the same. Then, total comparison drops to 3 times.
 
 Blocks need to be calculated and passed while generating candidate pairs. Blocks' calculation can be time consuming so RLTK supports dumping them to disk for further usage.
 
 .. image:: images/overview-blocking-workflow.png
-   :scale: 60 %
+   :scale: 40 %
 
 .. code-block:: python
 
-   ngram = rltk.NGramTokenizer()
-   def tokenizer(r):
-       return ngram.basic(r.first_name, 3)
+   def get_first_name(r2):
+      return r2.full_name.split(' ')[0]
 
-   block_handler = rltk.InvertedIndexBlockGenerator(
-       ds1, ds2, writer=rltk.BlockFileWriter('ngram_blocks.jl'), tokenizer=tokenizer).generate()
-   pairs = rltk.get_record_pairs(ds1, ds2, block_reader=rltk.BlockFileReader(block_handler))
+   bg = rltk.HashBlockGenerator()
+   ks_adapter = bg.generate(
+                  bg.block(ds1, property_='first_name'),
+                  bg.block(ds2, function_=get_first_name)),
+   pairs = rltk.get_record_pairs(ds1, ds2, block_reader=rltk.BlockReader(ks_adapter))
    for r1, r2 in pairs:
        print(r1.id, r1.full_name, '\t', r2.id, r2.full_name)
+
+One thing to notice here is that the intermediate and the final blocks store in ``KeySetAdapter``, but user can access blocks through ``BlockReader`` and ``BlockWriter`` which based on a certain ``KeySetAdapter``.
 
 Summary
 -------
