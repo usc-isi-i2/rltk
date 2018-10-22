@@ -2,6 +2,9 @@ from rltk.io.adapter.key_set_adapter import KeySetAdapter
 
 
 class MemoryKeySetAdapter(KeySetAdapter):
+    """
+    Memory key set a adapter.
+    """
 
     def __init__(self):
         self._store = dict()

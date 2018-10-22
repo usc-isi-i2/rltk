@@ -5,21 +5,30 @@ from rltk.io.adapter.key_set_adapter import KeySetAdapter
 
 
 class RedisKeySetAdapter(KeySetAdapter):
+    """
+    Redis key set adapter.
+    
+    Args:
+        host (str): Host address.
+        serializer (Serializer, optional): The serializer used to serialize Record object. 
+                                If it's None, `PickleSerializer` will be used. Defaults to None.
+        key_format (str, optional): Format of key in redis. Defaults to `'{key}'`.
+        **kwargs: Other parameters used by `redis.Redis <https://redis-py.readthedocs.io/en/latest/#redis.Redis>`_ .
+    """
 
-    def __init__(self, host, name, key_format='{name}-{key}', serializer: Serializer=None, **kwargs):
+    def __init__(self, host, key_format='{key}', serializer: Serializer=None, **kwargs):
         if not serializer:
             serializer = PickleSerializer()
         self._redis = redis.Redis(host=host, **kwargs)
         self._serializer = serializer
         self._key_format = key_format
-        self._name = name
         try:
             self._get_key('test_id')
         except:
             raise ValueError('Invalid key_format.')
 
     def _get_key(self, key):
-        return self._key_format.format(name=self._name, key=key)
+        return self._key_format.format(key=key)
 
     def get(self, key):
         return self._get(self._get_key(key))

@@ -7,12 +7,27 @@ from rltk.io.adapter.key_set_adapter import KeySetAdapter
 
 class LevelDbKeySetAdapter(KeySetAdapter):
     """
-    https://plyvel.readthedocs.io/en/latest/api.html#DB
+    `LevelDB <https://github.com/google/leveldb>`_ key set adapter. 
+    LevelDB is a serverless, stand-alone key value store. It can be used as a local file system store.
+    
+    
+    Args:
+        path (str): The directory path used by LevelDB.
+        name (str): Because LevelDB only has a single key space, \
+                    this is used as name space.
+        serializer (Serializer, optional): The serializer used to serialize each object in set. 
+                                If it's None, `PickleSerializer` will be used. Defaults to None.
+        kwargs: Other key word arguments for `plyvel.DB <https://plyvel.readthedocs.io/en/latest/api.html#DB>`_.
+        
+    Note:
+        A particular LevelDB database only supports accessing by one process at one time. 
+        This adapter uses singleton (in one RLTK instance) to make sure only one `plyvel.DB` is created.
+        Different `name` s can be used if you don't want to create multiple databases.
     """
     _db_instance = None
     _db_ref_count = 0
 
-    def __init__(self, path, name, serializer: Serializer=None):
+    def __init__(self, path: str, name: str, serializer: Serializer=None, **kwargs):
         if not serializer:
             serializer = PickleSerializer()
 
@@ -20,7 +35,7 @@ class LevelDbKeySetAdapter(KeySetAdapter):
         if not self.__class__._db_instance:
             if not os.path.exists(path):
                 os.mkdir(path)
-            self.__class__._db_instance = plyvel.DB(path, create_if_missing=True)
+            self.__class__._db_instance = plyvel.DB(path, create_if_missing=True, **kwargs)
         self._db = self.__class__._db_instance
         self.__class__._db_ref_count += 1
 

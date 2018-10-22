@@ -1,29 +1,75 @@
 import json
+import io
 
 
 class KeySetAdapter(object):
+    """
+    Key Set Adapter.
+    """
 
-    def get(self, key):
+    def get(self, key: str):
+        """
+        Get value by key.
+        
+        Args:
+            key (str): Key.
+        """
         raise NotImplementedError
 
-    def set(self, key, value):
+    def set(self, key: str, value: set):
+        """
+        Set a set by key.
+        
+        Args:
+            key (str): Key.
+            value (builtins.set): Value set.
+        """
         raise NotImplementedError
 
-    def add(self, key, value):
+    def add(self, key: str, value: object):
+        """
+        Add value to a set by key. If key doesn't exist, create one.
+        
+        Args:
+            key (str): Key.
+            value (object): Value.
+        """
         raise NotImplementedError
 
-    def remove(self, key, value):
+    def remove(self, key: str, value: object):
+        """
+        Remove value from a set by key. If key doesn't exist, create one.
+        
+        Args:
+            key (str): Key.
+            value (object): Value.
+        """
         raise NotImplementedError
 
-    def delete(self, key):
+    def delete(self, key: str):
+        """
+        Delete a set by key.
+        
+        Args:
+            key (str): Key.
+        """
         raise NotImplementedError
 
-    def dump(self, f):
+    def dump(self, f: io.IOBase):
+        """
+        Dump data to json lines format. Each json object is formatted as `{key: [value1, value2, ...]}`.
+        
+        Args:
+            f (io.IOBase): IO handler.
+        """
         for k, ss in self:
             obj = {k: list(ss)}
             f.write(json.dumps(obj) + '\n')
 
     def clean(self):
+        """
+        Delete all keys in this adapter.
+        """
         for k, _ in self:
             self.delete(k)
 
