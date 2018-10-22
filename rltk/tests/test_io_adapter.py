@@ -80,7 +80,7 @@ def test_leveldb_key_set_adapter():
 
 def test_redis_key_set_adapter():
     try:
-        adapter = RedisDatasetAdapter('127.0.0.1', key_format='rltk_test_redis_key_set_adapter_{record_id}')
+        adapter = RedisKeySetAdapter('127.0.0.1', key_format='rltk_test_redis_key_set_adapter_{key}')
         _test_dataset_adapter(adapter)
     except redis.exceptions.ConnectionError:
         return
