@@ -6,6 +6,7 @@ from typing import Callable
 from rltk.blocking import BlockGenerator
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.io.writer.block_writer import BlockWriter
+from rltk.blocking.block_dataset_id import BlockDatasetID
 
 
 class CanopyBlockGenerator(BlockGenerator):
@@ -36,52 +37,42 @@ class CanopyBlockGenerator(BlockGenerator):
         ks_adapter = super()._block_args_check(function_, property_, ks_adapter)
         for r in dataset:
             value = function_(r) if function_ else getattr(r, property_)
-            k = CanopyBlockGenerator._encode_key(value)
-            if not isinstance(value, str):
+            k = self._encode_key(value)
+            if not isinstance(value, list):
                 raise ValueError('Return of the function or property should be a vector (list)')
             ks_adapter.add(k, r.id)
         return ks_adapter
 
     @staticmethod
     def _encode_key(obj):
-        return json.dumps(obj, sort_keys=True)
+        return json.dumps(obj)
 
     @staticmethod
     def _decode_key(str_):
         return json.loads(str_)
 
-    def _generate_blocks(self):
-        vec_id_mapping = {}  # map data to
-        dataset = []
-        for r1 in self._dataset1:
-            v = self._vectorize_function(r1)
-            k = self._encode_key(v)
-            vec_id_mapping[k] = vec_id_mapping.get(k, [])
-            vec_id_mapping[k].append((0, r1.id))  # 0 means dataset1
-            dataset.append(v)
-        for r2 in self._dataset2:
-            v = self._vectorize_function(r2)
-            k = self._encode_key(v)
-            vec_id_mapping[k] = vec_id_mapping.get(k, [])
-            vec_id_mapping[k].append((1, r2.id))  # 1 means dataset2
-            dataset.append(v)
-
-        clusters = self._run_canopy_clustering(dataset, self._t1, self._t2, self._distance_metric)
-        for c in clusters:
-            id1s, id2s = [], []
-            for vec in c:
-                ids = vec_id_mapping[self._encode_key(vec)]
-                for ds_id, r_id in ids:
-                    if ds_id == 0:
-                        id1s.append(r_id)
-                    else:
-                        id2s.append(r_id)
-            for id1, id2 in itertools.product(id1s, id2s):
-                self._writer.write(id1, id2)
-
     def generate(self, ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):
         block_writer = BlockGenerator._generate_args_check(block_writer)
+        dataset = []
+        for key, _ in ks_adapter1:
+            dataset.append(self._decode_key(key))
+        for key, _ in ks_adapter2:
+            dataset.append(self._decode_key(key))
 
+        clusters = self._run_canopy_clustering(dataset, self._t1, self._t2, self._distance_metric)
+        print(clusters)
+        for c in clusters:
+            for vec in c:
+                key = self._encode_key(vec)
+                set_ = ks_adapter1.get(key)
+                if set_:
+                    for id1 in set_:
+                        block_writer.write(key, BlockDatasetID.Dataset1, id1)
+                set_ = ks_adapter2.get(key)
+                if set_:
+                    for id2 in set_:
+                        block_writer.write(key, BlockDatasetID.Dataset2, id2)
+        return block_writer.key_set_adapter
 
     @staticmethod
     def _run_canopy_clustering(dataset, t1, t2, distance_metric):
