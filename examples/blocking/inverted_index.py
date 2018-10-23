@@ -44,11 +44,13 @@ ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv', delimiter=','), record_class
 ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'), record_class=Record2)
 
 ngram = rltk.NGramTokenizer()
-def tokenizer(r):
-    return ngram.basic(r.first_name, 3)
 
-block_handler = rltk.InvertedIndexBlockGenerator(
-    ds1, ds2, writer=rltk.BlockFileWriter('ngram_blocks.jl'), tokenizer=tokenizer).generate()
-pairs = rltk.get_record_pairs(ds1, ds2, rltk.BlockFileReader(block_handler))
+bg = rltk.TokenBlockGenerator()
+ks_adapter1 = bg.block(ds1, function_=lambda r: ngram.basic(r.first_name, 3),
+                       ks_adapter=rltk.LevelDbKeySetAdapter('block_store', 'b1'))
+ks_adapter2 = bg.block(ds2, function_=lambda r: ngram.basic(r.first_name, 3),
+                       ks_adapter=rltk.LevelDbKeySetAdapter('block_store', 'b2'))
+ks_adapter3 = bg.generate(ks_adapter1, ks_adapter2, rltk.BlockWriter(rltk.LevelDbKeySetAdapter('block_store', 'b3')))
+pairs = rltk.get_record_pairs(ds1, ds2, rltk.BlockReader(ks_adapter3))
 for r1, r2 in pairs:
     print(r1.id, r1.full_name, '\t', r2.id, r2.full_name)
