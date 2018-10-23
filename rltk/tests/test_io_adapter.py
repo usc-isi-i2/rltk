@@ -58,6 +58,7 @@ def _test_key_set_adapter(adapter):
     assert adapter.get('a') == set(['1', '2', '3', '4'])
     adapter.remove('a', '4')
     assert adapter.get('a') == set(['1', '2', '3'])
+    assert adapter.get('b') is None
     for k, v in adapter:
         assert k == 'a'
         assert v == set(['1', '2', '3'])

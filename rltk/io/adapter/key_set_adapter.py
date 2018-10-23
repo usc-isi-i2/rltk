@@ -13,6 +13,9 @@ class KeySetAdapter(object):
         
         Args:
             key (str): Key.
+            
+        Returns:
+            set: A set of values, None if key doesn't exist.
         """
         raise NotImplementedError
 
