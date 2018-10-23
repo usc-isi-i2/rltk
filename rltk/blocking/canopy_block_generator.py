@@ -1,6 +1,5 @@
 import json
 import random
-import itertools
 from typing import Callable
 
 from rltk.blocking import BlockGenerator
@@ -60,7 +59,7 @@ class CanopyBlockGenerator(BlockGenerator):
             dataset.append(self._decode_key(key))
 
         clusters = self._run_canopy_clustering(dataset, self._t1, self._t2, self._distance_metric)
-        print(clusters)
+
         for c in clusters:
             for vec in c:
                 key = self._encode_key(vec)
