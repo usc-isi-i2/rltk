@@ -12,8 +12,7 @@ class BlockGenerator(object):
     Block generator.
     """
 
-    @staticmethod
-    def block(dataset, function_: Callable = None, property_: str = None,
+    def block(self, dataset, function_: Callable = None, property_: str = None,
               ks_adapter: KeySetAdapter = None):
         """
         Block on property or by function for dataset.
@@ -39,8 +38,7 @@ class BlockGenerator(object):
             ks_adapter = MemoryKeySetAdapter()
         return ks_adapter
 
-    @staticmethod
-    def generate(ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):
+    def generate(self, ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):
         """
         Generate blocks from two KeySetAdapters.
         

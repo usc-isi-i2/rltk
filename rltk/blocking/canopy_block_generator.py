@@ -1,35 +1,54 @@
 import json
-import math
-import numpy as np
 import random
 import itertools
+from typing import Callable
 
 from rltk.blocking import BlockGenerator
+from rltk.io.adapter.key_set_adapter import KeySetAdapter
+from rltk.io.writer.block_writer import BlockWriter
 
 
 class CanopyBlockGenerator(BlockGenerator):
     """
     Canopy based block generator.
-
+    
     Args:
         t1 (float): The loose distance.
         t2 (float): The tight distance.
-        vectorize_function (Callable): Convert values in record to a vector. 
-                                    The signature is `vectorize(r: Record) -> List`.
-        distance_metric (Callable): Compute the distance between two vectors.
-                                    The signature is `distance(v1: List, v2: List) -> float`
+        distance_metric (Callable): Compute the distance between two vectors return from :meth:`block`.
+                              The signature is `distance(v1: List, v2: List) -> float`
     """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._t1 = self._kwargs.get('t1')
-        self._t2 = self._kwargs.get('t2')
-        self._vectorize_function = self._kwargs.get('vectorize_function')
-        if self._t1 <= self._t2:
+    def __init__(self, t1, t2, distance_metric):
+        if t1 <= t2:
             raise ValueError('t1 should be greater than t2')
-        if self._t1 <= 0 or self._t2 <= 0:
+        if t2 <= 0:
             raise ValueError('t1 and t2 should greater than 0')
-        self._distance_metric = self._kwargs.get('distance_metric')
+
+        self._t1 = t1
+        self._t2 = t2
+        self._distance_metric = distance_metric
+
+    def block(self, dataset, function_: Callable = None, property_: str = None,
+              ks_adapter: KeySetAdapter = None):
+        """
+        The return of `property_` or `function_` should be a vector (list).
+        """
+        ks_adapter = super()._block_args_check(function_, property_, ks_adapter)
+        for r in dataset:
+            value = function_(r) if function_ else getattr(r, property_)
+            k = CanopyBlockGenerator._encode_key(value)
+            if not isinstance(value, str):
+                raise ValueError('Return of the function or property should be a vector (list)')
+            ks_adapter.add(k, r.id)
+        return ks_adapter
+
+    @staticmethod
+    def _encode_key(obj):
+        return json.dumps(obj, sort_keys=True)
+
+    @staticmethod
+    def _decode_key(str_):
+        return json.loads(str_)
 
     def _generate_blocks(self):
         vec_id_mapping = {}  # map data to
@@ -60,9 +79,9 @@ class CanopyBlockGenerator(BlockGenerator):
             for id1, id2 in itertools.product(id1s, id2s):
                 self._writer.write(id1, id2)
 
-    @staticmethod
-    def _encode_key(v):
-        return json.dumps(v)
+    def generate(self, ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):
+        block_writer = BlockGenerator._generate_args_check(block_writer)
+
 
     @staticmethod
     def _run_canopy_clustering(dataset, t1, t2, distance_metric):
