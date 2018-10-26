@@ -14,9 +14,10 @@ class RedisDatasetAdapter(DatasetAdapter):
         serializer (Serializer, optional): The serializer used to serialize Record object. 
                                 If it's None, `PickleSerializer` will be used. Defaults to None.
         key_format (str, optional): Format of key in redis. Defaults to `'{record_id}'`.
+        clean (bool, optional): Clean adapters while starting. Defaults to False.
         **kwargs: Other parameters used by `redis.Redis <https://redis-py.readthedocs.io/en/latest/#redis.Redis>`_ .
     """
-    def __init__(self, host, serializer: Serializer=None, key_format='{record_id}', **kwargs):
+    def __init__(self, host, serializer: Serializer=None, key_format='{record_id}', clean: bool = False, **kwargs):
         if not serializer:
             serializer = PickleSerializer()
         self._redis = redis.Redis(host=host, **kwargs)
@@ -26,6 +27,9 @@ class RedisDatasetAdapter(DatasetAdapter):
             self._get_key('test_id')
         except:
             raise ValueError('Invalid key_format.')
+
+        if clean:
+            self.clean()
 
     #: parallel-safe
     parallel_safe = True
@@ -38,6 +42,9 @@ class RedisDatasetAdapter(DatasetAdapter):
 
     def set(self, record_id, record: Record):
         return self._redis.set(self._get_key(record_id), self._serializer.dumps(record))
+
+    def delete(self, key):
+        return self._redis.delete(self._get_key(key))
 
     def __next__(self):
         # scan_iter() returns generator, keys() returns array

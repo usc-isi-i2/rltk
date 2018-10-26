@@ -15,6 +15,7 @@ class HBaseDatasetAdapter(DatasetAdapter):
         serializer (Serializer, optional): The serializer used to serialize Record object. 
                                 If it's None, `PickleSerializer` will be used. Defaults to None.
         key_prefix (str, optional): The prefix of HBase row key.
+        clean (bool, optional): Clean adapters while starting. Defaults to False.
         **kwargs: Other parameters used by `happybase.Connection <https://happybase.readthedocs.io/en/latest/api.html#connection>`_ .
     
     Note:
@@ -30,7 +31,7 @@ class HBaseDatasetAdapter(DatasetAdapter):
             </property>
     """
 
-    def __init__(self, host, table, serializer: Serializer=None, key_prefix='', **kwargs):
+    def __init__(self, host, table, serializer: Serializer = None, key_prefix: str = '', clean: bool = False, **kwargs):
         if not serializer:
             serializer = PickleSerializer()
         self._conn = happybase.Connection(host=host, timeout=None, **kwargs)
@@ -43,6 +44,9 @@ class HBaseDatasetAdapter(DatasetAdapter):
         if table.encode('utf-8') not in self._conn.tables():
             self._create_table(table)
         self._table = self._conn.table(table)
+
+        if clean:
+            self.clean()
 
     #: parallel-safe
     parallel_safe = True
@@ -64,6 +68,9 @@ class HBaseDatasetAdapter(DatasetAdapter):
 
     def set(self, record_id, record: Record):
         return self._table.put(self._get_key(record_id), {self._fam_col_name: self._serializer.dumps(record)})
+
+    def delete(self, record_id):
+        return self._table.delete(self._get_key(record_id))
 
     def __next__(self):
         for key, data in self._table.scan(

@@ -39,6 +39,22 @@ class DatasetAdapter(object):
         """
         raise NotImplementedError
 
+    def delete(self, record_id):
+        """
+        Delete record.
+        
+        Args:
+            record_id (str): Record id.
+        """
+        raise NotImplementedError
+
+    def clean(self):
+        """
+        Delete all records in adapter.
+        """
+        for r_id in self:
+            self.delete(r_id)
+
     def __iter__(self):
         """
         Same as :meth:`__next__`.
