@@ -45,7 +45,7 @@ class BlockGenerator(object):
         if block_max_size < 0 or not black_list:
             return
         size = len(ks_adapter.get(key))
-        if size >= block_max_size:
+        if size > block_max_size:
             ks_adapter.delete(key)
             black_list.set(key, set())
 
