@@ -17,6 +17,7 @@ class LevelDbKeySetAdapter(KeySetAdapter):
                     this is used as name space.
         serializer (Serializer, optional): The serializer used to serialize each object in set. 
                                 If it's None, `PickleSerializer` will be used. Defaults to None.
+        clean (bool, optional): Clean adapters while starting. Defaults to False.
         kwargs: Other key word arguments for `plyvel.DB <https://plyvel.readthedocs.io/en/latest/api.html#DB>`_.
         
     Note:
@@ -27,7 +28,7 @@ class LevelDbKeySetAdapter(KeySetAdapter):
     _db_instance = None
     _db_ref_count = 0
 
-    def __init__(self, path: str, name: str, serializer: Serializer=None, **kwargs):
+    def __init__(self, path: str, name: str, serializer: Serializer = None, clean: bool = False, **kwargs):
         if not serializer:
             serializer = PickleSerializer()
 
@@ -42,6 +43,9 @@ class LevelDbKeySetAdapter(KeySetAdapter):
         self._prefix = '{name}_'.format(name=name)
         self._prefix_db = self._db.prefixed_db(self._encode(self._prefix))
         self._serializer = serializer
+
+        if clean:
+            self.clean()
 
     @staticmethod
     def _encode(string):
