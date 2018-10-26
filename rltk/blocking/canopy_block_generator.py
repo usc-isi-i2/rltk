@@ -29,7 +29,7 @@ class CanopyBlockGenerator(BlockGenerator):
         self._distance_metric = distance_metric
 
     def block(self, dataset, function_: Callable = None, property_: str = None,
-              ks_adapter: KeySetAdapter = None):
+              ks_adapter: KeySetAdapter = None, block_max_size: int = -1, block_black_list: KeySetAdapter = None):
         """
         The return of `property_` or `function_` should be a vector (list).
         """
@@ -37,9 +37,12 @@ class CanopyBlockGenerator(BlockGenerator):
         for r in dataset:
             value = function_(r) if function_ else getattr(r, property_)
             k = self._encode_key(value)
+            if self._in_black_list(k, block_black_list):
+                continue
             if not isinstance(value, list):
                 raise ValueError('Return of the function or property should be a vector (list)')
             ks_adapter.add(k, r.id)
+            self._update_black_list(k, ks_adapter, block_max_size, block_black_list)
         return ks_adapter
 
     @staticmethod

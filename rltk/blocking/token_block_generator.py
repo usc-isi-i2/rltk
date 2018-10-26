@@ -4,7 +4,6 @@ if TYPE_CHECKING:
     from rltk.dataset import Dataset
 from rltk.io.writer.block_writer import BlockWriter
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
-from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
 from rltk.blocking.block_generator import BlockGenerator
 from rltk.blocking.block_dataset_id import BlockDatasetID
 
@@ -15,7 +14,7 @@ class TokenBlockGenerator(BlockGenerator):
     """
 
     def block(self, dataset, function_: Callable = None, property_: str = None,
-              ks_adapter: KeySetAdapter = None):
+              ks_adapter: KeySetAdapter = None, block_max_size: int = -1, block_black_list: KeySetAdapter = None):
         """
         The return of `property_` or `function_` should be list or set.
         """
@@ -25,9 +24,12 @@ class TokenBlockGenerator(BlockGenerator):
             if not isinstance(value, list) and not isinstance(value, set):
                 raise ValueError('Return of the function or property should be a list')
             for v in value:
+                if self._in_black_list(v, block_black_list):
+                    continue
                 if not isinstance(v, str):
                     raise ValueError('Elements in return list should be string')
                 ks_adapter.add(v, r.id)
+                self._update_black_list(v, ks_adapter, block_max_size, block_black_list)
         return ks_adapter
 
     def generate(self, ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):

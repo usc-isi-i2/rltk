@@ -14,16 +14,19 @@ class HashBlockGenerator(BlockGenerator):
     """
 
     def block(self, dataset, function_: Callable = None, property_: str = None,
-              ks_adapter: KeySetAdapter = None):
+              ks_adapter: KeySetAdapter = None, block_max_size: int = -1, block_black_list: KeySetAdapter = None):
         """
         The return of `property_` or `function_` should be string.
         """
         ks_adapter = super()._block_args_check(function_, property_, ks_adapter)
         for r in dataset:
             value = function_(r) if function_ else getattr(r, property_)
+            if self._in_black_list(value, block_black_list):
+                continue
             if not isinstance(value, str):
                 raise ValueError('Return of the function or property should be a string')
             ks_adapter.add(value, r.id)
+            self._update_black_list(value, ks_adapter, block_max_size, block_black_list)
         return ks_adapter
 
     def generate(self, ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):
