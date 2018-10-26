@@ -65,6 +65,9 @@ def _test_key_set_adapter(adapter):
         break
     adapter.delete('a')
     assert adapter.get('a') is None
+    adapter.set('c', set(['1', '2', '3']))
+    adapter.clean()
+    assert adapter.get('c') is None
 
 
 def test_memory_key_set_adapter():
@@ -76,6 +79,7 @@ def test_leveldb_key_set_adapter():
     path = os.path.join(tempfile.gettempdir(), 'rltk_test_leveldb_key_set_adapter')
     adapter = LevelDbKeySetAdapter(path, name='test')
     _test_key_set_adapter(adapter)
+
     shutil.rmtree(path)
 
 
