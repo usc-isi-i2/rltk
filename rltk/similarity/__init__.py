@@ -1,3 +1,6 @@
+# distance
+from rltk.similarity.distance import euclidean_distance, manhattan_distance
+
 # normal
 from rltk.similarity.equal import string_equal, number_equal
 from rltk.similarity.hamming import hamming_distance, hamming_similarity, normalized_hamming_distance

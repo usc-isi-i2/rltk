@@ -2,9 +2,23 @@
 
 import pytest
 
-# from ..similarity.tokenizer import q_grams
 from rltk.similarity import *
 
+
+@pytest.mark.parametrize('v1, v2, w, result', [
+    ([1,2,3], [4,5,6], None, 5.196),
+    ([1,2,3], [4,5,6], [1,3,9], 10.817)
+])
+def test_euclidean_distance(v1, v2, w, result):
+    assert pytest.approx(euclidean_distance(v1, v2, w), 0.001) == result
+
+
+@pytest.mark.parametrize('v1, v2, w, result', [
+    ([1,2,3], [4,5,6], None, 9),
+    ([1,2,3], [4,5,6], [1,3,9], 39)
+])
+def test_manhattan_distance(v1, v2, w, result):
+    assert pytest.approx(manhattan_distance(v1, v2, w), 0.001) == result
 
 @pytest.mark.parametrize('n1, n2, epsilon, equal', [
     (1, 2, 0, 0),
