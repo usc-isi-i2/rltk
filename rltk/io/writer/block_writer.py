@@ -1,7 +1,6 @@
 from rltk.io.writer import Writer
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
-from rltk.blocking.block_dataset_id import BlockDatasetID
 
 
 class BlockWriter(Writer):
@@ -9,7 +8,8 @@ class BlockWriter(Writer):
     Block writer
     
     Args:
-        key_set_adapter (KeySetAdapter): Key set adapter.
+        key_set_adapter (KeySetAdapter, optional): Key set adapter. \
+                                :meth:`MemoryKeySetAdapter` will be used if it's None. Defaults to None.
     """
     def __init__(self, key_set_adapter: KeySetAdapter = None):
         super(BlockWriter, self).__init__()
@@ -17,14 +17,14 @@ class BlockWriter(Writer):
             key_set_adapter = MemoryKeySetAdapter()
         self.key_set_adapter = key_set_adapter
 
-    def write(self, block_id, dataset_id: BlockDatasetID, record_id):
+    def write(self, block_id, dataset_id, record_id):
         """
         Write block to adapter.
         
         Args:
-            block_id (str): The id for a block.
-            dataset_id (BlockDatasetID): The index for a dataset.
-            record_id (str): The id of a record.
+            block_id (str): The id of block.
+            dataset_id (str): The id of dataset.
+            record_id (str): The id of record.
         """
         self.key_set_adapter.add(block_id, (dataset_id, record_id))
 
