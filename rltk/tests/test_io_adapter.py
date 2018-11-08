@@ -31,6 +31,8 @@ def _test_key_value_adapter(adapter):
         assert r.id == record.id
         break
 
+    assert adapter.get('no_such_key') is None
+
 
 def test_memory_key_value_adapter():
     adapter = MemoryKeyValueAdapter()

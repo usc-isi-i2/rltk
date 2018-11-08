@@ -28,7 +28,10 @@ class DbmKeyValueAdapter(KeyValueAdapter):
             self.clean()
 
     def get(self, key):
-        return self._serializer.loads(self._db.get(key))
+        v = self._db.get(key, None)
+        if not v:
+            return
+        return self._serializer.loads(v)
 
     def set(self, key, value):
         self._db[key] = self._serializer.dumps(value)
