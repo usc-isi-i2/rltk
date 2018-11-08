@@ -1,5 +1,5 @@
 from rltk.io.reader import Reader
-from rltk.io.adapter import DatasetAdapter, MemoryDatasetAdapter
+from rltk.io.adapter import KeyValueAdapter, MemoryKeyValueAdapter
 from rltk.record import Record, generate_record_property_cache, get_property_names
 from rltk.parallel_processor import ParallelProcessor
 
@@ -14,7 +14,7 @@ class Dataset(object):
     Args:
         reader (Reader, optional): Input reader.
         record_class (type(Record), optional): Concrete class of :meth:`Record`.
-        adapter (DatasetAdapter, optional): Specify where to store indexed data. Defaults to :meth:`MemoryDatasetAdapter`.
+        adapter (KeyValueAdapter, optional): Specify where to store indexed data. Defaults to :meth:`MemoryKeyValueAdapter`.
         size (int, optional): Same as `size` in :meth:`add_records` .
         pp_num_of_processor (int, optional): Same as `pp_num_of_processor` in :meth:`add_records` .
         pp_max_size_per_input_queue (int, optional): Same as `pp_max_size_per_input_queue` in :meth:`add_records` .
@@ -27,15 +27,33 @@ class Dataset(object):
         
     """
 
-    def __init__(self, reader: Reader = None, record_class: type(Record) = None, adapter: DatasetAdapter = None,
+    _METADATA_KEY = '__rltk_reserved_metadata'
+
+    def __init__(self, reader: Reader = None, record_class: type(Record) = None, adapter: KeyValueAdapter = None,
                  size: int = None, sampling_function: Callable = None,
                  pp_num_of_processor: int = 0, pp_max_size_per_input_queue: int = 200):
-        self._adapter = adapter or MemoryDatasetAdapter()
-        self._record_class = record_class
-        self._sampling_function = sampling_function
+        # load adapter and metadata if it's there
+        self._adapter = adapter or MemoryKeyValueAdapter()
+        metadata = self._adapter.get(self._METADATA_KEY)
+        if metadata:
+            self.id = metadata.get('id')
+            self._record_class = metadata.get('record_class')
 
-        if reader and self._record_class:
-            self.add_records(reader, size, pp_num_of_processor, pp_max_size_per_input_queue)
+        # add / update
+        self._sampling_function = sampling_function
+        if record_class:
+            if hasattr(self, '_record_class'):
+                if self._record_class != record_class:
+                    raise ValueError('Different record class already exists in current adapter')
+            else:
+                # add metadata
+                self._record_class = record_class
+                self.id = self._record_class.__name__
+                metadata = {'id': self.id, 'record_class': self._record_class}
+                self._adapter.set(self._METADATA_KEY, metadata)
+            # add data
+            if reader:
+                self.add_records(reader, size, pp_num_of_processor, pp_max_size_per_input_queue)
 
     def add_records(self, reader: Reader, size: int = None,
                     pp_num_of_processor: int = 0, pp_max_size_per_input_queue: int = 200):
@@ -154,5 +172,7 @@ class Dataset(object):
         Returns:
             iter: Record
         """
-        for r in self._adapter:
-            yield r
+        for k, v in self._adapter:
+            if k == self._METADATA_KEY:
+                continue
+            yield v
