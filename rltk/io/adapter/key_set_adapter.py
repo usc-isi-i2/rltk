@@ -96,7 +96,7 @@ class KeySetAdapter(object):
         Iterator of the data store. This is not required.
 
         Returns:
-            iter: record_id, record
+            iter: key, set
         """
         pass
 

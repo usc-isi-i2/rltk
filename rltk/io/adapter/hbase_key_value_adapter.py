@@ -1,0 +1,82 @@
+import happybase
+
+from rltk.record import Record
+from rltk.io.adapter import KeyValueAdapter
+from rltk.io.serializer import Serializer, PickleSerializer
+
+
+class HBaseKeyValueAdapter(KeyValueAdapter):
+    """
+    Hbase Adapter.
+    
+    Args:
+        host (str): Host address.
+        table (str): HBase table name.
+        serializer (Serializer, optional): The serializer used to serialize Record object. 
+                                If it's None, `PickleSerializer` will be used. Defaults to None.
+        key_prefix (str, optional): The prefix of HBase row key.
+        clean (bool, optional): Clean adapters while starting. Defaults to False.
+        **kwargs: Other parameters used by `happybase.Connection <https://happybase.readthedocs.io/en/latest/api.html#connection>`_ .
+    
+    Note:
+        The timeout of thrift in hbase-site.xml needs to increase::
+        
+            <property>
+                <name>hbase.thrift.server.socket.read.timeout</name>
+                <value>6000000</value>
+            </property>
+            <property>
+                <name>hbase.thrift.connection.max-idletime</name>
+                <value>18000000</value>
+            </property>
+    """
+
+    def __init__(self, host, table, serializer: Serializer = None, key_prefix: str = '', clean: bool = False, **kwargs):
+        if not serializer:
+            serializer = PickleSerializer()
+        self._conn = happybase.Connection(host=host, timeout=None, **kwargs)
+        self._serializer = serializer
+        self._key_prefix = key_prefix
+        self._family_name = 'rltk'
+        self._col_name = 'obj'
+        self._fam_col_name = '{}:{}'.format(self._family_name, self._col_name).encode('utf-8')
+
+        if table.encode('utf-8') not in self._conn.tables():
+            self._create_table(table)
+        self._table = self._conn.table(table)
+
+        if clean:
+            self.clean()
+
+    #: parallel-safe
+    parallel_safe = True
+
+    def _encode_key(self, key):
+        return '{prefix}{key}'.format(prefix=self._key_prefix, key=key).encode('utf-8')
+
+    def _decode_key(self, key):
+        key = key.decode('utf-8')
+        return key[len(self._key_prefix):]
+
+    def close(self):
+        try:
+            self._conn.close()
+        except:
+            pass
+
+    def _create_table(self, table_name):
+        self._conn.create_table(table_name, {self._family_name: dict()})
+
+    def get(self, key) -> object:
+        return self._serializer.loads(self._table.row(self._encode_key(key))[self._fam_col_name])
+
+    def set(self, key, value: object):
+        return self._table.put(self._encode_key(key), {self._fam_col_name: self._serializer.dumps(value)})
+
+    def delete(self, key):
+        return self._table.delete(self._encode_key(key))
+
+    def __next__(self):
+        for key, data in self._table.scan(
+                row_prefix=self._key_prefix.encode('utf-8'), filter=b'FirstKeyOnlyFilter()'):
+            yield self._decode_key(key), self._serializer.loads(data[self._fam_col_name])
