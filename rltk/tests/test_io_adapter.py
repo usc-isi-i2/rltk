@@ -21,32 +21,34 @@ class ConcreteRecord(Record):
 record = ConcreteRecord(raw_object={'id': 'id1', 'value': 'value1'})
 
 
-def _test_dataset_adapter(adapter):
+def _test_key_value_adapter(adapter):
     adapter.set(record.id, record)
     assert adapter.get(record.id).id == record.id
     assert adapter.get(record.id).value == record.value
-    for r in adapter:
+    for rid, r in adapter:
+        assert type(rid) == str
+        assert rid == record.id
         assert r.id == record.id
         break
 
 
-def test_memory_dataset_adapter():
-    adapter = MemoryDatasetAdapter()
-    _test_dataset_adapter(adapter)
+def test_memory_key_value_adapter():
+    adapter = MemoryKeyValueAdapter()
+    _test_key_value_adapter(adapter)
 
 
-def test_dbm_dataset_adapter():
+def test_dbm_key_value_adapter():
     name = 'test_dbm_adapter'
-    adapter = DbmDatasetAdapter(name)
-    _test_dataset_adapter(adapter)
+    adapter = DbmKeyValueAdapter(name)
+    _test_key_value_adapter(adapter)
     if os.path.exists(name + '.db'):
         os.remove(name + '.db')
 
 
-def test_redis_dataset_adapter():
+def test_redis_key_value_adapter():
     try:
-        adapter = RedisDatasetAdapter('127.0.0.1', key_format='test_{record_id}')
-        _test_dataset_adapter(adapter)
+        adapter = RedisKeyValueAdapter('127.0.0.1', key_prefix='test_')
+        _test_key_value_adapter(adapter)
     except redis.exceptions.ConnectionError:
         return
 
@@ -60,6 +62,7 @@ def _test_key_set_adapter(adapter):
     assert adapter.get('a') == set(['1', '2', '3'])
     assert adapter.get('b') is None
     for k, v in adapter:
+        assert type(k) == str
         assert k == 'a'
         assert v == set(['1', '2', '3'])
         break
@@ -85,7 +88,7 @@ def test_leveldb_key_set_adapter():
 
 def test_redis_key_set_adapter():
     try:
-        adapter = RedisKeySetAdapter('127.0.0.1', key_format='rltk_test_redis_key_set_adapter_{key}')
+        adapter = RedisKeySetAdapter('127.0.0.1', key_prefix='rltk_test_redis_key_set_adapter_')
         _test_key_set_adapter(adapter)
     except redis.exceptions.ConnectionError:
         return
