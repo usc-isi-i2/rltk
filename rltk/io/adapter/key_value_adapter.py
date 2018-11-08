@@ -49,7 +49,7 @@ class KeyValueAdapter(object):
         """
         Delete all keys in adapter.
         """
-        for key in self:
+        for key, _ in self:
             self.delete(key)
 
     def __iter__(self):
