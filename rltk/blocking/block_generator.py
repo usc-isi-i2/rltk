@@ -2,9 +2,9 @@ from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from rltk.dataset import Dataset
+from rltk.io.reader.block_reader import BlockReader
 from rltk.io.writer.block_writer import BlockWriter
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
-from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
 
 
 class BlockGenerator(object):
@@ -12,26 +12,26 @@ class BlockGenerator(object):
     Block generator.
     """
 
-    def block(self, dataset, function_: Callable = None, property_: str = None,
-              ks_adapter: KeySetAdapter = None, block_max_size: int = -1, block_black_list: KeySetAdapter = None):
+    def block(self, dataset, ds_id: str, function_: Callable = None, property_: str = None,
+              block_writer: BlockWriter = None, block_max_size: int = -1, block_black_list: KeySetAdapter = None):
         """
         Block on property or by function for dataset.
         
         Args:
             dataset (Dataset): Dataset.
+            ds_id (str): Dataset id.
             function_ (Callable): `function_(r: record)`.
             property_ (str): The property in Record object.
-            ks_adapter (KeySetAdapter): The adapter used to store blocks. 
-                                    If None, `MemoryKeySetAdapter` is used. Defaults to None.
+            block_writer (BlockWriter): Block writer. If None, a new writer will be created. Defaults to None.
             block_max_size (int, optional): Size of the block. If a block is larger than this size, \
                                 it will be added to black list. Defaults to -1.
             block_black_list (KeySetAdapter, optional): Where all blacklisted blocks are stored. Defaults to None.
                                     
         Returns:
-            KeySetAdapter: The key set adapter.
+            KeySetAdapter: Key set adapter where block stores.
         """
-        ks_adapter = BlockGenerator._block_args_check(function_, property_, ks_adapter)
-        return ks_adapter
+        writer = BlockGenerator._block_args_check(function_, property_, block_writer)
+        return writer.key_set_adapter
 
     @staticmethod
     def _in_black_list(key: str, black_list: KeySetAdapter = None):
@@ -50,14 +50,14 @@ class BlockGenerator(object):
             black_list.set(key, set())
 
     @staticmethod
-    def _block_args_check(function_, property_, ks_adapter):
+    def _block_args_check(function_, property_, block_writer):
         if not function_ and not property_:
             raise ValueError('Invalid function or property')
-        if not ks_adapter:
-            ks_adapter = MemoryKeySetAdapter()
-        return ks_adapter
+        if not block_writer:
+            block_writer = BlockWriter()
+        return block_writer
 
-    def generate(self, ks_adapter1: KeySetAdapter, ks_adapter2: KeySetAdapter, block_writer: BlockWriter = None):
+    def generate(self, block_reader1: BlockReader, block_reader2: BlockReader, block_writer: BlockWriter = None):
         """
         Generate blocks from two KeySetAdapters.
         
