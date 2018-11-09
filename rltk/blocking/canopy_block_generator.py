@@ -2,10 +2,9 @@ import json
 import random
 from typing import Callable
 
-from rltk.blocking import BlockGenerator
-from rltk.io.adapter.key_set_adapter import KeySetAdapter
-from rltk.io.reader.block_reader import BlockReader
-from rltk.io.writer.block_writer import BlockWriter
+from rltk.blocking.block_generator import BlockGenerator
+from rltk.blocking.block import Block
+from rltk.blocking.block_black_list import BlockBlackList
 
 
 class CanopyBlockGenerator(BlockGenerator):
@@ -28,22 +27,23 @@ class CanopyBlockGenerator(BlockGenerator):
         self._t2 = t2
         self._distance_metric = distance_metric
 
-    def block(self, dataset, ds_id: str, function_: Callable = None, property_: str = None,
-              block_writer: BlockWriter = None, block_max_size: int = -1, block_black_list: KeySetAdapter = None):
+    def block(self, dataset, function_: Callable = None, property_: str = None,
+              block: Block = None, block_black_list: BlockBlackList = None):
         """
         The return of `property_` or `function_` should be a vector (list).
         """
-        block_writer = super()._block_args_check(function_, property_, block_writer)
+        block = super()._block_args_check(function_, property_, block)
         for r in dataset:
             value = function_(r) if function_ else getattr(r, property_)
             k = self._encode_key(value)
-            if self._in_black_list(k, block_black_list):
+            if block_black_list and block_black_list.has(k):
                 continue
             if not isinstance(value, list):
                 raise ValueError('Return of the function or property should be a vector (list)')
-            block_writer.write(k, ds_id, r.id)
-            self._update_black_list(k, block_writer.key_set_adapter, block_max_size, block_black_list)
-        return block_writer.key_set_adapter
+            block.add(k, dataset.id, r.id)
+            if block_black_list:
+                block_black_list.add(k, block)
+        return block
 
     @staticmethod
     def _encode_key(obj):
@@ -53,12 +53,12 @@ class CanopyBlockGenerator(BlockGenerator):
     def _decode_key(str_):
         return json.loads(str_)
 
-    def generate(self, block_reader1: BlockReader, block_reader2: BlockReader, block_writer: BlockWriter = None):
-        block_writer = BlockGenerator._generate_args_check(block_writer)
+    def generate(self, block1: Block, block2: Block, output_block: Block = None):
+        output_block = BlockGenerator._generate_args_check(output_block)
         dataset = []
-        for key, _ in block_reader1.key_set_adapter:
+        for key, _ in block1.key_set_adapter:
             dataset.append(self._decode_key(key))
-        for key, _ in block_reader2.key_set_adapter:
+        for key, _ in block2.key_set_adapter:
             dataset.append(self._decode_key(key))
 
         clusters = self._run_canopy_clustering(dataset, self._t1, self._t2, self._distance_metric)
@@ -66,15 +66,15 @@ class CanopyBlockGenerator(BlockGenerator):
         for c in clusters:
             for vec in c:
                 key = self._encode_key(vec)
-                set_ = block_reader1.key_set_adapter.get(key)
+                set_ = block1.get(key)
                 if set_:
                     for ds_id, rid in set_:
-                        block_writer.write(key, ds_id, rid)
-                set_ = block_reader2.key_set_adapter.get(key)
+                        output_block.add(key, ds_id, rid)
+                set_ = block2.get(key)
                 if set_:
                     for ds_id, rid in set_:
-                        block_writer.write(key, ds_id, rid)
-        return block_writer.key_set_adapter
+                        output_block.add(key, ds_id, rid)
+        return output_block
 
     @staticmethod
     def _run_canopy_clustering(dataset, t1, t2, distance_metric):
