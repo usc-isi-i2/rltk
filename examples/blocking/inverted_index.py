@@ -46,11 +46,11 @@ ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'), record_class=Record2)
 ngram = rltk.NGramTokenizer()
 
 bg = rltk.TokenBlockGenerator()
-ks_adapter1 = bg.block(ds1, function_=lambda r: ngram.basic(r.first_name, 3),
-                       ks_adapter=rltk.LevelDbKeySetAdapter('block_store', 'b1'))
-ks_adapter2 = bg.block(ds2, function_=lambda r: ngram.basic(r.first_name, 3),
-                       ks_adapter=rltk.LevelDbKeySetAdapter('block_store', 'b2'))
-ks_adapter3 = bg.generate(ks_adapter1, ks_adapter2, rltk.BlockWriter(rltk.LevelDbKeySetAdapter('block_store', 'b3')))
-pairs = rltk.get_record_pairs(ds1, ds2, rltk.BlockReader(ks_adapter3))
+block1 = bg.block(ds1, function_=lambda r: ngram.basic(r.first_name, 3),
+                  block=rltk.Block(rltk.LevelDbKeySetAdapter('block_store', 'b1', clean=True)))
+block2 = bg.block(ds2, function_=lambda r: ngram.basic(r.first_name, 3),
+                  block=rltk.Block(rltk.LevelDbKeySetAdapter('block_store', 'b2', clean=True)))
+block3 = bg.generate(block1, block2, rltk.Block(rltk.LevelDbKeySetAdapter('block_store', 'b3', clean=True)))
+pairs = rltk.get_record_pairs(ds1, ds2, block=block3)
 for r1, r2 in pairs:
     print(r1.id, r1.full_name, '\t', r2.id, r2.full_name)

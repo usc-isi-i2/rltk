@@ -59,9 +59,9 @@ def distance_metric(vec1, vec2):
     return math.sqrt((vec1 - vec2) ** 2)
 
 bg = rltk.CanopyBlockGenerator(t1=10, t2=5, distance_metric=distance_metric)
-ks_adapter = bg.generate(
+block = bg.generate(
     bg.block(ds1, function_=vectorize),
     bg.block(ds2, function_=vectorize))
-pairs = rltk.get_record_pairs(ds1, ds2, block_reader=rltk.BlockReader(ks_adapter))
+pairs = rltk.get_record_pairs(ds1, ds2, block=block)
 for r1, r2 in pairs:
     print(r1.id, r1.full_name, '\t', r2.id, r2.full_name)
