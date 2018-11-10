@@ -3,7 +3,7 @@ import unicodedata
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from rltk.dataset import Dataset
-    from rltk.io.reader.block_reader import BlockReader
+    from rltk.blocking.block import Block
     from rltk.evaluation.ground_truth import GroundTruth
 
 
@@ -31,25 +31,25 @@ def convert_list_to_set(s):
 
 def get_record_pairs(dataset1,
                      dataset2,
-                     block_reader = None,
-                     ground_truth = None):
+                     block: 'Block' = None,
+                     ground_truth: 'GroundTruth' = None):
     """
     Generate pairs to compare.
 
     Args:
         dataset1 (Dataset): dataset 1
         dataset2 (Dataset): dataset 2
-        block_reader (BlockReader, optional): block reader
+        block (Block, optional): block 
         ground_truth (GroundTruth, optional): ground truth
     """
-    if block_reader and not ground_truth:
-        for _, id1, id2 in block_reader:
+    if block and not ground_truth:
+        for _, id1, id2 in block.pairwise(dataset1.id, dataset2.id):
             yield dataset1.get_record(id1), dataset2.get_record(id2)
-    elif ground_truth and not block_reader:
+    elif ground_truth and not block:
         for id1, id2, label in ground_truth:
             yield dataset1.get_record(id1), dataset2.get_record(id2)
-    elif ground_truth and block_reader:
-        for _, id1, id2 in block_reader:
+    elif ground_truth and block:
+        for _, id1, id2 in block.pairwise(dataset1.id, dataset2.id):
             if ground_truth.is_member(id1, id2):
                 yield dataset1.get_record(id1), dataset2.get_record(id2)
     else:
