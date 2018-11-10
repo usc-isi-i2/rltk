@@ -14,6 +14,7 @@ class Record1(rltk.Record):
     def parent_id(self):
         return '4' if self.id == '1' else None
 
+
 class Record2(rltk.Record):
     @rltk.cached_property
     def id(self):
@@ -24,11 +25,10 @@ class Record2(rltk.Record):
         v = self.raw_object.get('values', list())
         return v[0] if len(v) > 0 else 'empty'
 
-
 ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv'),
-                   record_class=Record1, adapter=rltk.MemoryDatasetAdapter())
+                   record_class=Record1, adapter=rltk.MemoryKeyValueAdapter())
 ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
-                   record_class=Record2, adapter=rltk.DbmDatasetAdapter('file_index'))
+                   record_class=Record2, adapter=rltk.DbmKeyValueAdapter('file_index'))
 
 pairs = rltk.get_record_pairs(ds1, ds2)
 for r1, r2 in pairs:
@@ -38,4 +38,3 @@ for r1, r2 in pairs:
         print('r1\'s parent', r1.parent_id, ds1.get_record(r1.parent_id).value)
     print('levenshtein_distance:', rltk.levenshtein_distance(r1.value, r2.value))
     print('levenshtein_similarity:', rltk.levenshtein_similarity(r1.value, r2.value))
-
