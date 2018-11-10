@@ -1,35 +1,66 @@
+import json
+import hashlib
+import copy
+
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from rltk.io.reader.block_reader import BlockReader
-    from rltk.io.writer.block_writer import BlockWriter
-from rltk.blocking.block_dataset_id import BlockDatasetID
+from rltk.blocking.block import Block
+from rltk.io.adapter.key_set_adapter import KeySetAdapter
+from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
 
 
 class BlockingHelper(object):
-    """
-    It provides some useful blocking helper methods.
-    
-    Args:
-        reader1 (BlockReader): BlockReader 1.
-        reader2 (BlockReader): BlockReader 2.
-    """
 
-    def __init__(self, reader1, reader2):
-        self._reader1 = reader1
-        self._reader2 = reader2
+    @staticmethod
+    def encode_inverted_index_key(dataset_id, record_id):
+        return json.dumps({'d': dataset_id, 'r': record_id}, sort_keys=True)
 
-    def union(self, writer):
-        """
-        Union two blocks.
-        
-        Args:
-            writer (BlockWriter): Block writer.
-        """
+    @staticmethod
+    def decode_inverted_index_key(key):
+        key = json.loads(key)
+        return key['d'], key['r']
 
-        for block_id, id1, id2 in self._reader1:
-            writer.write(block_id, BlockDatasetID.Dataset1, id1)
-            writer.write(block_id, BlockDatasetID.Dataset2, id2)
-        for block_id, id1, id2 in self._reader2:
-            writer.write(block_id, BlockDatasetID.Dataset1, id1)
-            writer.write(block_id, BlockDatasetID.Dataset2, id2)
-        writer.close()
+    @staticmethod
+    def generate_inverted_indices(block, ks_adapter: KeySetAdapter = None):
+        if not ks_adapter:
+            ks_adapter = MemoryKeySetAdapter()
+        for block_id, dataset_id, record_id in block:
+            ks_adapter.add(BlockingHelper.encode_inverted_index_key(dataset_id, record_id), block_id)
+        return ks_adapter
+
+    @staticmethod
+    def _block_operations(operator, left_block, right_block, right_inverted, output_block):
+        operation = None
+        if operator == 'union':
+            operation = lambda a, b: a | b
+        elif operator == 'intersect':
+            operation = lambda a, b: a & b
+
+        for left_block_id, left_data in left_block.key_set_adapter:
+            for left_dataset_id, left_record_id in left_data:
+                key = BlockingHelper.encode_inverted_index_key(left_dataset_id, left_record_id)
+                right_block_ids = right_inverted.get(key)
+                if right_block_ids:
+                    for right_block_id in right_block_ids:
+                        new_block_data = operation(left_data, right_block.get(right_block_id))
+                        new_block_id = hashlib \
+                            .sha1(''.join(sorted(['{},{}'.format(ds, r) for ds, r in new_block_data])) \
+                                  .encode('utf-8')).hexdigest()
+                        output_block.key_set_adapter.set(new_block_id, new_block_data)
+
+    @staticmethod
+    def union(block1, inverted1, block2, inverted2, block3=None):
+        if not block3:
+            block3 = Block()
+
+        BlockingHelper._block_operations('union', block1, block2, inverted2, block3)
+        BlockingHelper._block_operations('union', block2, block1, inverted1, block3)
+        return block3
+
+    @staticmethod
+    def intersect(block1, inverted1, block2, inverted2, block3=None):
+        if not block3:
+            block3 = Block()
+
+        BlockingHelper._block_operations('intersect', block1, block2, inverted2, block3)
+        BlockingHelper._block_operations('intersect', block2, block1, inverted1, block3)
+        return block3
