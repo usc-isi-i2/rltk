@@ -1,8 +1,7 @@
 import json
 import hashlib
-import copy
+import operator
 
-from typing import TYPE_CHECKING
 from rltk.blocking.block import Block
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
@@ -28,12 +27,12 @@ class BlockingHelper(object):
         return ks_adapter
 
     @staticmethod
-    def _block_operations(operator, left_block, right_block, right_inverted, output_block):
+    def _block_operations(operator_, left_block, right_block, right_inverted, output_block):
         operation = None
-        if operator == 'union':
-            operation = lambda a, b: a | b
-        elif operator == 'intersect':
-            operation = lambda a, b: a & b
+        if operator_ == 'union':
+            operation = operator.or_  # lambda a, b: a | b
+        elif operator_ == 'intersect':
+            operation = operator.and_  # lambda a, b: a & b
 
         for left_block_id, left_data in left_block.key_set_adapter:
             for left_dataset_id, left_record_id in left_data:
@@ -43,7 +42,7 @@ class BlockingHelper(object):
                     for right_block_id in right_block_ids:
                         new_block_data = operation(left_data, right_block.get(right_block_id))
                         new_block_id = hashlib \
-                            .sha1(''.join(sorted(['{},{}'.format(ds, r) for ds, r in new_block_data])) \
+                            .sha1(''.join(sorted(['{},{}'.format(ds, r) for ds, r in new_block_data]))
                                   .encode('utf-8')).hexdigest()
                         output_block.key_set_adapter.set(new_block_id, new_block_data)
 
