@@ -38,11 +38,11 @@ In RLTK, every "row" in table is called ``Record``. Notice "row" here is a logic
 
 ``Reader`` is used to handle heterogeneous input. For each "row", the return of the ``Reader`` is represented in a Python dictionary, named ``raw_object`` (shown as grey ``{...}`` in figure). ``Record`` is generated based on ``raw_object``: user need to extend base ``Record`` class and add properties for later usage.
 
-``DatasetAdapter`` is where all ``Record`` s get stored. It can be either in memory or persistent.
+``KeyValueAdapter`` is where all ``Record`` s get stored. It can be either in memory or persistent.
 
-So, the data flow is: in order to create ``Dataset``, use ``Reader`` to read from input source and convert entity by entity to ``raw_object`` which is used to construct ``Record``, then store ``Record`` in ``DatasetAdapter``.
+So, the data flow is: in order to create ``Dataset``, use ``Reader`` to read from input source and convert entity by entity to ``raw_object`` which is used to construct ``Record``, then store ``Record`` in ``KeyValueAdapter``.
 
-Obviously, generating ``Record`` is really time consuming if the dataset is large, but if the concrete ``DatasetAdapter`` is a persistent one (e.g., ``HBaseDatasetAdapter``), then next time, ``Dataset`` can be loaded directly from this ``DatasetAdapter`` instead of regenerating again from raw input.
+Obviously, generating ``Record`` is really time consuming if the dataset is large, but if the concrete ``KeyValueAdapter`` is a persistent one (e.g., ``HBaseKeyValueAdapter``), then next time, ``Dataset`` can be loaded directly from this ``KeyValueAdapter`` instead of regenerating again from raw input.
 
 Minimal Workflow & Implementation
 ---------------------------------
@@ -84,9 +84,9 @@ Let's look at example input datasets and minimal implementation.
 
 
    ds1 = rltk.Dataset(reader=rltk.CSVReader('ds1.csv'),
-                        record_class=Record1, adapter=rltk.MemoryDatasetAdapter())
+                        record_class=Record1, adapter=rltk.MemoryKeyValueAdapter())
    ds2 = rltk.Dataset(reader=rltk.JsonLinesReader('ds2.jl'),
-                        record_class=Record2, adapter=rltk.DbmDatasetAdapter('file_index'))
+                        record_class=Record2, adapter=rltk.DbmKeyValueAdapter('file_index'))
 
    pairs = rltk.get_record_pairs(ds1, ds2)
    for r1, r2 in pairs:
@@ -155,14 +155,13 @@ Blocks need to be calculated and passed while generating candidate pairs. Blocks
       return r2.full_name.split(' ')[0]
 
    bg = rltk.HashBlockGenerator()
-   ks_adapter = bg.generate(
+   block = bg.generate(
                   bg.block(ds1, property_='first_name'),
                   bg.block(ds2, function_=get_first_name)),
-   pairs = rltk.get_record_pairs(ds1, ds2, block_reader=rltk.BlockReader(ks_adapter))
+   pairs = rltk.get_record_pairs(ds1, ds2, block=block)
    for r1, r2 in pairs:
        print(r1.id, r1.full_name, '\t', r2.id, r2.full_name)
 
-One thing to notice here is that the intermediate and the final blocks store in ``KeySetAdapter``, but user can access blocks through ``BlockReader`` and ``BlockWriter`` which based on a certain ``KeySetAdapter``.
 
 Summary
 -------
