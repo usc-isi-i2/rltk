@@ -27,14 +27,6 @@ Generic Reader
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
-Block Reader
-^^^^^^^^^^^^
-
-.. automodule:: rltk.io.reader.block_reader
-    :members:
-    :special-members:
-    :exclude-members: __dict__, __weakref__, __init__
-
 GroundTruth Reader
 ^^^^^^^^^^^^^^^^^^
 
@@ -54,14 +46,6 @@ Generic Writer
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
-Block Writer
-^^^^^^^^^^^^
-
-.. automodule:: rltk.io.writer.block_writer
-    :members:
-    :special-members:
-    :exclude-members: __dict__, __weakref__, __init__
-
 GroundTruth Writer
 ^^^^^^^^^^^^^^^^^^
 
@@ -73,30 +57,30 @@ GroundTruth Writer
 Adapter
 -------
 
-Dataset Adapter
-^^^^^^^^^^^^^^^
+Key Value Adapter
+^^^^^^^^^^^^^^^^^
 
-.. automodule:: rltk.io.adapter.dataset_adapter
+.. automodule:: rltk.io.adapter.key_value_adapter
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
-.. automodule:: rltk.io.adapter.memory_dataset_adapter
+.. automodule:: rltk.io.adapter.memory_key_value_adapter
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
-.. automodule:: rltk.io.adapter.redis_dataset_adapter
+.. automodule:: rltk.io.adapter.redis_key_value_adapter
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
-.. automodule:: rltk.io.adapter.hbase_dataset_adapter
+.. automodule:: rltk.io.adapter.hbase_key_value_adapter
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
-.. automodule:: rltk.io.adapter.dbm_dataset_adapter
+.. automodule:: rltk.io.adapter.dbm_key_value_adapter
     :members:
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
