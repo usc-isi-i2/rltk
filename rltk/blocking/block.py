@@ -7,12 +7,26 @@ from rltk.record import Record
 
 
 class Block(object):
+    """
+    Block
+    
+    key_set_adapter (keySetAdapter, optional): Where the block stores. If it's None, 
+                                            :meth:`MemoryKeySetAdapter` is used. Defaults to None.
+    """
     def __init__(self, key_set_adapter: KeySetAdapter = None):
         if not key_set_adapter:
             key_set_adapter = MemoryKeySetAdapter()
         self.key_set_adapter = key_set_adapter
 
     def add(self, block_id, dataset_id, record_id):
+        """
+        Add to block.
+        
+        Args:
+            block_id (str): Block id.
+            dataset_id (str / Dataset): Dataset id or Dataset object.
+            record_id (str / Record): Record id or Record object.
+        """
         if isinstance(dataset_id, Dataset):
             dataset_id = dataset_id.id
         if isinstance(record_id, Record):
@@ -20,9 +34,21 @@ class Block(object):
         self.key_set_adapter.add(block_id, (dataset_id, record_id))
 
     def get(self, block_id):
+        """
+        Get block by block_id.
+        
+        Args:
+            block_id (str): Block id.
+        
+        Returns:
+            set: {(dataset_id, record_id)}
+        """
         return self.key_set_adapter.get(block_id)
 
     def __iter__(self):
+        """
+        Same as :meth:`__next__`
+        """
         return self.__next__()
 
     def __next__(self):

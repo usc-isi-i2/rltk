@@ -37,7 +37,7 @@ class BlockGenerator(object):
 
     def generate(self, block1: Block, block2: Block, output_block: Block = None):
         """
-        Generate blocks from two KeySetAdapters.
+        Generate block from two blocks of single dataset. 
         
         Args:
             block1 (Block): Block 1.
