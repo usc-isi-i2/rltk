@@ -8,6 +8,9 @@ from rltk.io.adapter.memory_key_set_adapter import MemoryKeySetAdapter
 
 
 class BlockingHelper(object):
+    """
+    Blocking Helper.
+    """
 
     @staticmethod
     def encode_inverted_index_key(dataset_id, record_id):
@@ -19,7 +22,17 @@ class BlockingHelper(object):
         return key['d'], key['r']
 
     @staticmethod
-    def generate_inverted_indices(block, ks_adapter: KeySetAdapter = None):
+    def generate_inverted_indices(block: Block, ks_adapter: KeySetAdapter = None):
+        """
+        Generate inverted indices of block.
+        
+        Args:
+            block (Block): Original block.
+            ks_adapter (KeySetAdapter): Where the inverted indices store.
+            
+        Returns:
+            KeySetAdapter:
+        """
         if not ks_adapter:
             ks_adapter = MemoryKeySetAdapter()
         for block_id, dataset_id, record_id in block:
@@ -48,8 +61,20 @@ class BlockingHelper(object):
 
     @staticmethod
     def union(block1, inverted1, block2, inverted2, block3=None):
-        if not block3:
-            block3 = Block()
+        """
+        Union of two blocks.
+        
+        Args:
+            block1 (Block): Block 1.
+            inverted1 (KeySetAdapter): Inverted indices of block 1.
+            block2 (Block): Block2.
+            inverted2 (KeySetAdapter): Inverted indices of block 2.
+            block3 (Block, optional): Unioned block. If None, a Block object will be created. Defaults to None. 
+        
+        Returns:
+            Block:
+        """
+        block3 = block3 or Block()
 
         BlockingHelper._block_operations('union', block1, block2, inverted2, block3)
         BlockingHelper._block_operations('union', block2, block1, inverted1, block3)
@@ -57,8 +82,20 @@ class BlockingHelper(object):
 
     @staticmethod
     def intersect(block1, inverted1, block2, inverted2, block3=None):
-        if not block3:
-            block3 = Block()
+        """
+        Intersection of two blocks.
+        
+        Args:
+            block1 (Block): Block 1.
+            inverted1 (KeySetAdapter): Inverted indices of block 1.
+            block2 (Block): Block2.
+            inverted2 (KeySetAdapter): Inverted indices of block 2.
+            block3 (Block, optional): Intersected block. If None, a Block object will be created. Defaults to None. 
+        
+        Returns:
+            Block:
+        """
+        block3 = block3 or Block()
 
         BlockingHelper._block_operations('intersect', block1, block2, inverted2, block3)
         BlockingHelper._block_operations('intersect', block2, block1, inverted1, block3)
