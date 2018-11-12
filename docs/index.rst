@@ -14,7 +14,7 @@ RLTK: Record Linkage ToolKit
 Getting Started
 ---------------
 
-Installation::
+Installation (make sure prerequisites are installed)::
 
    pip install -U rltk
 
