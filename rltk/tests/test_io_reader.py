@@ -22,6 +22,7 @@ def test_dataframe_reader():
 
 def test_csv_reader():
     f = io.StringIO()
+
     writer = csv.DictWriter(f, fieldnames=['1', '2'])
     writer.writeheader()
     for a in arr:
@@ -35,8 +36,11 @@ def test_csv_reader():
 
 def test_jsonlines_reader():
     f = io.StringIO()
+
     for a in arr:
         f.write(json.dumps(a) + '\n')
 
     for idx, obj in enumerate(JsonLinesReader(f)):
         assert obj == arr[idx]
+
+    f.close()
