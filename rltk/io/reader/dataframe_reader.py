@@ -9,11 +9,19 @@ class DataFrameReader(Reader):
     
     Args:
         df (pandas.DataFrame): DataFrame.
+        keep_dataframe_default_index (bool, optional): if True, add a key "dataframe_default_index" holding the \
+                                                       original index in df. [default value: False]
+
     """
 
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame, keep_dataframe_default_index: bool=False):
         self._df = df
+        self._keep_dataframe_default_index = keep_dataframe_default_index
 
     def __next__(self):
-        for i, item in self._df.iterrows():
-            yield dict(item.to_dict(), dataframe_default_index=i)
+        if self._keep_dataframe_default_index:
+            for i, item in self._df.iterrows():
+                yield dict(item.to_dict(), dataframe_default_index=i)
+        else:
+            for _, item in self._df.iterrows():
+                yield item.to_dict()
