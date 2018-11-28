@@ -15,5 +15,5 @@ class DataFrameReader(Reader):
         self._df = df
 
     def __next__(self):
-        for _, item in self._df.iterrows():
-            yield item.to_dict()
+        for i, item in self._df.iterrows():
+            yield dict(item.to_dict(), dataframe_default_index=i)

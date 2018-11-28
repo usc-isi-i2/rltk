@@ -17,7 +17,7 @@ def test_array_reader():
 def test_dataframe_reader():
     df = pd.DataFrame(arr)
     for idx, obj in enumerate(DataFrameReader(df)):
-        assert obj == arr[idx]
+        assert obj == dict(**arr[idx], dataframe_default_index=idx)
 
 
 def test_csv_reader():
