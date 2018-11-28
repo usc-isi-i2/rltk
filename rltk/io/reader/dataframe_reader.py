@@ -9,7 +9,8 @@ class DataFrameReader(Reader):
     
     Args:
         df (pandas.DataFrame): DataFrame.
-        keep_dataframe_default_index (bool): add a key "dataframe_default_index" holding the original index in df
+        keep_dataframe_default_index (bool, optional): if to add a key "dataframe_default_index" holding the original
+                                                       index in df. [default value: False]
 
     """
 
