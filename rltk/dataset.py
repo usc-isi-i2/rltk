@@ -159,6 +159,39 @@ class Dataset(object):
 
         return pd.DataFrame(table, columns=columns, **kwargs)
 
+    def head(self, n: int = 10):
+        """
+        Iterate on first n records.
+
+        Args:
+            n (int, optional): Number of records. Default to 10.
+
+        Returns:
+            iter: Record
+        """
+        for idx, r in enumerate(self.__next__()):
+            if idx >= n:
+                break
+            yield r
+
+    def filter(self, condition: Callable, n: int = 10):
+        """
+        Iterate on last n records.
+
+        Args:
+            condition (Callable): `function(r: Record) -> bool`. If the return is True, record will be selected.
+            n (int, optional): Number of records. Default to 10.
+
+        Returns:
+            iter: Record
+        """
+        counter = 0
+        for r in self.__next__():
+            if counter >= n:
+                break
+            if condition(r):
+                yield r
+
     def __iter__(self):
         """
         Same as :meth:`__next__`
