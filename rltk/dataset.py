@@ -176,7 +176,7 @@ class Dataset(object):
 
     def filter(self, condition: Callable, n: int = 10):
         """
-        Iterate on last n records.
+        Iterate on filtered n records.
 
         Args:
             condition (Callable): `function(r: Record) -> bool`. If the return is True, record will be selected.
