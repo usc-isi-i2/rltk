@@ -190,6 +190,7 @@ class Dataset(object):
             if counter >= n:
                 break
             if condition(r):
+                counter += 1
                 yield r
 
     def __iter__(self):
