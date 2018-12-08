@@ -33,6 +33,7 @@ Tutorial
    installation.rst
    overview.rst
    step_by_step.ipynb
+   real_world_example.ipynb
    scaling_and_optimization.rst
 
 
