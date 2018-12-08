@@ -167,5 +167,3 @@ Summary
 -------
 
 Now you should know what's the goal of record linkage, how to construct ``Dataset`` and how to use it in RLTK workflow, how to evaluate the quality of linkage and how to use blocking technique to deal with large datasets.
-
-The next step is: look at more real dataset examples and tests in `rltk-experimentation <https://github.com/usc-isi-i2/rltk-experimentation>`_.
