@@ -11,19 +11,6 @@ RLTK: Record Linkage ToolKit
       :end-before: end-intro
 
 
-Getting Started
----------------
-
-Installation (make sure prerequisites are installed)::
-
-   pip install -U rltk
-
-Example::
-
-   >>> import rltk
-   >>> rltk.levenshtein_distance('abc', 'abd')
-   1
-
 Tutorial
 -------------
 
