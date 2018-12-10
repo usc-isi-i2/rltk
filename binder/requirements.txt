@@ -1,4 +1,4 @@
 scikit-learn
 -r ../requirements.txt
--e ..
+-e . 
 
