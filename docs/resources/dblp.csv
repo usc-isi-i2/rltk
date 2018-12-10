@@ -1,0 +1,94 @@
+id,names,date
+journals/sigmod/HummerLW02,"W Hümmer, W Lehner, H Wedekind",2018-12-24
+conf/vldb/AgrawalS94,"R Agrawal, R Srikant",2018-12-22
+conf/vldb/Brin95,S Brin,2018-12-26
+conf/vldb/ChakravarthyKAK94,"S Chakravarthy, V Krishnaprasad, E Anwar, S Kim",2018-12-29
+conf/vldb/MedianoCD94,"M Mediano, M Casanova, M Dreux",2018-12-26
+conf/vldb/SistlaYH94,"A Sistla, C Yu, R Haddad",2018-12-25
+journals/sigmod/PourabbasR00,"E Pourabbas, M Rafanelli",2018-12-20
+conf/sigmod/MelnikRB03,"S Melnik, E Rahm, P Bernstein",2018-12-21
+conf/sigmod/ZhangDWEMPMDR03,"X Zhang, K Dimitrova, L Wang, M El-Sayed, B Murphy, B Pielech, M Mulchandani, L Ding, E Rundensteiner",2018-12-26
+conf/sigmod/ZhouWGGZWXYF03,"A Zhou, Q Wang, Z Guo, X Gong, S Zheng, H Wu, J Xiao, K Yue, W Fan",2018-12-27
+journals/sigmod/SouzaS99,"M Souza, M Sampaio",2018-12-29
+conf/sigmod/CranorGJSS02,"C Cranor, Y Gao, T Johnson, V Shkapenyuk, O Spatscheck",2018-12-27
+conf/sigmod/BhattacharyaMBNHS02,"S Bhattacharya, C Mohan, K Brannon, I Narang, H Hsiao, M Subramanian",2018-12-20
+journals/sigmod/Libkin99,L Libkin,2018-12-27
+journals/sigmod/AshishK97,"N Ashish, C Knoblock",2018-12-28
+conf/sigmod/TatarinovVBSSZ02,"I Tatarinov, S Viglas, K Beyer, J Shanmugasundaram, E Shekita, C Zhang",2018-12-25
+journals/sigmod/GrayG97,"J Gray, G Graefe",2018-12-21
+journals/sigmod/FlorescuLM98,"D Florescu, A Levy, A Mendelzon",2018-12-25
+conf/sigmod/BreunigKKS01,"M Breunig, H Kriegel, P Kröger, J Sander",2018-12-26
+journals/sigmod/KappelR98,"G Kappel, W Retschitzegger",2018-12-29
+conf/sigmod/HernandezMHYHT01,"M Hernández, R Miller, L Haas",2018-12-21
+journals/sigmod/HasanFV96,"W Hasan, D Florescu, P Valduriez",2018-12-28
+conf/sigmod/TatarinovIHW01,"I Tatarinov, Z Ives, A Halevy, D Weld",2018-12-24
+journals/sigmod/SilberschatzSU96,"A Silberschatz, M Stonebraker, J Ullman",2018-12-22
+journals/sigmod/Baeza-YatesN96,"R Baeza-Yates, G Navarro",2018-12-28
+journals/sigmod/BunemanRU97,"P Buneman, L Raschid, J Ullman",2018-12-23
+journals/sigmod/AtkinsonDJPS96,"M Atkinson, L Daynès, M Jordan, T Printezis, S Spence",2018-12-23
+journals/sigmod/DogacDKOONEHAKKM95,"A Dogac, C Dengi, E Kilic, G Özhan, F Ozcan, S Nural, C Evrendilek, U Halici, I Arpinar, P Koksal, N Kesim, S Mancuhan",2018-12-26
+journals/sigmod/BohmR94,"K Böhm, T Rakow",2018-12-24
+journals/sigmod/DarwenD95,"H Darwen, C Date",2018-12-27
+conf/sigmod/LitwinS00,"W Litwin, T Schwarz",2018-12-21
+conf/sigmod/LeeKOTM00,"M Lee, M Kitsuregawa, B Ooi, K Tan, A Mondal",2018-12-27
+journals/sigmod/DiazJPa94,"O Díaz, A Jaime, N Paton, G al-Qaimari",2018-12-20
+journals/tods/FernandezKSMT02,"M Fernandez, Y Kadiyska, D Suciu, A Morishima, W Tan",2018-12-22
+conf/sigmod/MamoulisP99,"N Mamoulis, D Papadias",2018-12-25
+conf/sigmod/AcharyaGPR99a,"S Acharya, P Gibbons, V Poosala, S Ramaswamy",2018-12-26
+journals/sigmod/Yang94,L Yang,2018-12-24
+conf/sigmod/MankuRL99,"G Manku, S Rajagopalan, B Lindsay",2018-12-28
+conf/vldb/MeccaCM01,"V Crescenzi, G Mecca, P Merialdo",2018-12-29
+conf/sigmod/Brown99,P Brown,2018-12-21
+conf/sigmod/LometW98,"D Lomet, G Weikum",2018-12-26
+conf/sigmod/BerchtoldK98,"S Berchtold, D Keim",2018-12-21
+conf/sigmod/GibbonsM98,"P Gibbons, Y Matias",2018-12-22
+conf/vldb/DattaDTVRF01,"A Datta, K Dutta, H Thomas, D VanderMeer, K Ramamritham, D Fishman",2018-12-21
+conf/vldb/AmbiteKKMST01,"J Ambite, C Knoblock, M Kolahdouzan, M Muslea, C Shahabi, S Thakkar",2018-12-27
+conf/sigmod/HellersteinHW97,"J Hellerstein, P Haas, H Wang",2018-12-21
+conf/sigmod/AdelbergGW97,"B Adelberg, H Garcia-Molina, J Widom",2018-12-23
+conf/sigmod/Kramer97,R Kramer,2018-12-28
+conf/sigmod/HanKS97,"J Han, K Koperski, N Stefanovic",2018-12-25
+conf/sigmod/SimmenSM96,"D Simmen, E Shekita, T Malkemus",2018-12-24
+conf/sigmod/FernandezFKLS97,"M Fernandez, D Florescu, J Kang, A Levy, D Suciu",2018-12-26
+conf/sigmod/HammerGNYBV97,"J Hammer, H Garcia-Molina, S Nestorov, R Yerneni, M Breunig, V Vassalos",2018-12-20
+conf/vldb/DeutschPT99,"A Deutsch, L Popa, V Tannen",2018-12-25
+conf/sigmod/MogiK96,"K Mogi, M Kitsuregawa",2018-12-20
+conf/sigmod/AdaliCPS96,"S Adali, K Candan, Y Papakonstantinou, V Subrahmanian",2018-12-29
+conf/vldb/ShanmugasundaramGTZDN99,"J Shanmugasundaram, K Tufte, C Zhang, G He, D DeWitt, J Naughton",2018-12-20
+conf/sigmod/HungYK96,"P Hung, H Yeung, K Karlapalem",2018-12-27
+conf/sigmod/SrikantA96,"R Srikant, R Agrawal",2018-12-20
+conf/sigmod/CherniackZ96,"M Cherniack, S Zdonik",2018-12-24
+conf/sigmod/GardarinMP95,"G Gardarin, F Machuca, P Pucheral",2018-12-27
+conf/sigmod/GriffinL95,"T Griffin, L Libkin",2018-12-23
+conf/vldb/RothS97,"M Roth, P Schwarz",2018-12-26
+conf/sigmod/AshleyFHLNP95,"J Ashley, M Flickner, J Hafner, D Lee, W Niblack, D Petkovic",2018-12-28
+conf/sigmod/HuangSW94,"Y Huang, A Sistla, O Wolfson",2018-12-25
+conf/sigmod/NybergBCGL94,"C Nyberg, T Barclay, Z Cvetanovic, J Gray, D Lomet",2018-12-26
+conf/vldb/SrivastavaDJL96,"D Srivastava, S Dar, H Jagadish, A Levy",2018-12-23
+conf/vldb/CareyD96,"M Carey, D DeWitt",2018-12-20
+conf/sigmod/SagonasSW94a,"K Sagonas, T Swift, D Warren",2018-12-21
+conf/vldb/ChristodoulakisTZ97,"S Christodoulakis, P Triantafillou, F Zioga",2018-12-27
+journals/sigmod/TatarinovIMHSDDKMM03,"I Tatarinov, Z Ives, J Madhavan, A Halevy, D Suciu, N Dalvi, X Dong, Y Kadiyska, G Miklau, P Mork",2018-12-23
+conf/vldb/Raghavan96,V Raghavan,2018-12-20
+conf/vldb/DarFJST96,"S Dar, M Franklin, B Jónsson, D Srivastava, M Tan",2018-12-28
+conf/vldb/WangC03,"X Wang, M Cherniack",2018-12-28
+conf/vldb/PetrovicBJ03,"M Petrovic, I Burcea, H Jacobsen",2018-12-28
+conf/vldb/RohmBSS02,"U Röhm, K Böhm, H Schek, H Schuldt",2018-12-24
+conf/vldb/RaghavanG01,"S Raghavan, H Garcia-Molina",2018-12-23
+conf/vldb/CosleyLP02,"D Cosley, S Lawrence, D Pennock",2018-12-24
+journals/tods/GoldmanL94,"K Goldman, N Lynch",2018-12-21
+journals/tods/GuoSW96,"S Guo, W Sun, M Weiss",2018-12-20
+journals/tods/LitwinN96,"W Litwin, M Neimat, D Schneider",2018-12-28
+journals/tods/CliffordDIJS97,"J Clifford, C Dyreson, T Isakowitz, C Jensen, R Snodgrass",2018-12-25
+journals/tods/FranklinCL97,"M Franklin, M Carey, M Livny",2018-12-22
+journals/tods/StolboushkinT98,"A Stolboushkin, M Taitslin",2018-12-22
+journals/vldb/LiR99,"Z Li, K Ross",2018-12-26
+journals/vldb/VerykiosME03,"V Verykios, G Moustakides, M Elfeky",2018-12-27
+journals/vldb/LeeSC01,"C Lee, C Shih, Y Chen",2018-12-20
+journals/vldb/RahmB01,"E Rahm, P Bernstein",2018-12-28
+journals/vldb/PottingerH01,"R Pottinger, A Halevy",2018-12-27
+journals/vldb/Sarawagi01,S Sarawagi,2018-12-21
+journals/vldb/HarrisR96,"E Harris, K Ramamohanarao",2018-12-25
+journals/vldb/BarbaraI95,"D Barbará, T Imielinski",2018-12-24
+journals/vldb/DanYC95,"A Dan, P Yu, J Chung",2018-12-20
+conf/vldb/Hammond96,B Hammond,2018-12-21
