@@ -38,7 +38,9 @@ class RedisKeyValueAdapter(KeyValueAdapter):
         return key[len(self._key_prefix):]
 
     def get(self, key) -> object:
-        return self._serializer.loads(self._redis.get(self._encode_key(key)))
+        v = self._redis.get(self._encode_key(key))
+        if v:
+            return self._serializer.loads(v)
 
     def set(self, key, value: object):
         return self._redis.set(self._encode_key(key), self._serializer.dumps(value))
