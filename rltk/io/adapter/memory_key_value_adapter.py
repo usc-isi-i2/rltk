@@ -17,3 +17,9 @@ class MemoryKeyValueAdapter(KeyValueAdapter):
     def __next__(self):
         for key, value in self._dict.items():
             yield key, value
+
+    def delete(self, key):
+        del self._dict[key]
+
+    def clean(self):
+        self._dict = dict()

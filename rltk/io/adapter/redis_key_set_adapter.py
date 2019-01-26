@@ -38,7 +38,9 @@ class RedisKeySetAdapter(KeySetAdapter):
         return self._get(self._encode_key(key))
 
     def _get(self, key):
-        return set([self._serializer.loads(v) for v in self._redis.smembers(key)])
+        v = set([self._serializer.loads(v) for v in self._redis.smembers(key)])
+        if len(v) != 0:
+            return v
 
     def set(self, key, value):
         if not isinstance(value, set):

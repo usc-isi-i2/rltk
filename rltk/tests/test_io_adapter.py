@@ -18,6 +18,7 @@ class ConcreteRecord(Record):
     def value(self):
         return self.raw_object['value']
 
+
 record = ConcreteRecord(raw_object={'id': 'id1', 'value': 'value1'})
 
 
@@ -32,6 +33,7 @@ def _test_key_value_adapter(adapter):
         break
 
     assert adapter.get('no_such_key') is None
+    adapter.clean()
 
 
 def test_memory_key_value_adapter():
@@ -49,7 +51,7 @@ def test_dbm_key_value_adapter():
 
 def test_redis_key_value_adapter():
     try:
-        adapter = RedisKeyValueAdapter('127.0.0.1', key_prefix='test_')
+        adapter = RedisKeyValueAdapter('127.0.0.1', key_prefix='rltk_test_redis_key_value_adapter_')
         _test_key_value_adapter(adapter)
     except redis.exceptions.ConnectionError:
         return
