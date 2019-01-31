@@ -64,6 +64,9 @@ class Task(object):
             self._submit()
 
     def _submit(self):
+        if len(self.chunk_data) == 0:
+            return
+
         self.future_semaphore.acquire()
 
         # scatter input data (scatter first if data is large)
