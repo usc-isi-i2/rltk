@@ -43,6 +43,8 @@ class Task(object):
     def _parse_output(self, future):
         if future.done():
             for r in future.result():
+                if not isinstance(r, tuple):
+                    r = (r,)
                 self.output_handler(*r)
 
         # release resources no matter what condition that future gets
