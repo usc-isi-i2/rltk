@@ -1,6 +1,6 @@
 from rltk.io.reader import Reader
 from rltk.io.adapter import KeyValueAdapter, MemoryKeyValueAdapter
-from rltk.record import Record, generate_record_property_cache, get_property_names
+from rltk.record import Record, generate_record_property_cache, get_property_names, get_cached_property_names
 from rltk.parallel_processor import ParallelProcessor
 
 import pandas as pd
@@ -72,9 +72,10 @@ class Dataset(object):
         """
 
         def generate(_raw_object):
+            cached_property_names = get_cached_property_names(self._record_class)
             if not self._sampling_function or self._sampling_function(_raw_object):
                 record_instance = self._record_class(_raw_object)
-                generate_record_property_cache(record_instance)
+                generate_record_property_cache(record_instance, cached_property_names)
                 self._adapter.set(record_instance.id, record_instance)
 
         if not self._record_class:
