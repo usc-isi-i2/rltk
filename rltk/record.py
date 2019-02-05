@@ -63,6 +63,9 @@ class cached_property(property):
         value = obj.__dict__.get(cached_name)
         return value
 
+    def __reduce__(self):
+        return cached_property.__new__, (cached_property,), {'func': self.func}
+
 
 def remove_raw_object(cls):
     """
