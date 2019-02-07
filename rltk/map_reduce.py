@@ -107,7 +107,7 @@ class MapReduce(object):
                         # reset waiting reducer
                         waiting_reducer = [0 for _ in range(self._num_of_process)]
                         # kill half of them, notify these reducers
-                        kill_reducer_num = running_reducer_num - running_reducer_num / 2
+                        kill_reducer_num = running_reducer_num - int(running_reducer_num / 2)
                         notified_kill_reducer_num = 0
                         for idx in apply_mask(running_reducer):
                             self._reducer_cmd_queue[idx].put( (self.__class__.CMD_REDUCER_KILL,) )
