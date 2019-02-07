@@ -158,7 +158,7 @@ class MapReduce(object):
                                 # all killed, wake up rest of the reducers
                                 if sum(killing_reducer) == 0:
                                     for idx in apply_mask(running_reducer):
-                                        logger.info('reducer continuing #%d', idx)
+                                        logger.info('awaking reducer #%d', idx)
                                         self._reducer_cmd_queue[idx].put( (self.__class__.CMD_REDUCER_AWAKE,) )
                                     break
 
