@@ -6,9 +6,10 @@ import logging
 
 
 logger = logging.getLogger('RLTK - MapReduce')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.ERROR)
 stdout_handler = logging.StreamHandler(sys.stdout)
-# logger.addHandler(stdout_handler)
+stdout_handler.setFormatter(logging.Formatter('%(asctime)-15s %(name)s [%(levelname)s] %(message)s'))
+logger.addHandler(stdout_handler)
 
 
 class ReduceContext(object):
