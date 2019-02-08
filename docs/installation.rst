@@ -3,7 +3,7 @@ Installation
 
 .. note::
 
-    RLTK only supports Python 3 and it's tested under Python 3.6.
+    RLTK only supports Python 3 and it's tested under Python 3.5+.
 
 Prerequisites
 -------------
