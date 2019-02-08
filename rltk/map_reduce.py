@@ -65,6 +65,7 @@ class MapReduce(object):
     def __init__(self, num_of_process: int, mapper: Callable, reducer: Callable):
         self._mapper_queue = mp.Queue()
         self._reducer_queue = mp.Queue()
+        self._result_queue = mp.Queue()
         self._mapper_cmd_queue = [mp.Queue() for _ in range(num_of_process)]
         self._reducer_cmd_queue = [mp.Queue() for _ in range(num_of_process)]
         self._manager_cmd_queue = mp.Queue()
@@ -106,15 +107,20 @@ class MapReduce(object):
         # no more user data
         self._manager_cmd_queue.put( (self.__class__.CMD_NO_NEW_DATA,) )
 
-        # wait until all child processes exited
+        # reduced result
+        result = self._result_queue.get()
+
+        # make sure all child processes exited
+        # (do this after clean up all queues to avoid deadlock
+        # https://docs.python.org/3.6/library/multiprocessing.html?highlight=process#all-start-methods
+        # "Joining processes that use queues")
         for m in self._mapper_process:
             m.join()
         for r in self._reducer_process:
             r.join()
         self._manager_process.join()
 
-        # return reduced result
-        return self._reducer_queue.get()
+        return result
 
     def _run_manager(self):
         running_mapper = [1 for _ in range(self._num_of_process)]  # running mappers, 1 is running
@@ -164,6 +170,8 @@ class MapReduce(object):
                         # kill last reducer
                         idx = next(apply_mask(running_reducer))
                         self._reducer_cmd_queue[idx].put( (self.__class__.CMD_REDUCER_KILL,) )
+                        # return result to main process
+                        self._result_queue.put(self._reducer_queue.get())
                         return
 
                     # total num of waiting reducers
