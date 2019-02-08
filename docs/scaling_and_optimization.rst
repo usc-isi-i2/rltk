@@ -11,6 +11,9 @@ Some of the methods have optional / required arguments about buffer size, chunk 
 Parallel processing
 -------------------
 
+Normal parallel processing
+``````````````````````````
+
 If you have some compute-intensive procedures and your machine has more than one CPU core, `rltk.ParallelProcessor` is a tool to try. You can find more detailed information in API documentation :doc:`mod_parallel_processor`, but in general, it encapsulates multiprocessing and multithreading to do parallel computing.
 
 .. code-block:: python
@@ -32,6 +35,34 @@ If you have some compute-intensive procedures and your machine has more than one
     pp.task_done()
     pp.join()
 
+    print(result)
+
+
+MapReduce
+`````````
+
+The above solution uses one process for collecting calculated data. If you want to do something like divide and conquer, especially when "conquer" needs heavy calculation, you may need `rltk.MapReduce` module. Detailed documentation can be found :doc:`mod_map_reduce`.
+
+.. code-block:: python
+
+    class MyContext(rltk.ReduceContext):
+        def __init__(self):
+            self.r = 0
+
+        def merge(self, ctx):
+            self.r += ctx.r
+
+    def mapper(x):
+        time.sleep(0.0001)
+        return x
+
+    def reducer(ctx, r):
+        ctx.r += r
+
+    mr = rltk.MapReduce(8, mapper, reducer, MyContext)
+    for i in range(10000):
+        mr.add_task(i)
+    result = mr.join().r
     print(result)
 
 Distributed computing (Experimental)
