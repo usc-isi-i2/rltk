@@ -11,10 +11,10 @@ Some of the methods have optional / required arguments about buffer size, chunk 
 Parallel processing
 -------------------
 
-Normal parallel processing
-``````````````````````````
+General parallel processing
+```````````````````````````
 
-If you have some compute-intensive procedures and your machine has more than one CPU core, `rltk.ParallelProcessor` is a tool to try. You can find more detailed information in API documentation :doc:`mod_parallel_processor`, but in general, it encapsulates multiprocessing and multithreading to do parallel computing.
+If you have some compute-intensive procedures and your machine has more than one CPU core, `rltk.ParallelProcessor` is a tool to try. You can find more detailed information in API documentation :doc:`mod_parallel_processor`, but in general, it encapsulates multiprocessing to do parallel computing and multithreading to do data collecting.
 
 .. code-block:: python
 
@@ -41,7 +41,7 @@ If you have some compute-intensive procedures and your machine has more than one
 MapReduce
 `````````
 
-The above solution uses one process for collecting calculated data. If you want to do something like divide and conquer, especially when "conquer" needs heavy calculation, you may need `rltk.MapReduce` module. Detailed documentation can be found :doc:`mod_map_reduce`.
+The above solution uses one thread (in main process) for collecting calculated data. If you want to do something like divide and conquer, especially when "conquer" needs heavy calculation, you may need `rltk.MapReduce` module. Detailed documentation can be found :doc:`mod_map_reduce`.
 
 .. code-block:: python
 
