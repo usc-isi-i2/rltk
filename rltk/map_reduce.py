@@ -15,24 +15,17 @@ It's different from normal MapReduce model:
 
 Example::
 
-    class MyContext(rltk.ReduceContext):
-        def __init__(self):
-            self.r = 0
-
-        def merge(self, ctx):
-            self.r += ctx.r
-
     def mapper(x):
         time.sleep(0.0001)
         return x
 
-    def reducer(ctx, r):
-        ctx.r += r
+    def reducer(r1, r2):
+        return r1 + r2
 
-    mr = rltk.MapReduce(8, mapper, reducer, MyContext)
+    mr = rltk.MapReduce(8, mapper, reducer)
     for i in range(10000):
         mr.add_task(i)
-    result = mr.join().r
+    result = mr.join()
     print(result)
 
 """
@@ -51,31 +44,13 @@ stdout_handler.setFormatter(logging.Formatter('%(asctime)-15s %(name)s [%(leveln
 logger.addHandler(stdout_handler)
 
 
-class ReduceContext(object):
-    """
-    ReduceContext
-    """
-    def __init__(self):
-        """
-        Initialize context.
-        """
-        raise NotImplementedError
-
-    def merge(self, ctx):
-        """
-        Merge another context into current.
-        """
-        raise NotImplementedError
-
-
 class MapReduce(object):
     """
     Args:
         num_of_process (int): Number of mappers and reducers.
         mapper (Callable): Mapper function. The signature is `mapper(*args, **kwargs) -> object`.
-        reducer (Callable): Reducer function. The signature is `reduce(context, object)`.
-                        `object` here is the return from `mapper`.
-        context_class (type): It should be the subclass of :meth:`ReduceContext`.
+        reducer (Callable): Reducer function. The signature is `reduce(object, object) -> object`.
+                        `object` arguments are the returns from `mapper`s.
     """
 
     CMD_NO_NEW_DATA = 1  # no more new user data
@@ -86,7 +61,7 @@ class MapReduce(object):
     CMD_REDUCER_KILL = 6  # kill a reducer
     CMD_REDUCER_FINISH = 7  # reducer finished
 
-    def __init__(self, num_of_process: int, mapper: Callable, reducer: Callable, context_class: type):
+    def __init__(self, num_of_process: int, mapper: Callable, reducer: Callable):
         self._mapper_queue = mp.Queue()
         self._reducer_queue = mp.Queue()
         self._mapper_cmd_queue = [mp.Queue() for _ in range(num_of_process)]
@@ -101,7 +76,6 @@ class MapReduce(object):
 
         self._mapper = mapper
         self._reducer = reducer
-        self._context_class = context_class
         self._num_of_process = num_of_process
 
         # start manager, mapper and reducer processes
@@ -126,7 +100,7 @@ class MapReduce(object):
         This method blocks until all mappers and reducers finish.
 
         Returns:
-            ReduceContext: The final merged context.
+            object: The final reduced object.
         """
         # no more user data
         self._manager_cmd_queue.put( (self.__class__.CMD_NO_NEW_DATA,) )
@@ -138,7 +112,7 @@ class MapReduce(object):
             r.join()
         self._manager_process.join()
 
-        # return context
+        # return reduced result
         return self._reducer_queue.get()
 
     def _run_manager(self):
@@ -261,8 +235,8 @@ class MapReduce(object):
                 continue
 
     def _run_reducer(self, idx):
-        context = self._context_class()
         no_running_mapper = False
+        context = None
 
         while True:
             # cmd
@@ -275,11 +249,11 @@ class MapReduce(object):
 
             # data
             try:
+                if context is None:  # can't use "not" operator here, context could be empty
+                    context = self._reducer_queue.get(timeout=0.1)
+
                 m = self._reducer_queue.get(timeout=0.1)
-                if isinstance(m, ReduceContext):  # merge two contexts
-                    context.merge(m)
-                else:  # merge context and data
-                    self._reducer(context, m)
+                context = self._reducer(context, m)
             except queue.Empty:
                 # there are still some alive mapper, wait for their output
                 if not no_running_mapper:
