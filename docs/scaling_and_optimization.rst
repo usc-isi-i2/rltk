@@ -45,24 +45,17 @@ The above solution uses one thread (in main process) for collecting calculated d
 
 .. code-block:: python
 
-    class MyContext(rltk.ReduceContext):
-        def __init__(self):
-            self.r = 0
-
-        def merge(self, ctx):
-            self.r += ctx.r
-
     def mapper(x):
         time.sleep(0.0001)
         return x
 
-    def reducer(ctx, r):
-        ctx.r += r
+    def reducer(r1, r2):
+        return r1 + r2
 
-    mr = rltk.MapReduce(8, mapper, reducer, MyContext)
+    mr = rltk.MapReduce(8, mapper, reducer)
     for i in range(10000):
         mr.add_task(i)
-    result = mr.join().r
+    result = mr.join()
     print(result)
 
 Distributed computing (Experimental)

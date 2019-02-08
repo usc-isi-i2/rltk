@@ -7,7 +7,8 @@ It's different from normal MapReduce model:
     so reducers don't need to wait until all mappers finish.
 - Data can be passed to mapper gradually: Mappers are waiting to consume data until user tells them no more new data \
     will be added.
-- Reducing is not between two mapper's output but output and context: Data pickling (serialization) and unpickling \
+- Reducing is not between two mapper's output (though the api to user is as this) \
+    but output and context: Data pickling (serialization) and unpickling \
     (unserialization) for IPC are time consuming. As an alternation, each reducer process holds a context \
     which aggregates output in reducing step. \
     Once all output is reduced, reducing will be among contexts.
@@ -236,7 +237,7 @@ class MapReduce(object):
 
     def _run_reducer(self, idx):
         no_running_mapper = False
-        context = None
+        context = None  # it holds result of last reducing, and can be used in next reducing
 
         while True:
             # cmd
