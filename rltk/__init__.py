@@ -8,5 +8,5 @@ from rltk.tokenizer import *
 from rltk.evaluation import *
 from rltk.utils import get_record_pairs
 from rltk.parallel_processor import ParallelProcessor
-from rltk.map_reduce import MapReduce
+from rltk.map_reduce import MapReduce, ReduceContext
 import rltk.remote
