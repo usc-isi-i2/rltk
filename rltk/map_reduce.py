@@ -1,3 +1,45 @@
+"""
+RLTK's MapReduce is a specific multiprocess-driven computing model for entity resolution.
+
+It's different from normal MapReduce model:
+
+- Manager fires up mapper and reducer processes simultaneously: Output of mapper can be used by any reducer, \
+    so reducers don't need to wait until all mappers finish.
+- Data can be passed to mapper gradually: Mappers are waiting to consume data until user tells them no more new data \
+    will be added.
+- Reducing is not between two mapper's output but output and context: Data pickling (serialization) and unpickling \
+    (unserialization) for IPC are time consuming. As an alternation, each reducer process holds a context \
+    which aggregates output in reducing step. \
+    One all output is reduced, reducing will be among contexts.
+- It doesn't support shuffling and reduce-by-key.
+
+Example::
+
+    class MyContext(rltk.ReduceContext):
+        def __init__(self):
+            self.r = 0
+
+        def merge(self, ctx):
+            self.r += ctx.r
+
+
+    def mapper(x):
+        time.sleep(0.0001)
+        return x
+
+
+    def reducer(ctx, r):
+        ctx.r += r
+
+
+    mr = rltk.MapReduce(8, mapper, reducer, MyContext)
+    for i in range(10000):
+        mr.add_task(i)
+    result = mr.join().r
+    print(result)
+
+"""
+
 import multiprocessing as mp
 import queue
 from typing import Callable
@@ -13,14 +55,31 @@ logger.addHandler(stdout_handler)
 
 
 class ReduceContext(object):
+    """
+    ReduceContext
+    """
     def __init__(self):
+        """
+        Initialize context.
+        """
         raise NotImplementedError
 
     def merge(self, ctx):
+        """
+        Merge another context into current.
+        """
         raise NotImplementedError
 
 
 class MapReduce(object):
+    """
+    Args:
+        num_of_process (int): Number of mappers and reducers.
+        mapper (Callable): Mapper function. The signature is `mapper(*args, **kwargs) -> object`.
+        reducer (Callable): Reducer function. The signature is `reduce(context, object)`.
+                        `object` here is the return from `mapper`.
+        context_class (type): It should be the subclass of :meth:`ReduceContext`.
+    """
 
     CMD_NO_NEW_DATA = 1  # no more new user data
     CMD_MAPPER_FINISH = 2  # mapper finished
@@ -56,9 +115,22 @@ class MapReduce(object):
             r.start()
 
     def add_task(self, *args, **kwargs):
+        """
+        Add data.
+
+        Args:
+            args: Same to args in `mapper` function.
+            kwargs: Same to kwargs in `mapper` function.
+        """
         self._mapper_queue.put( (args, kwargs) )
 
     def join(self):
+        """
+        This method blocks until all mappers and reducers finish.
+
+        Returns:
+            ReduceContext: The final merged context.
+        """
         # no more user data
         self._manager_cmd_queue.put( (self.__class__.CMD_NO_NEW_DATA,) )
 
