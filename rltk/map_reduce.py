@@ -1,16 +1,16 @@
 """
-RLTK's MapReduce is a specific multiprocess-driven computing model for entity resolution.
+RLTK's MapReduce is a specific multiprocessing-based computing model for entity resolution.
 
 It's different from normal MapReduce model:
 
-- Manager fires up mapper and reducer processes simultaneously: Output of mapper can be used by any reducer, \
+- Manager fires up mapper and reducer processes simultaneously: Output of mapper is identical to reducer, \
     so reducers don't need to wait until all mappers finish.
 - Data can be passed to mapper gradually: Mappers are waiting to consume data until user tells them no more new data \
     will be added.
 - Reducing is not between two mapper's output but output and context: Data pickling (serialization) and unpickling \
     (unserialization) for IPC are time consuming. As an alternation, each reducer process holds a context \
     which aggregates output in reducing step. \
-    One all output is reduced, reducing will be among contexts.
+    Once all output is reduced, reducing will be among contexts.
 - It doesn't support shuffling and reduce-by-key.
 
 Example::
@@ -22,15 +22,12 @@ Example::
         def merge(self, ctx):
             self.r += ctx.r
 
-
     def mapper(x):
         time.sleep(0.0001)
         return x
 
-
     def reducer(ctx, r):
         ctx.r += r
-
 
     mr = rltk.MapReduce(8, mapper, reducer, MyContext)
     for i in range(10000):
