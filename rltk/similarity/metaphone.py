@@ -41,11 +41,11 @@ def metaphone(s):
 
     while i < len(s):
         c = s[i]
-        next = s[i+1] if i < len(s)-1 else '*****'
+        next_ = s[i+1] if i < len(s)-1 else '*****'
         nextnext = s[i+2] if i < len(s)-2 else '*****'
 
         # skip doubles except for cc
-        if c == next and c != 'c':
+        if c == next_ and c != 'c':
             i += 1
             continue
 
@@ -53,19 +53,19 @@ def metaphone(s):
             if i == 0 or s[i-1] == ' ':
                 result.append(c)
         elif c == 'b':
-            if (not (i != 0 and s[i-1] == 'm')) or next:
+            if (not (i != 0 and s[i-1] == 'm')) or next_:
                 result.append('b')
         elif c == 'c':
-            if next == 'i' and nextnext == 'a' or next == 'h':
+            if next_ == 'i' and nextnext == 'a' or next_ == 'h':
                 result.append('x')
                 i += 1
-            elif next in 'iey':
+            elif next_ in 'iey':
                 result.append('s')
                 i += 1
             else:
                 result.append('k')
         elif c == 'd':
-            if next == 'g' and nextnext in 'iey':
+            if next_ == 'g' and nextnext in 'iey':
                 result.append('j')
                 i += 2
             else:
@@ -73,20 +73,20 @@ def metaphone(s):
         elif c in 'fjlmnr':
             result.append(c)
         elif c == 'g':
-            if next in 'iey':
+            if next_ in 'iey':
                 result.append('j')
-            elif next not in 'hn':
+            elif next_ not in 'hn':
                 result.append('k')
-            elif next == 'h' and nextnext and nextnext not in 'aeiou':
+            elif next_ == 'h' and nextnext and nextnext not in 'aeiou':
                 i += 1
         elif c == 'h':
-            if i == 0 or next in 'aeiou' or s[i-1] not in 'aeiou':
+            if i == 0 or next_ in 'aeiou' or s[i-1] not in 'aeiou':
                 result.append('h')
         elif c == 'k':
             if i == 0 or s[i-1] != 'c':
                 result.append('k')
         elif c == 'p':
-            if next == 'h':
+            if next_ == 'h':
                 result.append('f')
                 i += 1
             else:
@@ -94,32 +94,32 @@ def metaphone(s):
         elif c == 'q':
             result.append('k')
         elif c == 's':
-            if next == 'h':
+            if next_ == 'h':
                 result.append('x')
                 i += 1
-            elif next == 'i' and nextnext in 'oa':
+            elif next_ == 'i' and nextnext in 'oa':
                 result.append('x')
                 i += 2
             else:
                 result.append('s')
         elif c == 't':
-            if next == 'i' and nextnext in 'oa':
+            if next_ == 'i' and nextnext in 'oa':
                 result.append('x')
-            elif next == 'h':
+            elif next_ == 'h':
                 result.append('0')
                 i += 1
-            elif next != 'c' or nextnext != 'h':
+            elif next_ != 'c' or nextnext != 'h':
                 result.append('t')
         elif c == 'v':
             result.append('f')
         elif c == 'w':
-            if i == 0 and next == 'h':
+            if i == 0 and next_ == 'h':
                 i += 1
             if nextnext in 'aeiou' or nextnext == '*****':
                 result.append('w')
         elif c == 'x':
             if i == 0:
-                if next == 'h' or (next == 'i' and nextnext in 'oa'):
+                if next_ == 'h' or (next_ == 'i' and nextnext in 'oa'):
                     result.append('x')
                 else:
                     result.append('s')
@@ -127,7 +127,7 @@ def metaphone(s):
                 result.append('k')
                 result.append('s')
         elif c == 'y':
-            if next in 'aeiou':
+            if next_ in 'aeiou':
                 result.append('y')
         elif c == 'z':
             result.append('s')
