@@ -51,15 +51,17 @@ class ParallelProcessor(object):
     Args:
         input_handler (Callable): Computational function. 
         num_of_processor (int): Number of processes to use. 
-        max_size_per_input_queue (int): Maximum size of input queue for one process.
+        max_size_per_input_queue (int, optional): Maximum size of input queue for one process.
                                     If it's full, the corresponding process will be blocked.
                                     0 by default means unlimited.
-        max_size_per_output_queue (int): Maximum size of output queue for one process.
+        max_size_per_output_queue (int, optional): Maximum size of output queue for one process.
                                     If it's full, the corresponding process will be blocked.
                                     0 by default means unlimited.
-        output_handler (Callable): If the output data needs to be get in main process (another thread), 
+        output_handler (Callable, optional): If the output data needs to be get in main process (another thread),
                                 set this handler, the arguments are same to the return from input_handler.
                                 The return result is one by one, order is arbitrary.
+        enable_process_id (bool, optional): If it's true, an additional argument `_idx` (process id) will be
+                                passed to `input_handler`. It defaults to False.
     
     
     Note:
@@ -74,7 +76,7 @@ class ParallelProcessor(object):
 
     def __init__(self, input_handler: Callable, num_of_processor: int,
                  max_size_per_input_queue: int = 0, max_size_per_output_queue: int = 0,
-                 output_handler: Callable = None):
+                 output_handler: Callable = None, enable_process_id: bool = False):
         self.num_of_processor = num_of_processor
         self.input_queues = [mp.Queue(maxsize=max_size_per_input_queue) for _ in range(num_of_processor)]
         self.output_queues = [mp.Queue(maxsize=max_size_per_output_queue) for _ in range(num_of_processor)]
@@ -84,6 +86,7 @@ class ParallelProcessor(object):
         self.output_handler = output_handler
         self.input_queue_index = 0
         self.output_queue_index = 0
+        self.enable_process_id = enable_process_id
 
         # output can be handled in each process or in main process after merging (output_handler needs to be set)
         # if output_handler is set, output needs to be handled in main process; otherwise, it assumes there's no output.
@@ -145,10 +148,11 @@ class ParallelProcessor(object):
             elif data[0] == ParallelProcessor.CMD_DATA:
                 args, kwargs = data[1], data[2]
                 # print(idx, 'data')
-                result = self.input_handler(*args, **kwargs)
-                if not isinstance(result, tuple):  # output must represent as tuple
-                    result = (result,)
+                result = self.input_handler(*args, **kwargs, _idx=idx) if self.enable_process_id \
+                    else self.input_handler(*args, **kwargs)
                 if self.output_handler:
+                    if not isinstance(result, tuple):  # output must represent as tuple
+                        result = (result,)
                     output_queue.put((ParallelProcessor.CMD_DATA, result))
 
     def get_output(self):
