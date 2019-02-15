@@ -11,6 +11,7 @@ API Reference
    mod_blocking.rst
    mod_io.rst
    mod_utils.rst
+   mod_cli.rst
    mod_parallel_processor.rst
    mod_map_reduce.rst
    mod_remote.rst
