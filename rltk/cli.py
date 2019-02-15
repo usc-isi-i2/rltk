@@ -74,7 +74,7 @@ def confirm(text: str, default: bool = None):
         bool: True means Yes, False means No.
     """
     if default is not None:
-        default = 1 if default else 0
+        default = 0 if default else 1
     return select(text, cases=[('(Y)es', 'y',), ('(N)o', 'n')], default=default, case_sensitive=False) == 'y'
 
 
