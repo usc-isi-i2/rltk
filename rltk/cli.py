@@ -132,9 +132,14 @@ class Progress(object):
         """
         End prompt.
         """
+        # clean up
+        prompt('\r' + ' ' * self._prev_len, new_line=False)
+
         if self._end:
             prompt('\r' + self._end, new_line=False)
-        prompt('')  # new line
+
+        # new line
+        prompt('')
 
 
 progress = Progress
