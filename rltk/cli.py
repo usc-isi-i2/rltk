@@ -75,5 +75,4 @@ class Progress(object):
             prompt('\r' + self._end, new_line=False)
 
 
-def progress(*args, **kwargs):
-    return Progress(*args, **kwargs)
+progress = Progress
