@@ -4,6 +4,15 @@ SEPARATOR_LEN = 20
 
 
 def prompt(text: str, *args, new_line: bool = True, **kwargs):
+    """
+    Prompt in terminal (stdout).
+
+    Args:
+        text (str): Text.
+        *args: More text.
+        new_line (bool, optional): End with a new line. Defaults to True.
+        **kwargs: Other key word arguments used by :py:meth:`print`.
+    """
     line_end = '\n' if new_line else ''
     print(text, *args, file=sys.stdout, end=line_end, **kwargs)
     sys.stdout.flush()
@@ -11,7 +20,18 @@ def prompt(text: str, *args, new_line: bool = True, **kwargs):
 
 def select(text: str, cases: list, default: int = None, case_sensitive: bool = False):
     """
-    cases = [('(Y)es, 'y'), ('(N)o', 'n')]
+    Let user select one of the cases.
+
+    Args:
+        text (str): Text.
+        cases (list[tuple]): Cases, should be list of tuples. Each tuple is in form `('display text', 'user's input')`.
+                        For example, `[('(Y)es, 'y'), ('(N)o', 'n')]`.
+        default (int, optional): Default case index in `cases`. Empty or space is treated as default case.
+                            None means no default case. Defaults to None.
+        case_sensitive (bool, optional): If user's input is case sensitive, defaults to False.
+
+    Returns:
+        str: User's input.
     """
     prompt('=' * SEPARATOR_LEN)
     prompt(text)
@@ -42,12 +62,41 @@ def select(text: str, cases: list, default: int = None, case_sensitive: bool = F
 
 
 def confirm(text: str, default: bool = None):
+    """
+    Let user choose Yes or No.
+
+    Args:
+        text (str): Text.
+        default (bool, optional): True sets Yes as default case, False sets No. None means no default case.
+                                Defaults to None.
+
+    Returns:
+        bool: True means Yes, False means No.
+    """
     if default is not None:
         default = 1 if default else 0
     return select(text, cases=[('(Y)es', 'y',), ('(N)o', 'n')], default=default, case_sensitive=False) == 'y'
 
 
 class Progress(object):
+    """
+    Progress status.
+
+    Args:
+        format_ (str, optional): Format of text.
+        start (str, optional): Text while starting.
+        end (str, optional): Text while ending.
+
+    Note:
+
+        Please use in `with` statement::
+
+            with rltk.cli.progress(format_='{}%') as p:
+                for i in range(11):
+                    time.sleep(0.5)
+                    p.update(i * 10)
+
+    """
 
     def __init__(self, format_: str = '{}', start: str = 'Starting...', end: str = 'Done!'):
         self._format = format_
@@ -56,6 +105,12 @@ class Progress(object):
         self._end = end
 
     def update(self, *args):
+        """
+        Update progress.
+
+        Args:
+            *args: Arguments which will be formatted by `format_`.
+        """
         text = self._format.format(*args)
 
         # clean up
@@ -66,11 +121,17 @@ class Progress(object):
         self._prev_len = len(text)
 
     def __enter__(self):
+        """
+        Start prompt.
+        """
         if self._start:
             prompt(self._start, new_line=False)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        End prompt.
+        """
         if self._end:
             prompt('\r' + self._end, new_line=False)
         prompt('')  # new line
