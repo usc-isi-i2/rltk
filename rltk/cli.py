@@ -1,7 +1,5 @@
 import sys
 
-SEPARATOR_LEN = 20
-
 
 def prompt(text: str, *args, new_line: bool = True, **kwargs):
     """
@@ -33,7 +31,6 @@ def select(text: str, cases: list, default: int = None, case_sensitive: bool = F
     Returns:
         str: User's input.
     """
-    prompt('=' * SEPARATOR_LEN)
     prompt(text)
     case_text = []
     for idx, c in enumerate(cases):
@@ -41,7 +38,7 @@ def select(text: str, cases: list, default: int = None, case_sensitive: bool = F
             case_text.append('[{}]'.format(c[0]))
         else:
             case_text.append('{}'.format(c[0]))
-    prompt(' / '.join(case_text) + '\n')
+    prompt(' / '.join(case_text))
     valid_cases = [c[1] for c in cases]
     if default is not None:
         valid_cases.append('')
@@ -143,3 +140,24 @@ class Progress(object):
 
 
 progress = Progress
+
+
+def input_(text: str, type_: type = str):
+    """
+    Input.
+
+    Args:
+        text (str): Text.
+        type_ (type, optional): Type of input value, defaults to `str`.
+
+    Returns:
+        object: User input in type `type_`.
+    """
+    prompt(text)
+
+    while True:
+        user_input = input().strip()
+        try:
+            return type_(user_input)
+        except:
+            prompt('Invalid input, please retry')
