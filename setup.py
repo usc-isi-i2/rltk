@@ -25,6 +25,11 @@ setup(
     version=version,
     packages=packages,
     url='https://github.com/usc-isi-i2/rltk',
+    project_urls={
+        "Bug Tracker": "https://github.com/usc-isi-i2/rltk/issues",
+        "Documentation": "https://rltk.readthedocs.io",
+        "Source Code": "https://github.com/usc-isi-i2/rltk",
+    },
     license='MIT',
     author='USC/ISI',
     author_email='yixiangy@isi.edu',
@@ -36,7 +41,16 @@ setup(
     dependency_links=dependency_links,
     classifiers=(
         "Programming Language :: Python :: 3",
+        "Natural Language :: English",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent"
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Information Technology"
     )
 )
