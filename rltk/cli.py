@@ -1,6 +1,9 @@
 import sys
 
 
+SLIENTLY_ACCEPT_ALL_DEFAULT_VALUES = False
+
+
 def prompt(text: str, *args, new_line: bool = True, **kwargs):
     """
     Prompt in terminal (stdout).
@@ -46,12 +49,14 @@ def select(text: str, cases: list, default: int = None, case_sensitive: bool = F
         valid_cases = list(map(lambda x: x.lower(), valid_cases))
 
     while True:
-        user_input = input().strip()
-        if not case_sensitive:
-            user_input = user_input.lower()
-        if user_input not in valid_cases:
-            prompt('Invalid input, please retry')
-            continue
+        user_input = ''
+        if not SLIENTLY_ACCEPT_ALL_DEFAULT_VALUES or default is None:
+            user_input = input().strip()
+            if not case_sensitive:
+                user_input = user_input.lower()
+            if user_input not in valid_cases:
+                prompt('Invalid input, please retry')
+                continue
 
         if user_input == '' and default is not None:
             return cases[default][1]
@@ -142,22 +147,30 @@ class Progress(object):
 progress = Progress
 
 
-def input_(text: str, type_: type = str):
+def input_(text: str, default: str = None, type_: type = str):
     """
     Input.
 
     Args:
         text (str): Text.
+        default (str, optional): Default value. Defaults to None which means no default value.
         type_ (type, optional): Type of input value, defaults to `str`.
 
     Returns:
         object: User input in type `type_`.
+
+    Note:
+        Make sure default value can be converted by `type_`, otherwise exception will be raised.
     """
     prompt(text)
 
     while True:
-        user_input = input().strip()
-        try:
-            return type_(user_input)
-        except:
-            prompt('Invalid input, please retry')
+        if not SLIENTLY_ACCEPT_ALL_DEFAULT_VALUES or default is None:
+            user_input = input().strip()
+            try:
+                return type_(user_input)
+            except:
+                prompt('Invalid input, please retry')
+        else:
+            return type_(default)
+
