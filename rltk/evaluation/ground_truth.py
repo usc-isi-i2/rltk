@@ -22,15 +22,19 @@ class GroundTruth(object):
     
     Args:
         filename (string, optional): existing ground truth file name
+        negative_if_not_exists (bool, optional): If pair is not in ground truth, it will be treated as negative pair
+                                        (when you use :meth:`is_positive`, :meth:`is_negative`, :meth:`get_label`).
+                                        Defaults to False.
     """
     ID1 = 'id1'
     ID2 = 'id2'
     LABEL = 'label'
 
-    def __init__(self, filename: str = None):
+    def __init__(self, filename: str = None, negative_if_not_exists: bool = False):
         self._ground_truth_data = {}
         self._gt_id1s = set([])
         self._gt_id2s = set([])
+        self._negative_if_not_exists = negative_if_not_exists
 
         if filename:
             self.load(filename)
@@ -93,7 +97,14 @@ class GroundTruth(object):
         
         Returns:
             bool: True if positive, else negative
+
+        Raises:
+            KeyError: if pair is not in ground truth
         """
+        if not self.is_member(id1, id2):
+            if self._negative_if_not_exists:
+                return False
+            raise KeyError('Not in ground truth')
         key = self.encode_ids(id1, id2)
         return self._ground_truth_data.get(key)
 
@@ -111,8 +122,6 @@ class GroundTruth(object):
         Raises:
             KeyError: if pair is not in ground truth
         """
-        if not self.is_member(id1, id2):
-            raise KeyError('Not in ground truth')
         return self.get_label(id1, id2)
 
     def is_negative(self, id1: str, id2: str) -> bool:
@@ -129,8 +138,6 @@ class GroundTruth(object):
         Raises:
             KeyError: if pair is not in ground truth
         """
-        if not self.is_member(id1, id2):
-            raise KeyError('Not in ground truth')
         return not self.get_label(id1, id2)
 
     def load(self, filename: str):
@@ -140,7 +147,6 @@ class GroundTruth(object):
         Args:
             filename (str): loading path
         """
-        self.__init__()
         for obj in GroundTruthReader(filename):
             self._ground_truth_data[self.encode_ids(obj[self.ID1], obj[self.ID2])] = obj[self.LABEL] == 'True'
 
