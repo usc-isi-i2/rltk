@@ -1,6 +1,7 @@
 import sys
 
 
+#: Accept all default values without asking user
 SLIENTLY_ACCEPT_ALL_DEFAULT_VALUES = False
 
 
