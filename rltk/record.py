@@ -36,32 +36,46 @@ class Record(object):
         return self.id == other.id
 
 
-class cached_property(property):
+def get_decorators(cls):
+    import ast
+    import inspect
+
+    target = cls
+    decorators = {}
+
+    def visit_FunctionDef(node):
+        for n in node.decorator_list:
+            if isinstance(n, ast.Call):
+                name = n.func.attr if isinstance(n.func, ast.Attribute) else n.func.id
+            else:
+                name = n.attr if isinstance(n, ast.Attribute) else n.id
+
+            if name not in decorators:
+                decorators[name] = []
+            decorators[name].append(node.name)
+
+    node_iter = ast.NodeVisitor()
+    node_iter.visit_FunctionDef = visit_FunctionDef
+    node_iter.visit(ast.parse(inspect.getsource(target)))
+
+    return decorators
+
+
+def get_cached_property_names(cls):
+    return get_decorators(cls).get('cached_property')
+
+
+def cached_property(method):
     """
     Decorator.
     If a Record property is decorated, the final value of it will be pre-calculated.
     """
-    def __init__(self, func):
-        self.func = func
-
-    def __get__(self, obj, cls):
-        """
-        Args:
-            obj (object): Record instance
-            cls (class): Record class
-        Returns:
-            object: cached value
-        """
-        if obj is None:
-            return self
-
-        # create property if it's not there
-        cached_name = self.func.__name__
-        if cached_name not in obj.__dict__:
-            obj.__dict__[cached_name] = self.func(obj)
-
-        value = obj.__dict__.get(cached_name)
-        return value
+    def wrapper(record_instance):
+        cached_name = method.__name__
+        if cached_name not in record_instance.__dict__:
+            record_instance.__dict__[cached_name] = method(record_instance)
+        return record_instance.__dict__[cached_name]
+    return property(wrapper)
 
     def __reduce__(self):
         return cached_property.__new__, (cached_property,), {'func': self.func}
@@ -76,15 +90,16 @@ def remove_raw_object(cls):
     return cls
 
 
-def generate_record_property_cache(obj):
+def generate_record_property_cache(obj, cached_property_names=None):
     """
     Generate final value on all cached_property decorated methods.
     
     Args:
         obj (Record): Record instance.
+        cached_property_names (list): Properties that need to cache.
     """
-    for prop_name, prop_type in obj.__class__.__dict__.items():
-        if isinstance(prop_type, cached_property):
+    if cached_property_names:
+        for prop_name in cached_property_names:
             getattr(obj, prop_name)
 
     validate_record(obj)
@@ -121,7 +136,7 @@ def get_property_names(cls: type):
     """
     keys = []
     for prop_name, prop_type in cls.__dict__.items():
-        if not isinstance(prop_type, property) and not isinstance(prop_type, cached_property):
+        if not isinstance(prop_type, property):
             continue
         keys.append(prop_name)
     return keys
