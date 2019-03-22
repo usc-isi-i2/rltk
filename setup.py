@@ -4,7 +4,7 @@ from setuptools import find_packages
 with open('VERSION', 'r') as f:
     version = f.readline().strip()
 
-with open('README.rst', 'r') as fh:
+with open('README.rst', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
 with open('requirements.txt', 'r') as f:
