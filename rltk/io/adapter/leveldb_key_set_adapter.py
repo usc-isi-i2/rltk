@@ -5,7 +5,13 @@ from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.utils import module_importer
 
 
-plyvel = module_importer('plyvel', 'plyvel>=1.0.5')
+plyvel = module_importer('plyvel', 'plyvel>=1.0.5', '''
+If you are using Mac and installed LevelDB by HomeBrew, 
+please make sure that `plyvel` refers to correct library file while installing:
+
+    pip uninstall plyvel
+    CFLAGS='-mmacosx-version-min=10.7 -stdlib=libc++' pip install --no-cache-dir plyvel
+''')
 
 
 class LevelDbKeySetAdapter(KeySetAdapter):

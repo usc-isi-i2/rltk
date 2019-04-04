@@ -29,15 +29,6 @@ Generally, it's recommended to install packages in a virtual environment::
     source activate rltk_env
     pip install rltk
 
-.. note::
-
-    If you are using Mac and installed LevelDB by HomeBrew, please make sure that `plyvel` refers to correct library file while installing:
-
-    .. code-block:: bash
-
-        pip uninstall plyvel
-        CFLAGS='-mmacosx-version-min=10.7 -stdlib=libc++' pip install --no-cache-dir plyvel
-
 
 Install from source
 -------------------
