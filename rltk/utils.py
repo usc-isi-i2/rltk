@@ -59,6 +59,10 @@ def get_record_pairs(dataset1,
                 yield r1, r2
 
 
+class ModuleImportWarning(UserWarning):
+    pass
+
+
 def module_importer(module_names: str, dependencies: str, notes: str = None):
     if isinstance(dependencies, str):
         dependencies = [dependencies]
@@ -79,7 +83,7 @@ def module_importer(module_names: str, dependencies: str, notes: str = None):
                 warning_msg += notes
 
             warning_msg += '\n-----------------------------------'
-            warnings.warn(warning_msg)
+            warnings.warn(warning_msg, ModuleImportWarning)
             exit(500)
 
     return module
