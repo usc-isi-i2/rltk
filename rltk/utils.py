@@ -1,5 +1,5 @@
 import unicodedata
-import rltk.cli
+import warnings
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -67,16 +67,19 @@ def module_importer(module_names: str, dependencies: str, notes: str = None):
         try:
             return __import__(module_names)
         except ImportError:
-            rltk.cli.prompt('Import Dependencies Error')
+            warning_msg = '\n-----------------------------------\n'
+            warning_msg += '\nImport Dependencies Error\n'
 
             if len(dependencies) > 0:
-                rltk.cli.prompt('Please install dependencies:')
+                warning_msg += '\nPlease install dependencies:\n'
                 for d in dependencies:
-                    rltk.cli.prompt(d)
+                    warning_msg += d + '\n'
 
             if notes:
-                rltk.cli.prompt(notes)
+                warning_msg += notes
 
+            warning_msg += '\n-----------------------------------'
+            warnings.warn(warning_msg)
             exit(500)
 
     return module
