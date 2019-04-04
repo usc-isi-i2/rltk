@@ -1,5 +1,3 @@
-import redis
-
 from rltk.io.serializer import Serializer, PickleSerializer
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
 from rltk.utils import module_importer
