@@ -1,4 +1,5 @@
 import unicodedata
+import rltk.cli
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -56,3 +57,26 @@ def get_record_pairs(dataset1,
         for r1 in dataset1:
             for r2 in dataset2:
                 yield r1, r2
+
+
+def module_importer(module_names: str, dependencies: str, notes: str = None):
+    if isinstance(dependencies, str):
+        dependencies = [dependencies]
+
+    def module():
+        try:
+            return __import__(module_names)
+        except ImportError:
+            rltk.cli.prompt('Import Dependencies Error')
+
+            if len(dependencies) > 0:
+                rltk.cli.prompt('Please install dependencies:')
+                for d in dependencies:
+                    rltk.cli.prompt(d)
+
+            if notes:
+                rltk.cli.prompt(notes)
+
+            exit(500)
+
+    return module

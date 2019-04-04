@@ -2,6 +2,10 @@ import redis
 
 from rltk.io.serializer import Serializer, PickleSerializer
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
+from rltk.utils import module_importer
+
+
+redis = module_importer('redis', 'redis>=2.0.0')
 
 
 class RedisKeySetAdapter(KeySetAdapter):
@@ -20,7 +24,7 @@ class RedisKeySetAdapter(KeySetAdapter):
     def __init__(self, host, key_prefix: str = '', serializer: Serializer=None, clean: bool = False, **kwargs):
         if not serializer:
             serializer = PickleSerializer()
-        self._redis = redis.Redis(host=host, **kwargs)
+        self._redis = redis().Redis(host=host, **kwargs)
         self._serializer = serializer
         self._key_prefix = key_prefix
 

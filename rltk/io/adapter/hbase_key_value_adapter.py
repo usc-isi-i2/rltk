@@ -1,8 +1,10 @@
-import happybase
-
 from rltk.record import Record
 from rltk.io.adapter import KeyValueAdapter
 from rltk.io.serializer import Serializer, PickleSerializer
+from rltk.utils import module_importer
+
+
+happybase = module_importer('happybase', 'happybase>=1.1.0')
 
 
 class HBaseKeyValueAdapter(KeyValueAdapter):
@@ -34,7 +36,7 @@ class HBaseKeyValueAdapter(KeyValueAdapter):
     def __init__(self, host, table, serializer: Serializer = None, key_prefix: str = '', clean: bool = False, **kwargs):
         if not serializer:
             serializer = PickleSerializer()
-        self._conn = happybase.Connection(host=host, timeout=None, **kwargs)
+        self._conn = happybase().Connection(host=host, timeout=None, **kwargs)
         self._serializer = serializer
         self._key_prefix = key_prefix
         self._family_name = 'rltk'
@@ -52,6 +54,7 @@ class HBaseKeyValueAdapter(KeyValueAdapter):
     parallel_safe = True
 
     def _encode_key(self, key):
+        happybase.Connection('asd')
         return '{prefix}{key}'.format(prefix=self._key_prefix, key=key).encode('utf-8')
 
     def _decode_key(self, key):

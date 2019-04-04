@@ -1,8 +1,11 @@
 import os
-import plyvel
 
 from rltk.io.serializer import Serializer, PickleSerializer
 from rltk.io.adapter.key_set_adapter import KeySetAdapter
+from rltk.utils import module_importer
+
+
+plyvel = module_importer('plyvel', 'plyvel>=1.0.5')
 
 
 class LevelDbKeySetAdapter(KeySetAdapter):
@@ -36,7 +39,7 @@ class LevelDbKeySetAdapter(KeySetAdapter):
         if not self.__class__._db_instance:
             if not os.path.exists(path):
                 os.mkdir(path)
-            self.__class__._db_instance = plyvel.DB(path, create_if_missing=True, **kwargs)
+            self.__class__._db_instance = plyvel().DB(path, create_if_missing=True, **kwargs)
         self._db = self.__class__._db_instance
         self.__class__._db_ref_count += 1
 
