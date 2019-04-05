@@ -12,7 +12,5 @@ API Reference
    mod_io.rst
    mod_utils.rst
    mod_cli.rst
-   mod_parallel_processor.rst
-   mod_map_reduce.rst
    mod_remote.rst
 ..   mod_tokenizer.rst
