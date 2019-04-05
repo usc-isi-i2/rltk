@@ -6,6 +6,8 @@ from rltk.utils import module_importer
 
 
 plyvel = module_importer('plyvel', 'plyvel>=1.0.5', '''
+Please install LevelDB's system level package first: https://github.com/google/leveldb .
+
 If you are using Mac and installed LevelDB by HomeBrew, 
 please make sure that `plyvel` refers to correct library file while installing:
 

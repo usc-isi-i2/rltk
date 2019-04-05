@@ -5,12 +5,6 @@ Installation
 
     RLTK only supports Python 3 and it's tested under Python 3.5+.
 
-Prerequisites
--------------
-
-There are some system level packages need to be installed first.
-
-* `LevelDB <https://github.com/google/leveldb>`_
 
 pip
 ----
