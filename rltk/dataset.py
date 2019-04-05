@@ -1,10 +1,10 @@
 from rltk.io.reader import Reader
 from rltk.io.adapter import KeyValueAdapter, MemoryKeyValueAdapter
 from rltk.record import Record, generate_record_property_cache, get_property_names
-from rltk.parallel_processor import ParallelProcessor
 
 import pandas as pd
 from typing import Callable
+from pyrallel import ParallelProcessor
 
 
 class Dataset(object):
@@ -17,7 +17,7 @@ class Dataset(object):
         adapter (KeyValueAdapter, optional): Specify where to store indexed data. Defaults to :meth:`MemoryKeyValueAdapter`.
         size (int, optional): Same as `size` in :meth:`add_records` .
         pp_num_of_processor (int, optional): Same as `pp_num_of_processor` in :meth:`add_records` .
-        pp_max_size_per_input_queue (int, optional): Same as `pp_max_size_per_input_queue` in :meth:`add_records` .
+        pp_max_size_per_mapper_queue (int, optional): Same as `pp_max_size_per_mapper_queue` in :meth:`add_records` .
         sampling_function (callable, optional): Sampling function, `raw_object` is the only parameter. \
                                                 If it returns True, record instance will be created.
     Note:
@@ -31,7 +31,7 @@ class Dataset(object):
 
     def __init__(self, reader: Reader = None, record_class: type(Record) = None, adapter: KeyValueAdapter = None,
                  size: int = None, sampling_function: Callable = None,
-                 pp_num_of_processor: int = 0, pp_max_size_per_input_queue: int = 200):
+                 pp_num_of_processor: int = 0, pp_max_size_per_mapper_queue: int = 200):
         # load adapter and metadata if it's there
         self._adapter = adapter or MemoryKeyValueAdapter()
         metadata = self._adapter.get(self._METADATA_KEY)
@@ -53,10 +53,10 @@ class Dataset(object):
                 self._adapter.set(self._METADATA_KEY, metadata)
             # add data
             if reader:
-                self.add_records(reader, size, pp_num_of_processor, pp_max_size_per_input_queue)
+                self.add_records(reader, size, pp_num_of_processor, pp_max_size_per_mapper_queue)
 
     def add_records(self, reader: Reader, size: int = None,
-                    pp_num_of_processor: int = 0, pp_max_size_per_input_queue: int = 200):
+                    pp_num_of_processor: int = 0, pp_max_size_per_mapper_queue: int = 200):
         """
         Add `records` to :meth:`Dataset` from `reader` .
         
@@ -67,7 +67,7 @@ class Dataset(object):
             pp_num_of_processor (int, optional): Same as `num_of_processor` in :meth:`ParallelProcessor`. \ 
                             If non-zero is given and adapter is `parallel_safe`, \
                             this method will run in parallel mode. Defaults to 0.
-            pp_max_size_per_input_queue (int, optional): Same as `max_size_per_input_queue` in \
+            pp_max_size_per_mapper_queue(int, optional): Same as `max_size_per_mapper_queue` in \
                                     :meth:`ParallelProcessor`. Defaults to 200.
         """
 
@@ -91,12 +91,12 @@ class Dataset(object):
                         break
         # parallel
         else:
-            pp = ParallelProcessor(input_handler=generate, num_of_processor=pp_num_of_processor,
-                                   max_size_per_input_queue=pp_max_size_per_input_queue)
+            pp = ParallelProcessor(num_of_processor=pp_num_of_processor, mapper=generate,
+                                   max_size_per_mapper_queue=pp_max_size_per_mapper_queue)
             pp.start()
             for raw_object in reader:
                 if not self._sampling_function or self._sampling_function(raw_object):
-                    pp.compute(raw_object)
+                    pp.add_task(raw_object)
                     curr_size += 1
                     if size and curr_size >= size:
                         break

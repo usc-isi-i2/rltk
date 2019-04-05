@@ -5,3 +5,4 @@ matplotlib>=2.0.0
 pandas>=0.20.0
 dask>=0.19.2
 distributed>=1.23
+pyrallel.lib
