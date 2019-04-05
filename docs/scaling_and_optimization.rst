@@ -11,10 +11,12 @@ Some of the methods have optional / required arguments about buffer size, chunk 
 Parallel processing
 -------------------
 
+Here you need to use a package called `pyrallel <https://github.com/usc-isi-i2/pyrallel>`_.
+
 General parallel processing
 ```````````````````````````
 
-If you have some compute-intensive procedures and your machine has more than one CPU core, `rltk.ParallelProcessor` is a tool to try. You can find more detailed information in API documentation :doc:`mod_parallel_processor`, but in general, it encapsulates multiprocessing to do parallel computing and multithreading to do data collecting.
+If you have some compute-intensive procedures and your machine has more than one CPU core, `pyrallel.ParallelProcessor` is a tool to try. You can find more detailed information in its API documentation, but in general, it encapsulates multiprocessing to do parallel computing and multithreading to do data collecting.
 
 .. code-block:: python
 
@@ -26,11 +28,11 @@ If you have some compute-intensive procedures and your machine has more than one
     def output_handler(r1, r2):
         result.append(r1 if r1 > r2 else r2)
 
-    pp = rltk.ParallelProcessor(heavy_calculation, 8, output_handler=output_handler)
+    pp = pyrallel.ParallelProcessor(8, mapper=heavy_calculation, collector=output_handler)
     pp.start()
 
     for i in range(8):
-        pp.compute(i, i + 1)
+        pp.add_task(i, i + 1)
 
     pp.task_done()
     pp.join()
@@ -41,7 +43,7 @@ If you have some compute-intensive procedures and your machine has more than one
 MapReduce
 `````````
 
-The above solution uses one thread (in main process) for collecting calculated data. If you want to do something like divide and conquer, especially when "conquer" needs heavy calculation, you may need `rltk.MapReduce` module. Detailed documentation can be found :doc:`mod_map_reduce`.
+The above solution uses one thread (in main process) for collecting calculated data. If you want to do something like divide and conquer, especially when "conquer" needs heavy calculation, you may need `pyrallel.MapReduce` module.
 
 .. code-block:: python
 
@@ -52,9 +54,11 @@ The above solution uses one thread (in main process) for collecting calculated d
     def reducer(r1, r2):
         return r1 + r2
 
-    mr = rltk.MapReduce(8, mapper, reducer)
+    mr = pyrallel.MapReduce(8, mapper, reducer)
     for i in range(10000):
         mr.add_task(i)
+
+    mr.task_done()
     result = mr.join()
     print(result)
 
@@ -81,7 +85,7 @@ Then on worker machines, do
 
     python -m rltk remote.worker <scheduler ip>:8786 --nprocs <processors>
 
-Second, change a bit of your code and run it. The API for distributed computing is really like `rltk.ParallelProcessor`. But you need a `rltk.remote.Remote` object which connects to the scheduler and an instance of `rltk.remote.Task` which has a input and a output handler.
+Second, change a bit of your code and run it. The API for distributed computing is really like `pyrallel.ParallelProcessor`. But you need a `rltk.remote.Remote` object which connects to the scheduler and an instance of `rltk.remote.Task` which has a input and a output handler.
 
 .. code-block:: python
 
