@@ -12,7 +12,7 @@ class BlockGenerator(object):
     """
 
     def block(self, dataset: 'Dataset', function_: Callable = None, property_: str = None,
-              block: Block = None, block_black_list: BlockBlackList = None):
+              block: Block = None, block_black_list: BlockBlackList = None, base_on: Block = None):
         """
         Block on property or by function for dataset.
         
@@ -22,6 +22,7 @@ class BlockGenerator(object):
             property_ (str): The property in Record object.
             block (Block): Where to write blocks. If None, a new block will be created. Defaults to None.
             block_black_list (BlockBlackList, optional): Where all blacklisted blocks are stored. Defaults to None.
+            base_on (Block, optional): Current block is generated base on this block. Defaults to None.
                                     
         Returns:
             Block: 

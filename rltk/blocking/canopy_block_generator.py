@@ -28,21 +28,39 @@ class CanopyBlockGenerator(BlockGenerator):
         self._distance_metric = distance_metric
 
     def block(self, dataset, function_: Callable = None, property_: str = None,
-              block: Block = None, block_black_list: BlockBlackList = None):
+              block: Block = None, block_black_list: BlockBlackList = None, base_on: Block = None):
         """
         The return of `property_` or `function_` should be a vector (list).
         """
         block = super()._block_args_check(function_, property_, block)
-        for r in dataset:
-            value = function_(r) if function_ else getattr(r, property_)
-            k = self._encode_key(value)
-            if block_black_list and block_black_list.has(k):
-                continue
-            if not isinstance(value, list):
-                raise ValueError('Return of the function or property should be a vector (list)')
-            block.add(k, dataset.id, r.id)
-            if block_black_list:
-                block_black_list.add(k, block)
+
+        if base_on:
+            for block_id, dataset_id, record_id in base_on:
+                if dataset.id == dataset_id:
+                    r = dataset.get_record(record_id)
+                    value = function_(r) if function_ else getattr(r, property_)
+                    if not isinstance(value, list):
+                        raise ValueError('Return of the function or property should be a vector (list)')
+                    value = block_id + value
+                    k = self._encode_key(value)
+                    if block_black_list and block_black_list.has(k):
+                        continue
+                    block.add(k, dataset.id, r.id)
+                    if block_black_list:
+                        block_black_list.add(k, block)
+
+        else:
+            for r in dataset:
+                value = function_(r) if function_ else getattr(r, property_)
+                if not isinstance(value, list):
+                    raise ValueError('Return of the function or property should be a vector (list)')
+                k = self._encode_key(value)
+                if block_black_list and block_black_list.has(k):
+                    continue
+                block.add(k, dataset.id, r.id)
+                if block_black_list:
+                    block_black_list.add(k, block)
+
         return block
 
     @staticmethod
