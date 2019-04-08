@@ -31,7 +31,7 @@ class TokenBlockGenerator(BlockGenerator):
                             raise ValueError('Elements in return list should be string')
                         if block_black_list and block_black_list.has(v):
                             continue
-                        v = block_id + v
+                        v = block_id + '-' + v
                         block.add(v, dataset.id, r.id)
                         if block_black_list:
                             block_black_list.add(v, block)

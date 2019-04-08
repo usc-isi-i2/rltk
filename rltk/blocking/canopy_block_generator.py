@@ -41,7 +41,7 @@ class CanopyBlockGenerator(BlockGenerator):
                     value = function_(r) if function_ else getattr(r, property_)
                     if not isinstance(value, list):
                         raise ValueError('Return of the function or property should be a vector (list)')
-                    value = block_id + value
+                    value = block_id + '-' + value
                     k = self._encode_key(value)
                     if block_black_list and block_black_list.has(k):
                         continue
