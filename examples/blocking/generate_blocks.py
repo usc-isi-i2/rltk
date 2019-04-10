@@ -69,4 +69,4 @@ for r1, r2 in pairs:
     print(r1.id, r1.first_name, '\t', r2.id, r2.first_name)
 print('inside blocks:')
 for b, d, r in block3:
-    print(b, d ,r)
+    print(b, d, r)
