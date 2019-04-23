@@ -30,33 +30,57 @@ def convert_list_to_set(s):
     return s
 
 
-def get_record_pairs(dataset1,
-                     dataset2,
+def get_record_pairs(dataset1: 'Dataset',
+                     dataset2: 'Dataset' = None,
                      block: 'Block' = None,
                      ground_truth: 'GroundTruth' = None):
     """
     Generate pairs to compare.
 
     Args:
-        dataset1 (Dataset): dataset 1
-        dataset2 (Dataset): dataset 2
-        block (Block, optional): block 
-        ground_truth (GroundTruth, optional): ground truth
+        dataset1 (Dataset): dataset 1.
+        dataset2 (Dataset, optional): dataset 2. If it's not provided, it will be a de-duplication task.
+        block (Block, optional): Block.
+        ground_truth (GroundTruth, optional): Ground truth.
     """
     if block and not ground_truth:
-        for _, id1, id2 in block.pairwise(dataset1.id, dataset2.id):
-            yield dataset1.get_record(id1), dataset2.get_record(id2)
-    elif ground_truth and not block:
-        for id1, id2, label in ground_truth:
-            yield dataset1.get_record(id1), dataset2.get_record(id2)
-    elif ground_truth and block:
-        for _, id1, id2 in block.pairwise(dataset1.id, dataset2.id):
-            if ground_truth.is_member(id1, id2):
+        if not dataset2:
+            for _, id1, id2 in block.pairwise(dataset1.id):
+                yield dataset1.get_record(id1), dataset1.get_record(id2)
+        else:
+            for _, id1, id2 in block.pairwise(dataset1.id, dataset2.id):
                 yield dataset1.get_record(id1), dataset2.get_record(id2)
+    elif ground_truth and not block:
+        if not dataset2:
+            for id1, id2, label in ground_truth:
+                yield dataset1.get_record(id1), dataset1.get_record(id2)
+        else:
+            for id1, id2, label in ground_truth:
+                yield dataset1.get_record(id1), dataset2.get_record(id2)
+    elif ground_truth and block:
+        if not dataset2:
+            for _, id1, id2 in block.pairwise(dataset1.id):
+                if ground_truth.is_member(id1, id2):
+                    yield dataset1.get_record(id1), dataset1.get_record(id2)
+        else:
+            for _, id1, id2 in block.pairwise(dataset1.id, dataset2.id):
+                if ground_truth.is_member(id1, id2):
+                    yield dataset1.get_record(id1), dataset2.get_record(id2)
     else:
-        for r1 in dataset1:
-            for r2 in dataset2:
-                yield r1, r2
+        if not dataset2:
+            skip_offset = 0
+            for r1 in dataset1:
+                for offset, r2 in enumerate(dataset1):
+                    if offset < skip_offset:
+                        continue
+                    if r1.id == r2.id:
+                        continue
+                    yield r1, r2
+                skip_offset += 1
+        else:
+            for r1 in dataset1:
+                for r2 in dataset2:
+                    yield r1, r2
 
 
 class ModuleImportWarning(UserWarning):

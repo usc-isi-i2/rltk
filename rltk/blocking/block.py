@@ -97,4 +97,4 @@ class Block(object):
 
                 # combinations of two elements
                 for ds1, ds1_ in itertools.combinations(ds1, 2):
-                    yield ds1, ds1_
+                    yield block_id, ds1, ds1_
