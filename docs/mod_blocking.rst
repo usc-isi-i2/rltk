@@ -36,6 +36,11 @@ Block Generator
     :special-members:
     :exclude-members: __dict__, __weakref__, __init__
 
+.. automodule:: rltk.blocking.sorted_neighbourhood_block_generator
+    :members:
+    :special-members:
+    :exclude-members: __dict__, __weakref__, __init__
+
 .. automodule:: rltk.blocking.canopy_block_generator
     :members:
     :special-members:

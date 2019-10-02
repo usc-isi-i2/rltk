@@ -16,6 +16,7 @@ class SortedNeighbourhoodBlockGenerator(BlockGenerator):
                             The signature is `comparator(t1: str, t2: str) -> int`.
                             If return is 0, t1 equals t2; if return is -1, t1 is less than t2;
                             if return is 1, t1 is greater than t2.
+                            Defaults to None, which uses Python's default string comparison.
         block_id_prefix (str): The block id prefix of each block.
     """
     def __init__(self, window_size: int = 3, comparator: Callable = None, block_id_prefix='sorted_neighbourhood_'):
