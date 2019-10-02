@@ -11,13 +11,14 @@ class SortedNeighbourhoodBlockGenerator(BlockGenerator):
     Sorted Neighbourhood Blocker.
     
     Args:
-        window_size (int): Window size.
-        comparator (Callable): Define how to compare two tokens t1 and t2.
+        window_size (int, optional): Window size. Defaults to 3.
+        comparator (Callable, optional): Define how to compare two tokens t1 and t2.
                             The signature is `comparator(t1: str, t2: str) -> int`.
                             If return is 0, t1 equals t2; if return is -1, t1 is less than t2;
                             if return is 1, t1 is greater than t2.
                             Defaults to None, which uses Python's default string comparison.
-        block_id_prefix (str): The block id prefix of each block.
+        block_id_prefix (str, optional): The block id prefix of each block.
+                                        Defaults to "sorted_neighbourhood_".
     """
     def __init__(self, window_size: int = 3, comparator: Callable = None, block_id_prefix='sorted_neighbourhood_'):
         if comparator is None:
