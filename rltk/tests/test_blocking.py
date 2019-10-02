@@ -7,6 +7,7 @@ from rltk.blocking.block_black_list import BlockBlackList
 from rltk.blocking.hash_block_generator import HashBlockGenerator
 from rltk.blocking.token_block_generator import TokenBlockGenerator
 from rltk.blocking.canopy_block_generator import CanopyBlockGenerator
+from rltk.blocking.sorted_neighbourhood_block_generator import SortedNeighbourhoodBlockGenerator
 
 
 class ConcreteRecord(Record):
@@ -81,3 +82,51 @@ def test_canopy_block_generator():
     output_block = bg.generate(block, block)
     for k, _ in output_block.key_set_adapter:
         assert k in ('[1]', '[2]', '[0]', '[15]')
+
+
+def test_sorted_neighbourhood_block_generator():
+    class SNConcreteRecord1(Record):
+        @property
+        def id(self):
+            return self.raw_object['id']
+
+        @property
+        def char(self):
+            return self.raw_object['char']
+
+    class SNConcreteRecord2(SNConcreteRecord1):
+        pass
+
+    sn_raw_data_1 = [
+        {'id': '11', 'char': 'a'},
+        {'id': '12', 'char': 'd'},
+        {'id': '13', 'char': 'c'},
+        {'id': '14', 'char': 'e'},
+    ]
+
+    sn_raw_data_2 = [
+        {'id': '21', 'char': 'b'},
+        {'id': '22', 'char': 'a'},
+        {'id': '23', 'char': 'e'},
+        {'id': '24', 'char': 'f'},
+    ]
+
+    ds1 = Dataset(reader=ArrayReader(sn_raw_data_1), record_class=SNConcreteRecord1)
+    ds2 = Dataset(reader=ArrayReader(sn_raw_data_2), record_class=SNConcreteRecord2)
+
+    bg = SortedNeighbourhoodBlockGenerator(window_size=3)
+    block = bg.generate(
+        bg.block(ds1, property_='char'),
+        bg.block(ds2, property_='char')
+    )
+
+    for block_id, set_ in block.key_set_adapter:
+        block_data = []
+        for did, rid in set_:
+            if did == ds1.id:
+                block_data.append(ds1.get_record(rid).char)
+            else:
+                block_data.append(ds2.get_record(rid).char)
+        block_data.sort()
+        for i in range(len(block_data) - 1):
+            assert block_data[i] <= block_data[i+1]  # should be less than or equal to previous char
