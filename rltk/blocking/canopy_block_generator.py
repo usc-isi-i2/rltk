@@ -35,19 +35,20 @@ class CanopyBlockGenerator(BlockGenerator):
         block = super()._block_args_check(function_, property_, block)
 
         if base_on:
-            for block_id, dataset_id, record_id in base_on:
-                if dataset.id == dataset_id:
-                    r = dataset.get_record(record_id)
-                    value = function_(r) if function_ else getattr(r, property_)
-                    if not isinstance(value, list):
-                        raise ValueError('Return of the function or property should be a vector (list)')
-                    value = block_id + '-' + value
-                    k = self._encode_key(value)
-                    if block_black_list and block_black_list.has(k):
-                        continue
-                    block.add(k, dataset.id, r.id)
-                    if block_black_list:
-                        block_black_list.add(k, block)
+            raise Exception('Canopy currently doesn\'t support `base_on`')
+            # for block_id, dataset_id, record_id in base_on:
+            #     if dataset.id == dataset_id:
+            #         r = dataset.get_record(record_id)
+            #         value = function_(r) if function_ else getattr(r, property_)
+            #         if not isinstance(value, list):
+            #             raise ValueError('Return of the function or property should be a vector (list)')
+            #         value = block_id + '-' + value
+            #         k = self._encode_key(value)
+            #         if block_black_list and block_black_list.has(k):
+            #             continue
+            #         block.add(k, dataset.id, r.id)
+            #         if block_black_list:
+            #             block_black_list.add(k, block)
 
         else:
             for r in dataset:
@@ -65,11 +66,11 @@ class CanopyBlockGenerator(BlockGenerator):
 
     @staticmethod
     def _encode_key(obj):
-        return json.dumps(obj)
+        return str(obj)
 
     @staticmethod
     def _decode_key(str_):
-        return json.loads(str_)
+        return eval(str_)
 
     def generate(self, block1: Block, block2: Block, output_block: Block = None):
         output_block = BlockGenerator._generate_args_check(output_block)
