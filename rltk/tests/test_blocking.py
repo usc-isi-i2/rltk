@@ -1,4 +1,5 @@
 import pytest
+import random
 
 from rltk.record import Record
 from rltk.dataset import Dataset
@@ -77,12 +78,19 @@ def test_token_block_generator():
 
 
 def test_canopy_block_generator():
+    random.seed(0)
     bg = CanopyBlockGenerator(t1=5, t2=1, distance_metric=lambda x, y: abs(x[0] - y[0]))
     block = bg.block(ds, function_=lambda r: [ord(r.name[0].lower()) - 0x61])
     output_block = bg.generate(block, block)
-    for k, _ in output_block.key_set_adapter:
-        assert k in ('[1]', '[2]', '[0]', '[15]')
-
+    result = [
+        ['4', '5'],
+        ['1', '2', '3', '6'],
+        ['2', '6'],
+        ['6']
+    ]
+    for k, v in output_block.key_set_adapter:
+        ids = [r[1] for r in v]
+        assert sorted(ids) == sorted(result[k]) 
 
 def test_sorted_neighbourhood_block_generator():
     class SNConcreteRecord1(Record):

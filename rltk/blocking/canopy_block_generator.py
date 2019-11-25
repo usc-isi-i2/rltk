@@ -82,17 +82,17 @@ class CanopyBlockGenerator(BlockGenerator):
 
         clusters = self._run_canopy_clustering(dataset, self._t1, self._t2, self._distance_metric)
 
-        for c in clusters:
+        for cid, c in enumerate(clusters):
             for vec in c:
                 key = self._encode_key(vec)
                 set_ = block1.get(key)
                 if set_:
                     for ds_id, rid in set_:
-                        output_block.add(key, ds_id, rid)
+                        output_block.add(cid, ds_id, rid)
                 set_ = block2.get(key)
                 if set_:
                     for ds_id, rid in set_:
-                        output_block.add(key, ds_id, rid)
+                        output_block.add(cid, ds_id, rid)
         return output_block
 
     @staticmethod
