@@ -237,7 +237,7 @@ class Trial(object):
             is_positive (bool): if the prediction of these two records is pair
             confidence (float): the probability of positive
         """
-        if confidence >= self._min_confidence and self._ground_truth.is_member(record1.id, record2.id):
+        if confidence >= self._min_confidence and (self._ground_truth.get_label(record1.id, record2.id) is not None):
             if self._top_k == 0 or len(self._results) < self._top_k:
                 cur = self.Result(record1, record2, is_positive, confidence, **kwargs)
                 heapq.heappush(self._results, cur)

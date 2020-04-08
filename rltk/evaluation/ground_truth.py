@@ -83,6 +83,9 @@ class GroundTruth(object):
 
         Returns:
             bool:
+
+        Note:
+            This method is not impacted by `negative_if_not_exists`.
         """
         key = self.encode_ids(id1, id2)
         return key in self._ground_truth_data
