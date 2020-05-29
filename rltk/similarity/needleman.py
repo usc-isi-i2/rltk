@@ -5,7 +5,7 @@ def _get_score(c1, c2, match, mismatch, score_table):
     """
     if there's no score found in score_table, match & mismatch will be used.
     """
-    if c1 in score_table and c2 in score_table[c1]:
+    if score_table and c1 in score_table and c2 in score_table[c1]:
         return score_table[c1][c2]
     else:
         return match if c1 == c2 else mismatch
