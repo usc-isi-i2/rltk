@@ -93,6 +93,7 @@ html_theme = 'alabaster' # default, alabaster, pyramid, bizstyle
 # documentation.
 #
 html_theme_options = {
+    'logo': 'logo.png',
     'page_width': '1380px',
     'sidebar_width': '220px',
     'github_user': 'usc-isi-i2',
