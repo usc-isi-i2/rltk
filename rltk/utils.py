@@ -30,12 +30,12 @@ def convert_list_to_set(s):
     return s
 
 
-def get_record_pairs(dataset1: 'Dataset',
+def candidate_pairs(dataset1: 'Dataset',
                      dataset2: 'Dataset' = None,
                      block: 'Block' = None,
                      ground_truth: 'GroundTruth' = None):
     """
-    Generate pairs to compare.
+    Generate candidate pairs to compare.
 
     Args:
         dataset1 (Dataset): dataset 1.
@@ -81,6 +81,9 @@ def get_record_pairs(dataset1: 'Dataset',
             for r1 in dataset1:
                 for r2 in dataset2:
                     yield r1, r2
+
+
+get_record_pairs = candidate_pairs
 
 
 class ModuleImportWarning(UserWarning):

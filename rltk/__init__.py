@@ -6,6 +6,6 @@ from rltk.similarity import *
 from rltk.blocking import *
 from rltk.tokenizer import *
 from rltk.evaluation import *
-from rltk.utils import get_record_pairs
+from rltk.utils import candidate_pairs, get_record_pairs
 import rltk.cli
 import rltk.remote
