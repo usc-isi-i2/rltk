@@ -358,15 +358,15 @@ result = t.tokenize(value).join(" ")
 
 
 class NGramTokenizer(CrfTokenizer):
-    place_holder = '#'
 
     def __init__(self):
         CrfTokenizer.__init__(self)
         self.token_string = ""
+        self.place_holder = ' '
         # self.ngrams = set()
 
     def transform(self, token_list):
-        self.token_string = NGramTokenizer.place_holder.join(token_list)
+        self.token_string = self.place_holder.join(token_list)
 
     def basic(self, input_string, q):
         ngrams = set()
@@ -390,7 +390,7 @@ class NGramTokenizer(CrfTokenizer):
         ngrams = set()
         token_list = CrfTokenizer.tokenize(self, input_string)
         self.transform(token_list)
-        self.token_string = NGramTokenizer.place_holder * (q - 1) + self.token_string + NGramTokenizer.place_holder * (
+        self.token_string = self.place_holder * (q - 1) + self.token_string + self.place_holder * (
         q - 1)
         last_pos = len(self.token_string) - q + 1
         for i in range(last_pos):
