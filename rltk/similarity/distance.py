@@ -27,6 +27,13 @@ def euclidean_distance(vec1, vec2, weights=None):
     return euclidean(vec1, vec2, weights)
 
 
+def euclidean_similarity(vec1, vec2, weights=None):
+    """
+    Computed as 1 / (1 + euclidean_distance)
+    """
+    return 1.0 / (1.0 + float(euclidean_distance(vec1, vec2, weights)))
+
+
 def manhattan_distance(vec1, vec2, weights=None):
     """
     Manhattan distance.
@@ -47,3 +54,10 @@ def manhattan_distance(vec1, vec2, weights=None):
         raise ValueError('vec1 and vec2 should have same length')
 
     return cityblock(vec1, vec2, weights)
+
+
+def manhattan_similarity(vec1, vec2, weights=None):
+    """
+    Computed as 1 / (1 + manhattan_distance)
+    """
+    return 1.0 / (1.0 + manhattan_distance(vec1, vec2, weights))

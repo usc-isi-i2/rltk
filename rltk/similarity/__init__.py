@@ -1,5 +1,6 @@
-# distance
-from rltk.similarity.distance import euclidean_distance, manhattan_distance
+# common distance
+from rltk.similarity.distance import euclidean_distance, euclidean_similarity, \
+    manhattan_distance, manhattan_similarity
 
 # normal
 from rltk.similarity.equal import string_equal, number_equal
