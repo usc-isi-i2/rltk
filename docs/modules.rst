@@ -13,4 +13,4 @@ API Reference
    mod_utils.rst
    mod_cli.rst
    mod_remote.rst
-..   mod_tokenizer.rst
+   mod_tokenizer.rst
