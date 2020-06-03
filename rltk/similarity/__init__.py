@@ -6,7 +6,8 @@ from rltk.similarity.equal import string_equal, number_equal
 from rltk.similarity.hamming import hamming_distance, hamming_similarity, normalized_hamming_distance
 from rltk.similarity.dice import dice_similarity
 from rltk.similarity.levenshtein import levenshtein_distance, levenshtein_similarity, \
-    normalized_levenshtein_distance, damerau_levenshtein_distance, optimal_string_alignment_distance
+    damerau_levenshtein_distance, damerau_levenshtein_similarity, \
+    optimal_string_alignment_distance, optimal_string_alignment_similarity
 from rltk.similarity.needleman import needleman_wunsch_score, needleman_wunsch_similarity
 from rltk.similarity.jaro import jaro_winkler_distance, jaro_winkler_similarity, jaro_distance
 from rltk.similarity.jaccard import jaccard_index_similarity, jaccard_index_distance
