@@ -1,10 +1,15 @@
 from distutils.core import setup
 from setuptools import find_packages
-from rltk import __version__
 
 
-with open('README.rst', 'r', encoding='utf-8') as fh:
-    long_description = fh.read()
+with open('rltk/__init__.py', 'r') as f:
+    for line in f:
+        if line.startswith('__version__'):
+            exec(line)  # fetch and create __version__
+            break
+
+with open('README.rst', 'r', encoding='utf-8') as f:
+    long_description = f.read()
 
 with open('requirements.txt', 'r') as f:
     install_requires = list()
