@@ -10,6 +10,10 @@ RLTK: Record Linkage ToolKit
     :target: https://github.com/usc-isi-i2/rltk/actions
     :alt: Github actions
 
+.. image:: https://coveralls.io/repos/github/usc-isi-i2/rltk/badge.svg?branch=master
+    :target: https://coveralls.io/github/usc-isi-i2/rltk?branch=master
+    :alt: Coveralls
+
 .. image:: https://badge.fury.io/py/rltk.svg
     :target: https://badge.fury.io/py/rltk
     :alt: pypi
