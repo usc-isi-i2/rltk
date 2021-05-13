@@ -6,9 +6,9 @@ RLTK: Record Linkage ToolKit
     :target: https://raw.githubusercontent.com/usc-isi-i2/rltk/master/LICENSE
     :alt: License
 
-.. image:: https://api.travis-ci.org/usc-isi-i2/rltk.svg?branch=master
-    :target: https://travis-ci.org/usc-isi-i2/rltk
-    :alt: Travis
+.. image:: https://github.com/usc-isi-i2/rltk/workflows/Tests/badge.svg?branch=master
+    :target: https://github.com/usc-isi-i2/rltk/actions
+    :alt: Github actions
 
 .. image:: https://badge.fury.io/py/rltk.svg
     :target: https://badge.fury.io/py/rltk
