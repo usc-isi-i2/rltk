@@ -56,7 +56,12 @@ author = 'USC/ISI'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-rltk_version = open('../VERSION').readline().strip()
+with open('../rltk/__init__.py', 'r') as f:
+    for line in f:
+        if line.startswith('__version__'):
+            exec(line)  # fetch and create __version__
+            break
+rltk_version = __version__
 # The short X.Y version.
 version = '.'.join(rltk_version.split('.')[:2])
 # The full version, including alpha/beta/rc tags.
