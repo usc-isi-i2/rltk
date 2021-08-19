@@ -56,7 +56,7 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
     return float(score_sum) / float(len(set1) + len(set2) - matching_count)
 
 
-def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None):
+def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None, lower_bound=None):
     """
     Monge Elkan similarity.
 
@@ -67,9 +67,16 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
             It should return the value in range [0,1]. If it is set to None, \
             `jaro_winlker_similarity` will be used.
         parameters (dict, optional): Other parameters of function. Defaults to None.
+        lower_bound (float): This is for early exit. If the similarity is not possible to satisfy this value, \
+            the function returns immediately with the return value 0.0. Defaults to None.
 
     Returns:
         float: Monge Elkan similarity.
+
+    Note:
+        The order of bag1 and bag2 matters. \
+            Alternatively, `symmetric_monge_elkan_similarity` is not sensitive to the order.
+        If the `lower_bound` is set, the early exit condition is more easy to be triggered if bag1 has bigger size.
     """
 
     utils.check_for_none(bag1, bag2)
@@ -77,15 +84,18 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
 
     parameters = parameters if isinstance(parameters, dict) else {}
 
-    if len(bag1) == 0:
-        return 0.0
-
     score_sum = 0
-    for ele1 in bag1:
+    for idx, ele1 in enumerate(bag1):
         max_score = MIN_FLOAT
         for ele2 in bag2:
             max_score = max(max_score, function(ele1, ele2, **parameters))
         score_sum += max_score
+
+        # if it satisfies early exit condition
+        if lower_bound:
+            rest_max = len(bag1) - 1 - idx  # assume the rest scores are all 1
+            if float(score_sum + rest_max) / float(len(bag1)) < lower_bound:
+                return 0.0
 
     return float(score_sum) / float(len(bag1))
 

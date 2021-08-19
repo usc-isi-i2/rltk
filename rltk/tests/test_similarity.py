@@ -390,16 +390,18 @@ def test_hybrid_jaccard_similarity():
                          0.001) == 0.5333
 
 
-@pytest.mark.parametrize('bag1, bag2, similarity', [
-    (['paul', 'johnson'], ['johson', 'paule'], 0.944),
-    (['Niall'], ['Neal'], 0.805)
+@pytest.mark.parametrize('bag1, bag2, similarity, lower_bound', [
+    (['paul', 'johnson'], ['johson', 'paule'], 0.944, None),
+    (['Niall'], ['Neal'], 0.805, None),
+    (['a', 'c', 'd'], ['a', 'b'], 1.0/3, 0.2),  # 0.333
+    (['a', 'c', 'd'], ['a', 'b'], 0.0, 0.8),  # 0.333->0
 ])
-def test_monge_elkan_similarity(bag1, bag2, similarity):
+def test_monge_elkan_similarity(bag1, bag2, similarity, lower_bound):
     if bag1 is None or bag2 is None:
         with pytest.raises(TypeError):
-            monge_elkan_similarity(bag1, bag2)
+            monge_elkan_similarity(bag1, bag2, lower_bound=lower_bound)
     else:
-        assert pytest.approx(monge_elkan_similarity(bag1, bag2), 0.001) == similarity
+        assert pytest.approx(monge_elkan_similarity(bag1, bag2, lower_bound=lower_bound), 0.001) == similarity
 
 
 @pytest.mark.parametrize('s, code', [

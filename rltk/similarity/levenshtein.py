@@ -77,7 +77,8 @@ def levenshtein_distance(s1, s2, insert=None, delete=None, substitute=None,
 
 
 def levenshtein_similarity(s1, s2, insert=None, delete=None, substitute=None,
-                                    insert_default=1, delete_default=1, substitute_default=1):
+                            insert_default=1, delete_default=1, substitute_default=1,
+                            lower_bound=None):
     """
     Computed as 1 - levenshtein_distance / max-cost(s1,s2)
     """
@@ -94,10 +95,24 @@ def levenshtein_similarity(s1, s2, insert=None, delete=None, substitute=None,
             ) for c in s
         ])
 
-    lev = levenshtein_distance(s1, s2, insert, delete, substitute,
-                               insert_default, delete_default, substitute_default)
+    def estimate_min_char_cost(s):
+        return min([min(
+                insert[c] if c in insert else insert_default,
+                delete[c] if c in delete else delete_default,
+                substitute[c] if c in substitute else substitute_default
+            ) for c in s])
 
     max_cost = max(compute_max_cost(s1), compute_max_cost(s2))
+
+    if lower_bound:
+        diff = abs(len(s1) - len(s2))
+        min_lev = float(diff * min(estimate_min_char_cost(s1), estimate_min_char_cost(s2)))
+        est_sim = 1.0 - min_lev / max_cost
+        if est_sim < lower_bound:
+            return 0.0
+
+    lev = levenshtein_distance(s1, s2, insert, delete, substitute,
+                               insert_default, delete_default, substitute_default)
 
     if max_cost < lev:
         raise ValueError('Illegal value of operation cost')
