@@ -102,6 +102,9 @@ def levenshtein_similarity(s1, s2, insert=None, delete=None, substitute=None,
                 substitute[c] if c in substitute else substitute_default
             ) for c in s])
 
+    utils.check_for_none(s1, s2)
+    utils.check_for_type(str, s1, s2)
+
     max_cost = max(compute_max_cost(s1), compute_max_cost(s2))
 
     if lower_bound:
