@@ -109,7 +109,14 @@ def levenshtein_similarity(s1, s2, insert=None, delete=None, substitute=None,
 
     if lower_bound:
         diff = abs(len(s1) - len(s2))
-        min_lev = float(diff * min(estimate_min_char_cost(s1), estimate_min_char_cost(s2)))
+        if len(s1) == 0 and len(s2) == 0:
+            return 1.0
+        elif len(s1) == 0:
+            min_lev = float(diff * estimate_min_char_cost(s2))
+        elif len(s2) == 0:
+            min_lev = float(diff * estimate_min_char_cost(s1))
+        else:
+            min_lev = float(diff * min(estimate_min_char_cost(s1), estimate_min_char_cost(s2)))
         est_sim = 1.0 - min_lev / max_cost
         if est_sim < lower_bound:
             return 0.0
@@ -123,7 +130,10 @@ def levenshtein_similarity(s1, s2, insert=None, delete=None, substitute=None,
     if max_cost == 0:
         return 1.0
 
-    return 1.0 - float(lev) / max_cost
+    lev_sim = 1.0 - float(lev) / max_cost
+    if lower_bound and lev_sim < lower_bound:
+        return 0.0
+    return lev_sim
 
 
 def damerau_levenshtein_distance(s1, s2):

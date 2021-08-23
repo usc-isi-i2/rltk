@@ -8,6 +8,10 @@ if TYPE_CHECKING:
     from rltk.evaluation.ground_truth import GroundTruth
 
 
+MAX_FLOAT = float('inf')
+MIN_FLOAT = float('-inf')
+
+
 def check_for_none(*args):
     for arg in args:
         if arg is None:
