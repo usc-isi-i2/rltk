@@ -2,8 +2,6 @@ from scipy.optimize import linear_sum_assignment
 import rltk.utils as utils
 from rltk.similarity.jaro import jaro_winkler_similarity
 
-MIN_FLOAT = float('-inf')
-
 
 def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_similarity,
                               parameters=None, lower_bound=None):
@@ -67,7 +65,10 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
 
     if len(set1) + len(set2) - total_num_matches == 0:
         return 1.0
-    return float(score_sum) / float(len(set1) + len(set2) - total_num_matches)
+    sim = float(score_sum) / float(len(set1) + len(set2) - total_num_matches)
+    if lower_bound and sim < lower_bound:
+        return 0.0
+    return sim
 
 
 def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None, lower_bound=None):
@@ -100,7 +101,7 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
 
     score_sum = 0
     for idx, ele1 in enumerate(bag1):
-        max_score = MIN_FLOAT
+        max_score = utils.MIN_FLOAT
         for ele2 in bag2:
             max_score = max(max_score, function(ele1, ele2, **parameters))
         score_sum += max_score
@@ -111,15 +112,18 @@ def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, paramet
             if float(score_sum + rest_max) / float(len(bag1)) < lower_bound:
                 return 0.0
 
-    return float(score_sum) / float(len(bag1))
+    sim = float(score_sum) / float(len(bag1))
+    if lower_bound and sim < lower_bound:
+        return 0.0
+    return sim
 
 
-def symmetric_monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None):
+def symmetric_monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None, lower_bound=None):
     """
     Symmetric Monge Elkan similarity is computed by \
     (monge_elkan_similarity(b1, b2) + monge_elkan_similarity(b2, b1)) / 2.
     """
 
-    s1 = monge_elkan_similarity(bag1, bag2, function, parameters)
-    s2 = monge_elkan_similarity(bag2, bag1, function, parameters)
+    s1 = monge_elkan_similarity(bag1, bag2, function, parameters, lower_bound=lower_bound)
+    s2 = monge_elkan_similarity(bag2, bag1, function, parameters, lower_bound=lower_bound)
     return (s1 + s2) / 2
