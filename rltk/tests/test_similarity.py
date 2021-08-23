@@ -372,7 +372,7 @@ def test_qgram_similarity(s1, s2, n, similarity):
 
 def test_hybrid_jaccard_similarity():
     # use a fixed test cases here only to test hybrid jaccard itself.
-    def test_function(m, n):
+    def test_function(n, m):
         if m == 'a' and n == 'p':
             return 0.7
         if m == 'a' and n == 'q':

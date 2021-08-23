@@ -5,7 +5,8 @@ from rltk.similarity.jaro import jaro_winkler_similarity
 MIN_FLOAT = float('-inf')
 
 
-def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_similarity, parameters=None):
+def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_similarity,
+                              parameters=None, lower_bound=None):
     """
     Generalized Jaccard Measure.
 
@@ -18,6 +19,8 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
             It should return the value in range [0,1]. If it is set to None, \
             `jaro_winlker_similarity` will be used.
         parameters (dict, optional): Other parameters of function. Defaults to None.
+        lower_bound (float): This is for early exit. If the similarity is not possible to satisfy this value, \
+            the function returns immediately with the return value 0.0. Defaults to None.
 
     Returns:
         float: Hybrid Jaccard similarity.
@@ -34,26 +37,37 @@ def hybrid_jaccard_similarity(set1, set2, threshold=0.5, function=jaro_winkler_s
 
     parameters = parameters if isinstance(parameters, dict) else {}
 
-    matching_score = []
-    for s1 in set1:
-        inner = []
-        for s2 in set2:
+    if len(set1) > len(set2):
+        set1, set2 = set2, set1
+    total_num_matches = len(set1)
+
+    matching_score = [[1.0] * len(set2) for _ in range(len(set1))]
+    row_max = [0.0] * len(set1)
+    for i, s1 in enumerate(set1):
+        for j, s2 in enumerate(set2):
             score = function(s1, s2, **parameters)
             if score < threshold:
                 score = 0.0
-            inner.append(1.0 - score)  # munkres finds out the smallest element
-        matching_score.append(inner)
+            row_max[i] = max(row_max[i], score)
+            matching_score[i][j] = 1.0 - score  # munkres finds out the smallest element
 
+        if lower_bound:
+            max_possible_score_sum = sum(row_max[:i+1] + [1] * (total_num_matches - i - 1))
+            max_possible = 1.0 * max_possible_score_sum / float(len(set1) + len(set2) - total_num_matches)
+            if max_possible < lower_bound:
+                return 0.0
+
+    # run munkres, finds the min score (max similarity) for each row
     row_idx, col_idx = linear_sum_assignment(matching_score)
 
-    score_sum, matching_count = 0.0, 0
+    # recover scores
+    score_sum = 0.0
     for r, c in zip(row_idx, col_idx):
-        matching_count += 1
-        score_sum += 1.0 - matching_score[r][c]  # go back to similarity
+        score_sum += 1.0 - matching_score[r][c]
 
-    if len(set1) + len(set2) - matching_count == 0:
+    if len(set1) + len(set2) - total_num_matches == 0:
         return 1.0
-    return float(score_sum) / float(len(set1) + len(set2) - matching_count)
+    return float(score_sum) / float(len(set1) + len(set2) - total_num_matches)
 
 
 def monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarity, parameters=None, lower_bound=None):
