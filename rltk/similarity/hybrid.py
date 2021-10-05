@@ -122,8 +122,23 @@ def symmetric_monge_elkan_similarity(bag1, bag2, function=jaro_winkler_similarit
     """
     Symmetric Monge Elkan similarity is computed by \
     (monge_elkan_similarity(b1, b2) + monge_elkan_similarity(b2, b1)) / 2.
+
+    Note:
+        This is a conservative implementation, `lower_bound` will not be \
+        passed into `monge_elkan_similarity` so that there is no benefit \
+        from early exit condition. \
     """
 
-    s1 = monge_elkan_similarity(bag1, bag2, function, parameters, lower_bound=lower_bound)
-    s2 = monge_elkan_similarity(bag2, bag1, function, parameters, lower_bound=lower_bound)
-    return (s1 + s2) / 2
+    # TODO:
+    # A workaround, which is more aggressive, 
+    # for `lower_bound` to trigger early exit condition is
+    # to compute the both `monge_elkan_similarity` with `lower_bound`,
+    # then if one half is greater than the `lower_bound` and the other half
+    # is 0, recompute the other half. This might end up with computing 3 times.
+
+    s1 = monge_elkan_similarity(bag1, bag2, function, parameters)
+    s2 = monge_elkan_similarity(bag2, bag1, function, parameters)
+    sim = (s1 + s2) / 2
+    if lower_bound and sim < lower_bound:
+        return 0.0
+    return sim
