@@ -404,6 +404,18 @@ def test_monge_elkan_similarity(bag1, bag2, similarity, lower_bound):
         assert pytest.approx(monge_elkan_similarity(bag1, bag2, lower_bound=lower_bound), 0.001) == similarity
 
 
+@pytest.mark.parametrize('bag1, bag2, similarity, lower_bound', [
+    (['a', 'd'], ['a'], 0.0, 0.6),  # (1.0+0.5->0)/2=(1+0)/2=0.5->0
+    (['a', 'd'], ['a'], 0.75, 0.4),  # (1.0+0.5)/2=0.75
+])
+def test_symmetric_monge_elkan_similarity(bag1, bag2, similarity, lower_bound):
+    if bag1 is None or bag2 is None:
+        with pytest.raises(TypeError):
+            symmetric_monge_elkan_similarity(bag1, bag2, lower_bound=lower_bound)
+    else:
+        assert pytest.approx(symmetric_monge_elkan_similarity(bag1, bag2, lower_bound=lower_bound), 0.001) == similarity
+
+
 @pytest.mark.parametrize('s, code', [
     ('Soundex', 'S532'),
     ('Example', 'E251'),
