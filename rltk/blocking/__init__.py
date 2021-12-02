@@ -6,6 +6,7 @@ from rltk.blocking.token_block_generator import TokenBlockGenerator
 from rltk.blocking.canopy_block_generator import CanopyBlockGenerator
 from rltk.blocking.sorted_neighbourhood_block_generator import SortedNeighbourhoodBlockGenerator
 from rltk.blocking.blocking_helper import BlockingHelper
+from rltk.blocking.block_utils import ngram, generate_minhash_blocking_keys
 
 Blocker = BlockGenerator
 HashBlocker = HashBlockGenerator
