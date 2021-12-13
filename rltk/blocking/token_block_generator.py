@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -13,7 +14,8 @@ class TokenBlockGenerator(BlockGenerator):
     """
 
     def block(self, dataset, function_: Callable = None, property_: str = None,
-              block: Block = None, block_black_list: BlockBlackList = None, base_on: Block = None):
+              block: Block = None, block_black_list: BlockBlackList = None, base_on: Block = None,
+              processes: int = 1, chunk_size: int = 100):
         """
         The return of `property_` or `function_` should be list or set.
         """
@@ -36,6 +38,19 @@ class TokenBlockGenerator(BlockGenerator):
                         if block_black_list:
                             block_black_list.add(v, block)
 
+        elif processes > 1 and function_:
+            with Pool(processes) as p:
+                for r, value in zip(dataset, p.imap(function_, dataset, chunk_size)):
+                    if not isinstance(value, list) and not isinstance(value, set):
+                        raise ValueError('Return of the function or property should be a list')
+                    for v in value:
+                        if not isinstance(v, str):
+                            raise ValueError('Elements in return list should be string')
+                        if block_black_list and block_black_list.has(v):
+                            continue
+                        block.add(v, dataset.id, r.id)
+                        if block_black_list:
+                            block_black_list.add(v, block)
         else:
             for r in dataset:
                 value = function_(r) if function_ else getattr(r, property_)

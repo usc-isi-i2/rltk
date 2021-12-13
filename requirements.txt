@@ -5,4 +5,5 @@ scipy>=1.1.0
 matplotlib>=2.0.0
 dask>=0.19.2
 distributed>=1.23
+datasketch>=1.5.3
 pyrallel.lib
